@@ -22,15 +22,15 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 
 <CardGrid grid>
 	<Card title="⚡ Fast PRNG (FastRand)" icon="rocket">
-		Non-blocking Xorshift64 pseudo-random number generator for high-throughput grid generation and zero-mutex contention shuffling.
+		Non-blocking Xorshift64 pseudo-random generator. Learn more in the [Architecture Guide](/undoku/guides/architecture/).
 	</Card>
 	<Card title="🧩 Logical Carving Engine" icon="puzzle">
-		Guarantees 100% logical solvability without guessing. Step-by-step backtrack search ensures clean deduction paths.
+		Guarantees 100% logical solvability. Learn more in the [Solver Guide](/undoku/guides/solver/).
 	</Card>
 	<Card title="📊 Elimination Metrics & Difficulty" icon="document">
-		Tracks candidate elimination reasons (`cross-horizontal`, `cross-vertical`, `impossible 3x3 square`) and assigns aggregate numerical difficulty ratings (`Easy`, `Medium`, `Hard`, `Expert`).
+		Tracks `cross-horizontal`, `cross-vertical`, and `box-3x3` elimination reasons. Learn more in the [Difficulty Guide](/undoku/guides/difficulty/).
 	</Card>
 	<Card title="🗄️ PostgreSQL & GORM Storage" icon="setting">
-		Relational GORM database persistence for full solutions, board states, technique breakdowns, and step deductions with SQLite fallback.
+		Relational GORM database persistence with SQLite fallback. Learn more in the [Database Guide](/undoku/guides/database/).
 	</Card>
 </CardGrid>
