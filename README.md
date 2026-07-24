@@ -1,24 +1,36 @@
 # Undoku 🧩⚡
 
-**Undoku** is a high-performance Go-based Sudoku puzzle generator, solver, difficulty evaluator, and persistent storage API engine. It generates uniquely solvable Sudoku boards with step-by-step logical deduction provenance and fine-grained difficulty scoring.
+**Undoku** is a high-performance Go-based Sudoku puzzle generator, solver, difficulty evaluator, vector SVG renderer, and persistent storage API engine. It generates uniquely solvable Sudoku boards with step-by-step logical deduction provenance and fine-grained difficulty scoring.
+
+[![Documentation Wiki](https://img.shields.io/badge/Wiki-Astro%20Starlight-6366f1?style=for-the-badge&logo=astro)](file:///home/mrovkill/Projects/undoku/wiki)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-SamSoupSauce%2Fundoku-181717?style=for-the-badge&logo=github)](https://github.com/SamSoupSauce/undoku)
+
+---
+
+## Documentation Wiki 📚
+
+For detailed guides, mathematical formulas, and REST API specifications, explore the [**Undoku Documentation Wiki**](file:///home/mrovkill/Projects/undoku/wiki):
+
+- [📖 **Overview & Quick Start**](file:///home/mrovkill/Projects/undoku/wiki/src/content/docs/guides/quickstart.md)
+- [⚡ **Fast PRNG & Vector Graphics Architecture**](file:///home/mrovkill/Projects/undoku/wiki/src/content/docs/guides/architecture.md)
+- [🧩 **Deduction & Carving Engine**](file:///home/mrovkill/Projects/undoku/wiki/src/content/docs/guides/solver.md)
+- [📊 **Elimination Metrics & Advanced Difficulty Analytics**](file:///home/mrovkill/Projects/undoku/wiki/src/content/docs/guides/difficulty.md)
+- [🗄️ **PostgreSQL & GORM Database Storage**](file:///home/mrovkill/Projects/undoku/wiki/src/content/docs/guides/database.md)
+- [🔌 **REST API & SVG Graphics Specification**](file:///home/mrovkill/Projects/undoku/wiki/src/content/docs/reference/api.md)
 
 ---
 
 ## Key Features 🚀
 
-- **Fast PRNG Seeding (`FastRand`)**: Custom non-blocking Xorshift64 pseudo-random number generator for high-throughput grid generation and shuffle operations.
-- **Logical Carving & Provenance**: Carves puzzle cells iteratively while guaranteeing full logical solvability without guessing.
-- **Detailed Difficulty Evaluation**:
-  - Breakdown by candidate elimination reasons:
-    - **`cross-horizontal`**: Row-level constraints.
-    - **`cross-vertical`**: Column-level constraints.
-    - **`impossible 3x3 square`**: Subgrid / 3x3 box constraints.
-  - Multi-technique logical deduction (Naked Singles, Hidden Singles in Rows/Cols/Boxes).
-  - Aggregate numerical scoring and difficulty classification (`Easy`, `Medium`, `Hard`, `Expert`).
+- **Fast PRNG Seeding (`FastRand`)**: Custom non-blocking Xorshift64 pseudo-random number generator for high-throughput grid generation.
+- **Pure Go Vector SVG Renderer**: Renders resolution-independent SVG vector graphics of board grids, elimination heatmaps, and step difficulty trajectory curves.
+- **Detailed Difficulty & Statistical Analytics**:
+  - Breakdown by candidate elimination reasons (`cross-horizontal`, `cross-vertical`, `impossible 3x3 square`).
+  - Advanced metrics: step score spread, variance, standard deviation, divergence (MAD), suddenness spikes, and technique streaks.
+  - Difficulty classification (`Easy`, `Medium`, `Hard`, `Expert`).
 - **GORM PostgreSQL & SQLite Persistence**:
-  - Stores full solutions, carved puzzle states, difficulty metrics, reason breakdowns, and step deductions.
   - Production support for PostgreSQL (`POSTGRES_DSN`) with automatic fallback to local SQLite (`undoku.db`).
-- **REST API Server**: Built-in HTTP server supporting puzzle generation, listing with difficulty filters, and detail lookup.
+- **REST API Server**: HTTP endpoints for puzzle generation, listing, detail lookup, and direct SVG vector graphics output.
 
 ---
 
@@ -30,8 +42,12 @@ undoku/
 ├── main_test.go       # Unit test suite for generator, PRNG, solver, and database operations
 ├── models/
 │   └── puzzle.go      # Board matrix types, elimination reasons, difficulty report, & GORM models
+├── render/
+│   ├── svg.go         # Pure Go vector SVG renderer for boards, heatmaps, & trajectory charts
+│   └── svg_test.go    # Unit tests for SVG renderer
 ├── storage/
 │   └── db.go          # GORM repository layer supporting PostgreSQL and SQLite drivers
+├── wiki/              # Astro Starlight documentation wiki site
 ├── go.mod             # Go module definition
 ├── go.sum             # Go module checksums
 └── README.md          # Documentation
@@ -49,58 +65,28 @@ go run main.go
 
 ### Running the REST API Server
 
-Set `RUN_HTTP_SERVER=true` to keep the HTTP server listening on port `8080` (or `PORT` environment variable):
+Set `RUN_HTTP_SERVER=true` to launch the HTTP server listening on port `8080`:
 
 ```bash
 RUN_HTTP_SERVER=true go run main.go
 ```
 
-To connect to a PostgreSQL database:
+### Running the Wiki Locally
 
 ```bash
-POSTGRES_DSN="postgres://user:password@localhost:5432/undoku?sslmode=disable" RUN_HTTP_SERVER=true go run main.go
-```
-
-### Running Tests
-
-```bash
-go test -v ./...
+cd wiki
+npm run dev
 ```
 
 ---
 
-## REST API Endpoints 🔌
+## REST API & SVG Endpoints 🔌
 
-### 1. Generate & Save Puzzle
-**`POST /api/puzzles/generate?difficulty={easy|medium|hard|expert}&blanks={28..57}`**
-
-Generates a new Sudoku puzzle, evaluates its logical difficulty and candidate elimination metrics, saves the record to the database, and returns the JSON record.
-
-**Response Example:**
-```json
-{
-  "ID": 1,
-  "CreatedAt": "2026-07-24T00:24:41.123-05:00",
-  "solution": "653728149129614375471539268...",
-  "board_state": ".53.28.4..2.61...54..539..8...",
-  "blanks_count": 38,
-  "difficulty_rating": "Medium",
-  "total_score": 72.40,
-  "cross_horizontal_reasons": 246,
-  "cross_vertical_reasons": 242,
-  "box_3x3_reasons": 242,
-  "total_reasons": 730,
-  "technique_counts_json": "{\"Naked Single\":38}",
-  "deductions_json": "[...]"
-}
-```
-
-### 2. List Saved Puzzles
-**`GET /api/puzzles?rating={Hard|Medium|Easy}&limit=10&offset=0`**
-
-Returns a list of saved puzzle records ordered by creation date.
-
-### 3. Get Puzzle by ID
-**`GET /api/puzzles/:id`**
-
-Fetches a single saved puzzle record by its database primary key.
+| Method | Endpoint | Content Type | Description |
+|---|---|---|---|
+| `POST` | `/api/puzzles/generate` | `application/json` | Generate puzzle, calculate difficulty, save to DB |
+| `GET` | `/api/puzzles` | `application/json` | List saved puzzles with rating & pagination filters |
+| `GET` | `/api/puzzles/:id` | `application/json` | Get single puzzle record & step deductions |
+| `GET` | `/api/puzzles/:id/svg` | `image/svg+xml` | Render Sudoku board vector SVG graphic |
+| `GET` | `/api/puzzles/:id/heatmap.svg` | `image/svg+xml` | Render elimination density heatmap SVG |
+| `GET` | `/api/puzzles/:id/trajectory.svg` | `image/svg+xml` | Render difficulty step trajectory curve SVG |

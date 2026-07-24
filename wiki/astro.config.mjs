@@ -10,7 +10,7 @@ export default defineConfig({
 			description: 'High-Performance Sudoku Generator, Difficulty Evaluator, & GORM Database API Engine',
 			customCss: ['./src/styles/custom.css'],
 			social: [
-				{ icon: 'github', label: 'GitHub', href: 'https://github.com/samuel-meyers/undoku' },
+				{ icon: 'github', label: 'GitHub', href: 'https://github.com/SamSoupSauce/undoku' },
 			],
 			sidebar: [
 				{
