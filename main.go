@@ -570,7 +570,7 @@ func (srv *Server) handleGetPuzzleByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := r.URL.Path
-	if strings.HasSuffix(path, "/svg") || strings.HasSuffix(path, "/heatmap.svg") || strings.HasSuffix(path, "/trajectory.svg") || strings.HasSuffix(path, "/animated.svg") {
+	if strings.HasSuffix(path, "/svg") || strings.HasSuffix(path, "/heatmap.svg") || strings.HasSuffix(path, "/trajectory.svg") || strings.HasSuffix(path, "/animated.svg") || strings.HasSuffix(path, "/player.svg") {
 		srv.handleGetPuzzleSVG(w, r)
 		return
 	}
@@ -601,6 +601,8 @@ func (srv *Server) handleGetPuzzleSVG(w http.ResponseWriter, r *http.Request) {
 		idStr = strings.TrimSuffix(strings.TrimPrefix(path, "/api/puzzles/"), "/trajectory.svg")
 	} else if strings.HasSuffix(path, "/animated.svg") {
 		idStr = strings.TrimSuffix(strings.TrimPrefix(path, "/api/puzzles/"), "/animated.svg")
+	} else if strings.HasSuffix(path, "/player.svg") {
+		idStr = strings.TrimSuffix(strings.TrimPrefix(path, "/api/puzzles/"), "/player.svg")
 	} else {
 		idStr = strings.TrimSuffix(strings.TrimPrefix(path, "/api/puzzles/"), "/svg")
 	}
@@ -623,6 +625,12 @@ func (srv *Server) handleGetPuzzleSVG(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	solution, err := models.StringToBoard(record.Solution)
+	if err != nil {
+		http.Error(w, "Failed to parse solution state", http.StatusInternalServerError)
+		return
+	}
+
 	report, err := record.ToDifficultyReport()
 	if err != nil {
 		http.Error(w, "Failed to parse difficulty report", http.StatusInternalServerError)
@@ -639,6 +647,9 @@ func (srv *Server) handleGetPuzzleSVG(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(svg))
 	} else if strings.HasSuffix(path, "/animated.svg") {
 		svg := render.RenderAnimatedSVG(board, report, render.DefaultOptions())
+		w.Write([]byte(svg))
+	} else if strings.HasSuffix(path, "/player.svg") {
+		svg := render.RenderInteractivePlayerSVG(board, solution, report, render.DefaultOptions())
 		w.Write([]byte(svg))
 	} else {
 		svg := render.RenderBoardSVG(board, render.DefaultOptions())
@@ -680,9 +691,13 @@ func main() {
 				if savedPath, err := render.SaveAnimatedSVG(puzzle, report, "exports", fmt.Sprintf("puzzle_%d_animated.svg", rec.ID)); err == nil {
 					log.Printf("[Export] Saved step-by-step animated SVG to filesystem: %s\n", savedPath)
 				}
+				if savedPath, err := render.SaveInteractivePlayerSVG(puzzle, fullGrid, report, "exports", fmt.Sprintf("puzzle_%d_player.svg", rec.ID)); err == nil {
+					log.Printf("[Export] Saved interactive SVG player to filesystem: %s\n", savedPath)
+				}
 			}
 		}
 	}
+
 
 	server := NewServer(store)
 	http.HandleFunc("/api/puzzles/generate", server.handleGenerateAndSave)

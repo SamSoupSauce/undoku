@@ -23,6 +23,7 @@ For detailed guides, mathematical formulas, and REST API specifications, explore
 ## Key Features 🚀
 
 - **Fast PRNG Seeding (`FastRand`)**: Custom non-blocking Xorshift64 pseudo-random number generator for high-throughput grid generation.
+- **Interactive Self-Contained SVG Puzzle Player (`RenderInteractivePlayerSVG` / `SaveInteractivePlayerSVG`)**: Renders a zero-dependency interactive Sudoku player inside a single SVG vector graphic with embedded JS/CSS (cell focus, keypad input, digit matching, keyboard navigation, hints, resets, and win detection).
 - **Step-by-Step Animated SVG Export (`SaveAnimatedSVG`)**: Renders and writes keyframed step-by-step solution SVG animations directly to `exports/` on the filesystem.
 - **Pure Go Vector SVG Renderer**: Renders resolution-independent SVG vector graphics of board grids, elimination heatmaps, difficulty trajectory curves, and animated step provenance.
 - **Detailed Difficulty & Statistical Analytics**:
@@ -93,3 +94,4 @@ npm run dev
 | `GET` | `/api/puzzles/:id/heatmap.svg` | `image/svg+xml` | Render elimination density heatmap SVG |
 | `GET` | `/api/puzzles/:id/trajectory.svg` | `image/svg+xml` | Render difficulty step trajectory curve SVG |
 | `GET` | `/api/puzzles/:id/animated.svg` | `image/svg+xml` | Render step-by-step animated solution SVG |
+| `GET` | `/api/puzzles/:id/player.svg` | `image/svg+xml` | Render interactive SVG puzzle player (embedded JS & CSS) |

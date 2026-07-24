@@ -1,0 +1,1095 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 610" width="540" height="610">
+<style>
+  .text-given { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 33px; text-anchor: middle; dominant-baseline: central; fill: #f9fafb; }
+  .text-step { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 33px; text-anchor: middle; dominant-baseline: central; fill: #818cf8; }
+  .status-text { font-family: 'Inter', system-ui, sans-serif; font-weight: 600; font-size: 13px; fill: #f3f4f6; }
+  .sub-status { font-family: 'Inter', system-ui, sans-serif; font-weight: 400; font-size: 11px; fill: #9ca3af; }
+@keyframes anim-step-0 {
+  0%, 0.00% { opacity: 0; }
+  2.33%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-0 {
+  0%, 0.00% { fill: #0d1322; }
+  0.10% { fill: rgba(245, 158, 11, 0.45); }
+  2.33%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-0 {
+  0%, 0.00% { opacity: 0; }
+  0.05%, 2.33% { opacity: 1; }
+  2.38%, 100% { opacity: 0; }
+}
+.step-val-0 { animation: anim-step-0 38.7s infinite; }
+.step-bg-0 { animation: anim-bg-0 38.7s infinite; }
+.step-status-0 { animation: anim-status-0 38.7s infinite; }
+@keyframes anim-step-1 {
+  0%, 2.33% { opacity: 0; }
+  4.65%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-1 {
+  0%, 2.33% { fill: #0d1322; }
+  2.43% { fill: rgba(245, 158, 11, 0.45); }
+  4.65%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-1 {
+  0%, 2.33% { opacity: 0; }
+  2.38%, 4.65% { opacity: 1; }
+  4.70%, 100% { opacity: 0; }
+}
+.step-val-1 { animation: anim-step-1 38.7s infinite; }
+.step-bg-1 { animation: anim-bg-1 38.7s infinite; }
+.step-status-1 { animation: anim-status-1 38.7s infinite; }
+@keyframes anim-step-2 {
+  0%, 4.65% { opacity: 0; }
+  6.98%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-2 {
+  0%, 4.65% { fill: #0d1322; }
+  4.75% { fill: rgba(245, 158, 11, 0.45); }
+  6.98%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-2 {
+  0%, 4.65% { opacity: 0; }
+  4.70%, 6.98% { opacity: 1; }
+  7.03%, 100% { opacity: 0; }
+}
+.step-val-2 { animation: anim-step-2 38.7s infinite; }
+.step-bg-2 { animation: anim-bg-2 38.7s infinite; }
+.step-status-2 { animation: anim-status-2 38.7s infinite; }
+@keyframes anim-step-3 {
+  0%, 6.98% { opacity: 0; }
+  9.30%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-3 {
+  0%, 6.98% { fill: #0d1322; }
+  7.08% { fill: rgba(245, 158, 11, 0.45); }
+  9.30%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-3 {
+  0%, 6.98% { opacity: 0; }
+  7.03%, 9.30% { opacity: 1; }
+  9.35%, 100% { opacity: 0; }
+}
+.step-val-3 { animation: anim-step-3 38.7s infinite; }
+.step-bg-3 { animation: anim-bg-3 38.7s infinite; }
+.step-status-3 { animation: anim-status-3 38.7s infinite; }
+@keyframes anim-step-4 {
+  0%, 9.30% { opacity: 0; }
+  11.63%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-4 {
+  0%, 9.30% { fill: #0d1322; }
+  9.40% { fill: rgba(245, 158, 11, 0.45); }
+  11.63%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-4 {
+  0%, 9.30% { opacity: 0; }
+  9.35%, 11.63% { opacity: 1; }
+  11.68%, 100% { opacity: 0; }
+}
+.step-val-4 { animation: anim-step-4 38.7s infinite; }
+.step-bg-4 { animation: anim-bg-4 38.7s infinite; }
+.step-status-4 { animation: anim-status-4 38.7s infinite; }
+@keyframes anim-step-5 {
+  0%, 11.63% { opacity: 0; }
+  13.95%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-5 {
+  0%, 11.63% { fill: #0d1322; }
+  11.73% { fill: rgba(245, 158, 11, 0.45); }
+  13.95%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-5 {
+  0%, 11.63% { opacity: 0; }
+  11.68%, 13.95% { opacity: 1; }
+  14.00%, 100% { opacity: 0; }
+}
+.step-val-5 { animation: anim-step-5 38.7s infinite; }
+.step-bg-5 { animation: anim-bg-5 38.7s infinite; }
+.step-status-5 { animation: anim-status-5 38.7s infinite; }
+@keyframes anim-step-6 {
+  0%, 13.95% { opacity: 0; }
+  16.28%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-6 {
+  0%, 13.95% { fill: #0d1322; }
+  14.05% { fill: rgba(245, 158, 11, 0.45); }
+  16.28%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-6 {
+  0%, 13.95% { opacity: 0; }
+  14.00%, 16.28% { opacity: 1; }
+  16.33%, 100% { opacity: 0; }
+}
+.step-val-6 { animation: anim-step-6 38.7s infinite; }
+.step-bg-6 { animation: anim-bg-6 38.7s infinite; }
+.step-status-6 { animation: anim-status-6 38.7s infinite; }
+@keyframes anim-step-7 {
+  0%, 16.28% { opacity: 0; }
+  18.60%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-7 {
+  0%, 16.28% { fill: #0d1322; }
+  16.38% { fill: rgba(245, 158, 11, 0.45); }
+  18.60%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-7 {
+  0%, 16.28% { opacity: 0; }
+  16.33%, 18.60% { opacity: 1; }
+  18.65%, 100% { opacity: 0; }
+}
+.step-val-7 { animation: anim-step-7 38.7s infinite; }
+.step-bg-7 { animation: anim-bg-7 38.7s infinite; }
+.step-status-7 { animation: anim-status-7 38.7s infinite; }
+@keyframes anim-step-8 {
+  0%, 18.60% { opacity: 0; }
+  20.93%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-8 {
+  0%, 18.60% { fill: #0d1322; }
+  18.70% { fill: rgba(245, 158, 11, 0.45); }
+  20.93%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-8 {
+  0%, 18.60% { opacity: 0; }
+  18.65%, 20.93% { opacity: 1; }
+  20.98%, 100% { opacity: 0; }
+}
+.step-val-8 { animation: anim-step-8 38.7s infinite; }
+.step-bg-8 { animation: anim-bg-8 38.7s infinite; }
+.step-status-8 { animation: anim-status-8 38.7s infinite; }
+@keyframes anim-step-9 {
+  0%, 20.93% { opacity: 0; }
+  23.26%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-9 {
+  0%, 20.93% { fill: #0d1322; }
+  21.03% { fill: rgba(245, 158, 11, 0.45); }
+  23.26%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-9 {
+  0%, 20.93% { opacity: 0; }
+  20.98%, 23.26% { opacity: 1; }
+  23.31%, 100% { opacity: 0; }
+}
+.step-val-9 { animation: anim-step-9 38.7s infinite; }
+.step-bg-9 { animation: anim-bg-9 38.7s infinite; }
+.step-status-9 { animation: anim-status-9 38.7s infinite; }
+@keyframes anim-step-10 {
+  0%, 23.26% { opacity: 0; }
+  25.58%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-10 {
+  0%, 23.26% { fill: #0d1322; }
+  23.36% { fill: rgba(245, 158, 11, 0.45); }
+  25.58%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-10 {
+  0%, 23.26% { opacity: 0; }
+  23.31%, 25.58% { opacity: 1; }
+  25.63%, 100% { opacity: 0; }
+}
+.step-val-10 { animation: anim-step-10 38.7s infinite; }
+.step-bg-10 { animation: anim-bg-10 38.7s infinite; }
+.step-status-10 { animation: anim-status-10 38.7s infinite; }
+@keyframes anim-step-11 {
+  0%, 25.58% { opacity: 0; }
+  27.91%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-11 {
+  0%, 25.58% { fill: #0d1322; }
+  25.68% { fill: rgba(245, 158, 11, 0.45); }
+  27.91%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-11 {
+  0%, 25.58% { opacity: 0; }
+  25.63%, 27.91% { opacity: 1; }
+  27.96%, 100% { opacity: 0; }
+}
+.step-val-11 { animation: anim-step-11 38.7s infinite; }
+.step-bg-11 { animation: anim-bg-11 38.7s infinite; }
+.step-status-11 { animation: anim-status-11 38.7s infinite; }
+@keyframes anim-step-12 {
+  0%, 27.91% { opacity: 0; }
+  30.23%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-12 {
+  0%, 27.91% { fill: #0d1322; }
+  28.01% { fill: rgba(245, 158, 11, 0.45); }
+  30.23%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-12 {
+  0%, 27.91% { opacity: 0; }
+  27.96%, 30.23% { opacity: 1; }
+  30.28%, 100% { opacity: 0; }
+}
+.step-val-12 { animation: anim-step-12 38.7s infinite; }
+.step-bg-12 { animation: anim-bg-12 38.7s infinite; }
+.step-status-12 { animation: anim-status-12 38.7s infinite; }
+@keyframes anim-step-13 {
+  0%, 30.23% { opacity: 0; }
+  32.56%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-13 {
+  0%, 30.23% { fill: #0d1322; }
+  30.33% { fill: rgba(245, 158, 11, 0.45); }
+  32.56%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-13 {
+  0%, 30.23% { opacity: 0; }
+  30.28%, 32.56% { opacity: 1; }
+  32.61%, 100% { opacity: 0; }
+}
+.step-val-13 { animation: anim-step-13 38.7s infinite; }
+.step-bg-13 { animation: anim-bg-13 38.7s infinite; }
+.step-status-13 { animation: anim-status-13 38.7s infinite; }
+@keyframes anim-step-14 {
+  0%, 32.56% { opacity: 0; }
+  34.88%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-14 {
+  0%, 32.56% { fill: #0d1322; }
+  32.66% { fill: rgba(245, 158, 11, 0.45); }
+  34.88%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-14 {
+  0%, 32.56% { opacity: 0; }
+  32.61%, 34.88% { opacity: 1; }
+  34.93%, 100% { opacity: 0; }
+}
+.step-val-14 { animation: anim-step-14 38.7s infinite; }
+.step-bg-14 { animation: anim-bg-14 38.7s infinite; }
+.step-status-14 { animation: anim-status-14 38.7s infinite; }
+@keyframes anim-step-15 {
+  0%, 34.88% { opacity: 0; }
+  37.21%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-15 {
+  0%, 34.88% { fill: #0d1322; }
+  34.98% { fill: rgba(245, 158, 11, 0.45); }
+  37.21%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-15 {
+  0%, 34.88% { opacity: 0; }
+  34.93%, 37.21% { opacity: 1; }
+  37.26%, 100% { opacity: 0; }
+}
+.step-val-15 { animation: anim-step-15 38.7s infinite; }
+.step-bg-15 { animation: anim-bg-15 38.7s infinite; }
+.step-status-15 { animation: anim-status-15 38.7s infinite; }
+@keyframes anim-step-16 {
+  0%, 37.21% { opacity: 0; }
+  39.53%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-16 {
+  0%, 37.21% { fill: #0d1322; }
+  37.31% { fill: rgba(245, 158, 11, 0.45); }
+  39.53%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-16 {
+  0%, 37.21% { opacity: 0; }
+  37.26%, 39.53% { opacity: 1; }
+  39.58%, 100% { opacity: 0; }
+}
+.step-val-16 { animation: anim-step-16 38.7s infinite; }
+.step-bg-16 { animation: anim-bg-16 38.7s infinite; }
+.step-status-16 { animation: anim-status-16 38.7s infinite; }
+@keyframes anim-step-17 {
+  0%, 39.53% { opacity: 0; }
+  41.86%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-17 {
+  0%, 39.53% { fill: #0d1322; }
+  39.63% { fill: rgba(245, 158, 11, 0.45); }
+  41.86%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-17 {
+  0%, 39.53% { opacity: 0; }
+  39.58%, 41.86% { opacity: 1; }
+  41.91%, 100% { opacity: 0; }
+}
+.step-val-17 { animation: anim-step-17 38.7s infinite; }
+.step-bg-17 { animation: anim-bg-17 38.7s infinite; }
+.step-status-17 { animation: anim-status-17 38.7s infinite; }
+@keyframes anim-step-18 {
+  0%, 41.86% { opacity: 0; }
+  44.19%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-18 {
+  0%, 41.86% { fill: #0d1322; }
+  41.96% { fill: rgba(245, 158, 11, 0.45); }
+  44.19%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-18 {
+  0%, 41.86% { opacity: 0; }
+  41.91%, 44.19% { opacity: 1; }
+  44.24%, 100% { opacity: 0; }
+}
+.step-val-18 { animation: anim-step-18 38.7s infinite; }
+.step-bg-18 { animation: anim-bg-18 38.7s infinite; }
+.step-status-18 { animation: anim-status-18 38.7s infinite; }
+@keyframes anim-step-19 {
+  0%, 44.19% { opacity: 0; }
+  46.51%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-19 {
+  0%, 44.19% { fill: #0d1322; }
+  44.29% { fill: rgba(245, 158, 11, 0.45); }
+  46.51%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-19 {
+  0%, 44.19% { opacity: 0; }
+  44.24%, 46.51% { opacity: 1; }
+  46.56%, 100% { opacity: 0; }
+}
+.step-val-19 { animation: anim-step-19 38.7s infinite; }
+.step-bg-19 { animation: anim-bg-19 38.7s infinite; }
+.step-status-19 { animation: anim-status-19 38.7s infinite; }
+@keyframes anim-step-20 {
+  0%, 46.51% { opacity: 0; }
+  48.84%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-20 {
+  0%, 46.51% { fill: #0d1322; }
+  46.61% { fill: rgba(245, 158, 11, 0.45); }
+  48.84%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-20 {
+  0%, 46.51% { opacity: 0; }
+  46.56%, 48.84% { opacity: 1; }
+  48.89%, 100% { opacity: 0; }
+}
+.step-val-20 { animation: anim-step-20 38.7s infinite; }
+.step-bg-20 { animation: anim-bg-20 38.7s infinite; }
+.step-status-20 { animation: anim-status-20 38.7s infinite; }
+@keyframes anim-step-21 {
+  0%, 48.84% { opacity: 0; }
+  51.16%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-21 {
+  0%, 48.84% { fill: #0d1322; }
+  48.94% { fill: rgba(245, 158, 11, 0.45); }
+  51.16%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-21 {
+  0%, 48.84% { opacity: 0; }
+  48.89%, 51.16% { opacity: 1; }
+  51.21%, 100% { opacity: 0; }
+}
+.step-val-21 { animation: anim-step-21 38.7s infinite; }
+.step-bg-21 { animation: anim-bg-21 38.7s infinite; }
+.step-status-21 { animation: anim-status-21 38.7s infinite; }
+@keyframes anim-step-22 {
+  0%, 51.16% { opacity: 0; }
+  53.49%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-22 {
+  0%, 51.16% { fill: #0d1322; }
+  51.26% { fill: rgba(245, 158, 11, 0.45); }
+  53.49%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-22 {
+  0%, 51.16% { opacity: 0; }
+  51.21%, 53.49% { opacity: 1; }
+  53.54%, 100% { opacity: 0; }
+}
+.step-val-22 { animation: anim-step-22 38.7s infinite; }
+.step-bg-22 { animation: anim-bg-22 38.7s infinite; }
+.step-status-22 { animation: anim-status-22 38.7s infinite; }
+@keyframes anim-step-23 {
+  0%, 53.49% { opacity: 0; }
+  55.81%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-23 {
+  0%, 53.49% { fill: #0d1322; }
+  53.59% { fill: rgba(245, 158, 11, 0.45); }
+  55.81%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-23 {
+  0%, 53.49% { opacity: 0; }
+  53.54%, 55.81% { opacity: 1; }
+  55.86%, 100% { opacity: 0; }
+}
+.step-val-23 { animation: anim-step-23 38.7s infinite; }
+.step-bg-23 { animation: anim-bg-23 38.7s infinite; }
+.step-status-23 { animation: anim-status-23 38.7s infinite; }
+@keyframes anim-step-24 {
+  0%, 55.81% { opacity: 0; }
+  58.14%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-24 {
+  0%, 55.81% { fill: #0d1322; }
+  55.91% { fill: rgba(245, 158, 11, 0.45); }
+  58.14%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-24 {
+  0%, 55.81% { opacity: 0; }
+  55.86%, 58.14% { opacity: 1; }
+  58.19%, 100% { opacity: 0; }
+}
+.step-val-24 { animation: anim-step-24 38.7s infinite; }
+.step-bg-24 { animation: anim-bg-24 38.7s infinite; }
+.step-status-24 { animation: anim-status-24 38.7s infinite; }
+@keyframes anim-step-25 {
+  0%, 58.14% { opacity: 0; }
+  60.47%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-25 {
+  0%, 58.14% { fill: #0d1322; }
+  58.24% { fill: rgba(245, 158, 11, 0.45); }
+  60.47%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-25 {
+  0%, 58.14% { opacity: 0; }
+  58.19%, 60.47% { opacity: 1; }
+  60.52%, 100% { opacity: 0; }
+}
+.step-val-25 { animation: anim-step-25 38.7s infinite; }
+.step-bg-25 { animation: anim-bg-25 38.7s infinite; }
+.step-status-25 { animation: anim-status-25 38.7s infinite; }
+@keyframes anim-step-26 {
+  0%, 60.47% { opacity: 0; }
+  62.79%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-26 {
+  0%, 60.47% { fill: #0d1322; }
+  60.57% { fill: rgba(245, 158, 11, 0.45); }
+  62.79%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-26 {
+  0%, 60.47% { opacity: 0; }
+  60.52%, 62.79% { opacity: 1; }
+  62.84%, 100% { opacity: 0; }
+}
+.step-val-26 { animation: anim-step-26 38.7s infinite; }
+.step-bg-26 { animation: anim-bg-26 38.7s infinite; }
+.step-status-26 { animation: anim-status-26 38.7s infinite; }
+@keyframes anim-step-27 {
+  0%, 62.79% { opacity: 0; }
+  65.12%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-27 {
+  0%, 62.79% { fill: #0d1322; }
+  62.89% { fill: rgba(245, 158, 11, 0.45); }
+  65.12%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-27 {
+  0%, 62.79% { opacity: 0; }
+  62.84%, 65.12% { opacity: 1; }
+  65.17%, 100% { opacity: 0; }
+}
+.step-val-27 { animation: anim-step-27 38.7s infinite; }
+.step-bg-27 { animation: anim-bg-27 38.7s infinite; }
+.step-status-27 { animation: anim-status-27 38.7s infinite; }
+@keyframes anim-step-28 {
+  0%, 65.12% { opacity: 0; }
+  67.44%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-28 {
+  0%, 65.12% { fill: #0d1322; }
+  65.22% { fill: rgba(245, 158, 11, 0.45); }
+  67.44%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-28 {
+  0%, 65.12% { opacity: 0; }
+  65.17%, 67.44% { opacity: 1; }
+  67.49%, 100% { opacity: 0; }
+}
+.step-val-28 { animation: anim-step-28 38.7s infinite; }
+.step-bg-28 { animation: anim-bg-28 38.7s infinite; }
+.step-status-28 { animation: anim-status-28 38.7s infinite; }
+@keyframes anim-step-29 {
+  0%, 67.44% { opacity: 0; }
+  69.77%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-29 {
+  0%, 67.44% { fill: #0d1322; }
+  67.54% { fill: rgba(245, 158, 11, 0.45); }
+  69.77%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-29 {
+  0%, 67.44% { opacity: 0; }
+  67.49%, 69.77% { opacity: 1; }
+  69.82%, 100% { opacity: 0; }
+}
+.step-val-29 { animation: anim-step-29 38.7s infinite; }
+.step-bg-29 { animation: anim-bg-29 38.7s infinite; }
+.step-status-29 { animation: anim-status-29 38.7s infinite; }
+@keyframes anim-step-30 {
+  0%, 69.77% { opacity: 0; }
+  72.09%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-30 {
+  0%, 69.77% { fill: #0d1322; }
+  69.87% { fill: rgba(245, 158, 11, 0.45); }
+  72.09%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-30 {
+  0%, 69.77% { opacity: 0; }
+  69.82%, 72.09% { opacity: 1; }
+  72.14%, 100% { opacity: 0; }
+}
+.step-val-30 { animation: anim-step-30 38.7s infinite; }
+.step-bg-30 { animation: anim-bg-30 38.7s infinite; }
+.step-status-30 { animation: anim-status-30 38.7s infinite; }
+@keyframes anim-step-31 {
+  0%, 72.09% { opacity: 0; }
+  74.42%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-31 {
+  0%, 72.09% { fill: #0d1322; }
+  72.19% { fill: rgba(245, 158, 11, 0.45); }
+  74.42%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-31 {
+  0%, 72.09% { opacity: 0; }
+  72.14%, 74.42% { opacity: 1; }
+  74.47%, 100% { opacity: 0; }
+}
+.step-val-31 { animation: anim-step-31 38.7s infinite; }
+.step-bg-31 { animation: anim-bg-31 38.7s infinite; }
+.step-status-31 { animation: anim-status-31 38.7s infinite; }
+@keyframes anim-step-32 {
+  0%, 74.42% { opacity: 0; }
+  76.74%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-32 {
+  0%, 74.42% { fill: #0d1322; }
+  74.52% { fill: rgba(245, 158, 11, 0.45); }
+  76.74%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-32 {
+  0%, 74.42% { opacity: 0; }
+  74.47%, 76.74% { opacity: 1; }
+  76.79%, 100% { opacity: 0; }
+}
+.step-val-32 { animation: anim-step-32 38.7s infinite; }
+.step-bg-32 { animation: anim-bg-32 38.7s infinite; }
+.step-status-32 { animation: anim-status-32 38.7s infinite; }
+@keyframes anim-step-33 {
+  0%, 76.74% { opacity: 0; }
+  79.07%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-33 {
+  0%, 76.74% { fill: #0d1322; }
+  76.84% { fill: rgba(245, 158, 11, 0.45); }
+  79.07%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-33 {
+  0%, 76.74% { opacity: 0; }
+  76.79%, 79.07% { opacity: 1; }
+  79.12%, 100% { opacity: 0; }
+}
+.step-val-33 { animation: anim-step-33 38.7s infinite; }
+.step-bg-33 { animation: anim-bg-33 38.7s infinite; }
+.step-status-33 { animation: anim-status-33 38.7s infinite; }
+@keyframes anim-step-34 {
+  0%, 79.07% { opacity: 0; }
+  81.40%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-34 {
+  0%, 79.07% { fill: #0d1322; }
+  79.17% { fill: rgba(245, 158, 11, 0.45); }
+  81.40%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-34 {
+  0%, 79.07% { opacity: 0; }
+  79.12%, 81.40% { opacity: 1; }
+  81.45%, 100% { opacity: 0; }
+}
+.step-val-34 { animation: anim-step-34 38.7s infinite; }
+.step-bg-34 { animation: anim-bg-34 38.7s infinite; }
+.step-status-34 { animation: anim-status-34 38.7s infinite; }
+@keyframes anim-step-35 {
+  0%, 81.40% { opacity: 0; }
+  83.72%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-35 {
+  0%, 81.40% { fill: #0d1322; }
+  81.50% { fill: rgba(245, 158, 11, 0.45); }
+  83.72%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-35 {
+  0%, 81.40% { opacity: 0; }
+  81.45%, 83.72% { opacity: 1; }
+  83.77%, 100% { opacity: 0; }
+}
+.step-val-35 { animation: anim-step-35 38.7s infinite; }
+.step-bg-35 { animation: anim-bg-35 38.7s infinite; }
+.step-status-35 { animation: anim-status-35 38.7s infinite; }
+@keyframes anim-step-36 {
+  0%, 83.72% { opacity: 0; }
+  86.05%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-36 {
+  0%, 83.72% { fill: #0d1322; }
+  83.82% { fill: rgba(245, 158, 11, 0.45); }
+  86.05%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-36 {
+  0%, 83.72% { opacity: 0; }
+  83.77%, 86.05% { opacity: 1; }
+  86.10%, 100% { opacity: 0; }
+}
+.step-val-36 { animation: anim-step-36 38.7s infinite; }
+.step-bg-36 { animation: anim-bg-36 38.7s infinite; }
+.step-status-36 { animation: anim-status-36 38.7s infinite; }
+@keyframes anim-step-37 {
+  0%, 86.05% { opacity: 0; }
+  88.37%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-37 {
+  0%, 86.05% { fill: #0d1322; }
+  86.15% { fill: rgba(245, 158, 11, 0.45); }
+  88.37%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-37 {
+  0%, 86.05% { opacity: 0; }
+  86.10%, 88.37% { opacity: 1; }
+  88.42%, 100% { opacity: 0; }
+}
+.step-val-37 { animation: anim-step-37 38.7s infinite; }
+.step-bg-37 { animation: anim-bg-37 38.7s infinite; }
+.step-status-37 { animation: anim-status-37 38.7s infinite; }
+@keyframes anim-step-38 {
+  0%, 88.37% { opacity: 0; }
+  90.70%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-38 {
+  0%, 88.37% { fill: #0d1322; }
+  88.47% { fill: rgba(245, 158, 11, 0.45); }
+  90.70%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-38 {
+  0%, 88.37% { opacity: 0; }
+  88.42%, 90.70% { opacity: 1; }
+  90.75%, 100% { opacity: 0; }
+}
+.step-val-38 { animation: anim-step-38 38.7s infinite; }
+.step-bg-38 { animation: anim-bg-38 38.7s infinite; }
+.step-status-38 { animation: anim-status-38 38.7s infinite; }
+@keyframes anim-step-39 {
+  0%, 90.70% { opacity: 0; }
+  93.02%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-39 {
+  0%, 90.70% { fill: #0d1322; }
+  90.80% { fill: rgba(245, 158, 11, 0.45); }
+  93.02%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-39 {
+  0%, 90.70% { opacity: 0; }
+  90.75%, 93.02% { opacity: 1; }
+  93.07%, 100% { opacity: 0; }
+}
+.step-val-39 { animation: anim-step-39 38.7s infinite; }
+.step-bg-39 { animation: anim-bg-39 38.7s infinite; }
+.step-status-39 { animation: anim-status-39 38.7s infinite; }
+@keyframes anim-step-40 {
+  0%, 93.02% { opacity: 0; }
+  95.35%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-40 {
+  0%, 93.02% { fill: #0d1322; }
+  93.12% { fill: rgba(245, 158, 11, 0.45); }
+  95.35%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-40 {
+  0%, 93.02% { opacity: 0; }
+  93.07%, 95.35% { opacity: 1; }
+  95.40%, 100% { opacity: 0; }
+}
+.step-val-40 { animation: anim-step-40 38.7s infinite; }
+.step-bg-40 { animation: anim-bg-40 38.7s infinite; }
+.step-status-40 { animation: anim-status-40 38.7s infinite; }
+@keyframes anim-step-41 {
+  0%, 95.35% { opacity: 0; }
+  97.67%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-41 {
+  0%, 95.35% { fill: #0d1322; }
+  95.45% { fill: rgba(245, 158, 11, 0.45); }
+  97.67%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-41 {
+  0%, 95.35% { opacity: 0; }
+  95.40%, 97.67% { opacity: 1; }
+  97.72%, 100% { opacity: 0; }
+}
+.step-val-41 { animation: anim-step-41 38.7s infinite; }
+.step-bg-41 { animation: anim-bg-41 38.7s infinite; }
+.step-status-41 { animation: anim-status-41 38.7s infinite; }
+@keyframes anim-step-42 {
+  0%, 97.67% { opacity: 0; }
+  100.00%, 100% { opacity: 1; }
+}
+@keyframes anim-bg-42 {
+  0%, 97.67% { fill: #0d1322; }
+  97.77% { fill: rgba(245, 158, 11, 0.45); }
+  100.00%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-status-42 {
+  0%, 97.67% { opacity: 0; }
+  97.72%, 100.00% { opacity: 1; }
+  100.05%, 100% { opacity: 0; }
+}
+.step-val-42 { animation: anim-step-42 38.7s infinite; }
+.step-bg-42 { animation: anim-bg-42 38.7s infinite; }
+.step-status-42 { animation: anim-status-42 38.7s infinite; }
+</style>
+<rect width="540" height="610" fill="#090d16"/>
+<rect x="60" y="0" width="60" height="60" fill="#0d1322"/>
+<text x="90" y="30" class="text-given">6</text>
+<rect x="180" y="0" width="60" height="60" fill="#111827"/>
+<text x="210" y="30" class="text-given">7</text>
+<rect x="240" y="0" width="60" height="60" fill="#111827"/>
+<text x="270" y="30" class="text-given">1</text>
+<rect x="360" y="0" width="60" height="60" fill="#0d1322"/>
+<text x="390" y="30" class="text-given">2</text>
+<rect x="420" y="0" width="60" height="60" fill="#0d1322"/>
+<text x="450" y="30" class="text-given">4</text>
+<rect x="60" y="60" width="60" height="60" fill="#0d1322"/>
+<text x="90" y="90" class="text-given">2</text>
+<rect x="180" y="60" width="60" height="60" fill="#111827"/>
+<text x="210" y="90" class="text-given">3</text>
+<rect x="240" y="60" width="60" height="60" fill="#111827"/>
+<text x="270" y="90" class="text-given">5</text>
+<rect x="480" y="60" width="60" height="60" fill="#0d1322"/>
+<text x="510" y="90" class="text-given">8</text>
+<rect x="60" y="120" width="60" height="60" fill="#0d1322"/>
+<text x="90" y="150" class="text-given">5</text>
+<rect x="120" y="120" width="60" height="60" fill="#0d1322"/>
+<text x="150" y="150" class="text-given">4</text>
+<rect x="120" y="180" width="60" height="60" fill="#111827"/>
+<text x="150" y="210" class="text-given">2</text>
+<rect x="180" y="180" width="60" height="60" fill="#0d1322"/>
+<text x="210" y="210" class="text-given">5</text>
+<rect x="420" y="180" width="60" height="60" fill="#111827"/>
+<text x="450" y="210" class="text-given">1</text>
+<rect x="180" y="240" width="60" height="60" fill="#0d1322"/>
+<text x="210" y="270" class="text-given">2</text>
+<rect x="240" y="240" width="60" height="60" fill="#0d1322"/>
+<text x="270" y="270" class="text-given">4</text>
+<rect x="300" y="240" width="60" height="60" fill="#0d1322"/>
+<text x="330" y="270" class="text-given">8</text>
+<rect x="360" y="240" width="60" height="60" fill="#111827"/>
+<text x="390" y="270" class="text-given">5</text>
+<rect x="60" y="300" width="60" height="60" fill="#111827"/>
+<text x="90" y="330" class="text-given">4</text>
+<rect x="120" y="300" width="60" height="60" fill="#111827"/>
+<text x="150" y="330" class="text-given">8</text>
+<rect x="240" y="300" width="60" height="60" fill="#0d1322"/>
+<text x="270" y="330" class="text-given">9</text>
+<rect x="300" y="300" width="60" height="60" fill="#0d1322"/>
+<text x="330" y="330" class="text-given">1</text>
+<rect x="420" y="300" width="60" height="60" fill="#111827"/>
+<text x="450" y="330" class="text-given">2</text>
+<rect x="120" y="360" width="60" height="60" fill="#0d1322"/>
+<text x="150" y="390" class="text-given">6</text>
+<rect x="180" y="360" width="60" height="60" fill="#111827"/>
+<text x="210" y="390" class="text-given">1</text>
+<rect x="240" y="360" width="60" height="60" fill="#111827"/>
+<text x="270" y="390" class="text-given">3</text>
+<rect x="300" y="360" width="60" height="60" fill="#111827"/>
+<text x="330" y="390" class="text-given">2</text>
+<rect x="480" y="360" width="60" height="60" fill="#0d1322"/>
+<text x="510" y="390" class="text-given">7</text>
+<rect x="0" y="420" width="60" height="60" fill="#0d1322"/>
+<text x="30" y="450" class="text-given">3</text>
+<rect x="60" y="420" width="60" height="60" fill="#0d1322"/>
+<text x="90" y="450" class="text-given">1</text>
+<rect x="120" y="420" width="60" height="60" fill="#0d1322"/>
+<text x="150" y="450" class="text-given">5</text>
+<rect x="300" y="420" width="60" height="60" fill="#111827"/>
+<text x="330" y="450" class="text-given">7</text>
+<rect x="360" y="420" width="60" height="60" fill="#0d1322"/>
+<text x="390" y="450" class="text-given">4</text>
+<rect x="420" y="420" width="60" height="60" fill="#0d1322"/>
+<text x="450" y="450" class="text-given">8</text>
+<rect x="60" y="480" width="60" height="60" fill="#0d1322"/>
+<text x="90" y="510" class="text-given">7</text>
+<rect x="180" y="480" width="60" height="60" fill="#111827"/>
+<text x="210" y="510" class="text-given">4</text>
+<rect x="240" y="480" width="60" height="60" fill="#111827"/>
+<text x="270" y="510" class="text-given">8</text>
+<rect x="420" y="480" width="60" height="60" fill="#0d1322"/>
+<text x="450" y="510" class="text-given">6</text>
+<rect x="300" y="0" width="60" height="60" class="step-bg-0"/>
+<text x="330" y="30" class="text-step step-val-0">9</text>
+<rect x="0" y="0" width="60" height="60" class="step-bg-1"/>
+<text x="30" y="30" class="text-step step-val-1">8</text>
+<rect x="120" y="0" width="60" height="60" class="step-bg-2"/>
+<text x="150" y="30" class="text-step step-val-2">3</text>
+<rect x="480" y="0" width="60" height="60" class="step-bg-3"/>
+<text x="510" y="30" class="text-step step-val-3">5</text>
+<rect x="300" y="120" width="60" height="60" class="step-bg-4"/>
+<text x="330" y="150" class="text-step step-val-4">6</text>
+<rect x="300" y="60" width="60" height="60" class="step-bg-5"/>
+<text x="330" y="90" class="text-step step-val-5">4</text>
+<rect x="180" y="120" width="60" height="60" class="step-bg-6"/>
+<text x="210" y="150" class="text-step step-val-6">8</text>
+<rect x="240" y="120" width="60" height="60" class="step-bg-7"/>
+<text x="270" y="150" class="text-step step-val-7">2</text>
+<rect x="300" y="180" width="60" height="60" class="step-bg-8"/>
+<text x="330" y="210" class="text-step step-val-8">3</text>
+<rect x="60" y="180" width="60" height="60" class="step-bg-9"/>
+<text x="90" y="210" class="text-step step-val-9">9</text>
+<rect x="60" y="240" width="60" height="60" class="step-bg-10"/>
+<text x="90" y="270" class="text-step step-val-10">3</text>
+<rect x="180" y="300" width="60" height="60" class="step-bg-11"/>
+<text x="210" y="330" class="text-step step-val-11">6</text>
+<rect x="240" y="180" width="60" height="60" class="step-bg-12"/>
+<text x="270" y="210" class="text-step step-val-12">7</text>
+<rect x="0" y="180" width="60" height="60" class="step-bg-13"/>
+<text x="30" y="210" class="text-step step-val-13">6</text>
+<rect x="360" y="180" width="60" height="60" class="step-bg-14"/>
+<text x="390" y="210" class="text-step step-val-14">8</text>
+<rect x="480" y="180" width="60" height="60" class="step-bg-15"/>
+<text x="510" y="210" class="text-step step-val-15">4</text>
+<rect x="480" y="300" width="60" height="60" class="step-bg-16"/>
+<text x="510" y="330" class="text-step step-val-16">3</text>
+<rect x="360" y="300" width="60" height="60" class="step-bg-17"/>
+<text x="390" y="330" class="text-step step-val-17">7</text>
+<rect x="420" y="240" width="60" height="60" class="step-bg-18"/>
+<text x="450" y="270" class="text-step step-val-18">9</text>
+<rect x="420" y="60" width="60" height="60" class="step-bg-19"/>
+<text x="450" y="90" class="text-step step-val-19">7</text>
+<rect x="420" y="120" width="60" height="60" class="step-bg-20"/>
+<text x="450" y="150" class="text-step step-val-20">3</text>
+<rect x="480" y="240" width="60" height="60" class="step-bg-21"/>
+<text x="510" y="270" class="text-step step-val-21">6</text>
+<rect x="0" y="300" width="60" height="60" class="step-bg-22"/>
+<text x="30" y="330" class="text-step step-val-22">5</text>
+<rect x="60" y="360" width="60" height="60" class="step-bg-23"/>
+<text x="90" y="390" class="text-step step-val-23">8</text>
+<rect x="360" y="360" width="60" height="60" class="step-bg-24"/>
+<text x="390" y="390" class="text-step step-val-24">9</text>
+<rect x="360" y="120" width="60" height="60" class="step-bg-25"/>
+<text x="390" y="150" class="text-step step-val-25">1</text>
+<rect x="360" y="60" width="60" height="60" class="step-bg-26"/>
+<text x="390" y="90" class="text-step step-val-26">6</text>
+<rect x="480" y="120" width="60" height="60" class="step-bg-27"/>
+<text x="510" y="150" class="text-step step-val-27">9</text>
+<rect x="0" y="120" width="60" height="60" class="step-bg-28"/>
+<text x="30" y="150" class="text-step step-val-28">7</text>
+<rect x="0" y="240" width="60" height="60" class="step-bg-29"/>
+<text x="30" y="270" class="text-step step-val-29">1</text>
+<rect x="0" y="60" width="60" height="60" class="step-bg-30"/>
+<text x="30" y="90" class="text-step step-val-30">9</text>
+<rect x="120" y="60" width="60" height="60" class="step-bg-31"/>
+<text x="150" y="90" class="text-step step-val-31">1</text>
+<rect x="120" y="240" width="60" height="60" class="step-bg-32"/>
+<text x="150" y="270" class="text-step step-val-32">7</text>
+<rect x="0" y="360" width="60" height="60" class="step-bg-33"/>
+<text x="30" y="390" class="text-step step-val-33">4</text>
+<rect x="420" y="360" width="60" height="60" class="step-bg-34"/>
+<text x="450" y="390" class="text-step step-val-34">5</text>
+<rect x="180" y="420" width="60" height="60" class="step-bg-35"/>
+<text x="210" y="450" class="text-step step-val-35">9</text>
+<rect x="240" y="420" width="60" height="60" class="step-bg-36"/>
+<text x="270" y="450" class="text-step step-val-36">6</text>
+<rect x="480" y="420" width="60" height="60" class="step-bg-37"/>
+<text x="510" y="450" class="text-step step-val-37">2</text>
+<rect x="0" y="480" width="60" height="60" class="step-bg-38"/>
+<text x="30" y="510" class="text-step step-val-38">2</text>
+<rect x="120" y="480" width="60" height="60" class="step-bg-39"/>
+<text x="150" y="510" class="text-step step-val-39">9</text>
+<rect x="300" y="480" width="60" height="60" class="step-bg-40"/>
+<text x="330" y="510" class="text-step step-val-40">5</text>
+<rect x="360" y="480" width="60" height="60" class="step-bg-41"/>
+<text x="390" y="510" class="text-step step-val-41">3</text>
+<rect x="480" y="480" width="60" height="60" class="step-bg-42"/>
+<text x="510" y="510" class="text-step step-val-42">1</text>
+<line x1="60" y1="0" x2="60" y2="540" stroke="#1f293d" stroke-width="1"/>
+<line x1="0" y1="60" x2="540" y2="60" stroke="#1f293d" stroke-width="1"/>
+<line x1="120" y1="0" x2="120" y2="540" stroke="#1f293d" stroke-width="1"/>
+<line x1="0" y1="120" x2="540" y2="120" stroke="#1f293d" stroke-width="1"/>
+<line x1="240" y1="0" x2="240" y2="540" stroke="#1f293d" stroke-width="1"/>
+<line x1="0" y1="240" x2="540" y2="240" stroke="#1f293d" stroke-width="1"/>
+<line x1="300" y1="0" x2="300" y2="540" stroke="#1f293d" stroke-width="1"/>
+<line x1="0" y1="300" x2="540" y2="300" stroke="#1f293d" stroke-width="1"/>
+<line x1="420" y1="0" x2="420" y2="540" stroke="#1f293d" stroke-width="1"/>
+<line x1="0" y1="420" x2="540" y2="420" stroke="#1f293d" stroke-width="1"/>
+<line x1="480" y1="0" x2="480" y2="540" stroke="#1f293d" stroke-width="1"/>
+<line x1="0" y1="480" x2="540" y2="480" stroke="#1f293d" stroke-width="1"/>
+<line x1="0" y1="0" x2="0" y2="540" stroke="#6366f1" stroke-width="4"/>
+<line x1="0" y1="0" x2="540" y2="0" stroke="#6366f1" stroke-width="4"/>
+<line x1="180" y1="0" x2="180" y2="540" stroke="#6366f1" stroke-width="3"/>
+<line x1="0" y1="180" x2="540" y2="180" stroke="#6366f1" stroke-width="3"/>
+<line x1="360" y1="0" x2="360" y2="540" stroke="#6366f1" stroke-width="3"/>
+<line x1="0" y1="360" x2="540" y2="360" stroke="#6366f1" stroke-width="3"/>
+<line x1="540" y1="0" x2="540" y2="540" stroke="#6366f1" stroke-width="4"/>
+<line x1="0" y1="540" x2="540" y2="540" stroke="#6366f1" stroke-width="4"/>
+<rect x="0" y="540" width="540" height="70" fill="#0d1322" stroke="#1f293d" stroke-width="1"/>
+<g class="step-status-0">
+  <text x="16" y="566" class="status-text">Step 1 / 43: [Naked Single] at (0,5) = 9</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (0,5): only 9 fits [cross-h: 5, cross-v: 4, 3x3-sq: 4] (Step Score: 1.65)</text>
+</g>
+<g class="step-status-1">
+  <text x="16" y="566" class="status-text">Step 2 / 43: [Naked Single] at (0,0) = 8</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (0,0): only 8 fits [cross-h: 6, cross-v: 1, 3x3-sq: 4] (Step Score: 1.55)</text>
+</g>
+<g class="step-status-2">
+  <text x="16" y="566" class="status-text">Step 3 / 43: [Naked Single] at (0,2) = 3</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (0,2): only 3 fits [cross-h: 7, cross-v: 5, 3x3-sq: 5] (Step Score: 1.85)</text>
+</g>
+<g class="step-status-3">
+  <text x="16" y="566" class="status-text">Step 4 / 43: [Naked Single] at (0,8) = 5</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (0,8): only 5 fits [cross-h: 8, cross-v: 2, 3x3-sq: 3] (Step Score: 1.65)</text>
+</g>
+<g class="step-status-4">
+  <text x="16" y="566" class="status-text">Step 5 / 43: [Naked Single] at (2,5) = 6</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (2,5): only 6 fits [cross-h: 2, cross-v: 5, 3x3-sq: 5] (Step Score: 1.60)</text>
+</g>
+<g class="step-status-5">
+  <text x="16" y="566" class="status-text">Step 6 / 43: [Naked Single] at (1,5) = 4</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (1,5): only 4 fits [cross-h: 4, cross-v: 6, 3x3-sq: 6] (Step Score: 1.80)</text>
+</g>
+<g class="step-status-6">
+  <text x="16" y="566" class="status-text">Step 7 / 43: [Naked Single] at (2,3) = 8</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (2,3): only 8 fits [cross-h: 3, cross-v: 6, 3x3-sq: 7] (Step Score: 1.80)</text>
+</g>
+<g class="step-status-7">
+  <text x="16" y="566" class="status-text">Step 8 / 43: [Naked Single] at (2,4) = 2</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (2,4): only 2 fits [cross-h: 4, cross-v: 6, 3x3-sq: 8] (Step Score: 1.90)</text>
+</g>
+<g class="step-status-8">
+  <text x="16" y="566" class="status-text">Step 9 / 43: [Naked Single] at (3,5) = 3</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (3,5): only 3 fits [cross-h: 3, cross-v: 7, 3x3-sq: 6] (Step Score: 1.80)</text>
+</g>
+<g class="step-status-9">
+  <text x="16" y="566" class="status-text">Step 10 / 43: [Naked Single] at (3,1) = 9</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (3,1): only 9 fits [cross-h: 4, cross-v: 6, 3x3-sq: 3] (Step Score: 1.65)</text>
+</g>
+<g class="step-status-10">
+  <text x="16" y="566" class="status-text">Step 11 / 43: [Naked Single] at (4,1) = 3</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (4,1): only 3 fits [cross-h: 4, cross-v: 7, 3x3-sq: 4] (Step Score: 1.75)</text>
+</g>
+<g class="step-status-11">
+  <text x="16" y="566" class="status-text">Step 12 / 43: [Naked Single] at (5,3) = 6</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (5,3): only 6 fits [cross-h: 5, cross-v: 7, 3x3-sq: 7] (Step Score: 1.95)</text>
+</g>
+<g class="step-status-12">
+  <text x="16" y="566" class="status-text">Step 13 / 43: [Naked Single] at (3,4) = 7</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (3,4): only 7 fits [cross-h: 5, cross-v: 7, 3x3-sq: 8] (Step Score: 2.00)</text>
+</g>
+<g class="step-status-13">
+  <text x="16" y="566" class="status-text">Step 14 / 43: [Naked Single] at (3,0) = 6</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (3,0): only 6 fits [cross-h: 6, cross-v: 2, 3x3-sq: 5] (Step Score: 1.65)</text>
+</g>
+<g class="step-status-14">
+  <text x="16" y="566" class="status-text">Step 15 / 43: [Naked Single] at (3,6) = 8</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (3,6): only 8 fits [cross-h: 7, cross-v: 3, 3x3-sq: 3] (Step Score: 1.65)</text>
+</g>
+<g class="step-status-15">
+  <text x="16" y="566" class="status-text">Step 16 / 43: [Naked Single] at (3,8) = 4</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (3,8): only 4 fits [cross-h: 8, cross-v: 3, 3x3-sq: 4] (Step Score: 1.75)</text>
+</g>
+<g class="step-status-16">
+  <text x="16" y="566" class="status-text">Step 17 / 43: [Naked Single] at (5,8) = 3</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (5,8): only 3 fits [cross-h: 6, cross-v: 4, 3x3-sq: 5] (Step Score: 1.75)</text>
+</g>
+<g class="step-status-17">
+  <text x="16" y="566" class="status-text">Step 18 / 43: [Naked Single] at (5,6) = 7</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (5,6): only 7 fits [cross-h: 7, cross-v: 4, 3x3-sq: 6] (Step Score: 1.85)</text>
+</g>
+<g class="step-status-18">
+  <text x="16" y="566" class="status-text">Step 19 / 43: [Naked Single] at (4,7) = 9</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (4,7): only 9 fits [cross-h: 5, cross-v: 5, 3x3-sq: 7] (Step Score: 1.85)</text>
+</g>
+<g class="step-status-19">
+  <text x="16" y="566" class="status-text">Step 20 / 43: [Naked Single] at (1,7) = 7</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (1,7): only 7 fits [cross-h: 5, cross-v: 6, 3x3-sq: 4] (Step Score: 1.75)</text>
+</g>
+<g class="step-status-20">
+  <text x="16" y="566" class="status-text">Step 21 / 43: [Naked Single] at (2,7) = 3</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (2,7): only 3 fits [cross-h: 5, cross-v: 7, 3x3-sq: 5] (Step Score: 1.85)</text>
+</g>
+<g class="step-status-21">
+  <text x="16" y="566" class="status-text">Step 22 / 43: [Naked Single] at (4,8) = 6</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (4,8): only 6 fits [cross-h: 6, cross-v: 5, 3x3-sq: 8] (Step Score: 1.95)</text>
+</g>
+<g class="step-status-22">
+  <text x="16" y="566" class="status-text">Step 23 / 43: [Naked Single] at (5,0) = 5</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (5,0): only 5 fits [cross-h: 8, cross-v: 3, 3x3-sq: 6] (Step Score: 1.85)</text>
+</g>
+<g class="step-status-23">
+  <text x="16" y="566" class="status-text">Step 24 / 43: [Naked Single] at (6,1) = 8</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (6,1): only 8 fits [cross-h: 5, cross-v: 8, 3x3-sq: 5] (Step Score: 1.90)</text>
+</g>
+<g class="step-status-24">
+  <text x="16" y="566" class="status-text">Step 25 / 43: [Naked Single] at (6,6) = 9</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (6,6): only 9 fits [cross-h: 6, cross-v: 5, 3x3-sq: 4] (Step Score: 1.75)</text>
+</g>
+<g class="step-status-25">
+  <text x="16" y="566" class="status-text">Step 26 / 43: [Naked Single] at (2,6) = 1</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (2,6): only 1 fits [cross-h: 6, cross-v: 6, 3x3-sq: 6] (Step Score: 1.90)</text>
+</g>
+<g class="step-status-26">
+  <text x="16" y="566" class="status-text">Step 27 / 43: [Naked Single] at (1,6) = 6</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (1,6): only 6 fits [cross-h: 6, cross-v: 7, 3x3-sq: 7] (Step Score: 2.00)</text>
+</g>
+<g class="step-status-27">
+  <text x="16" y="566" class="status-text">Step 28 / 43: [Naked Single] at (2,8) = 9</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (2,8): only 9 fits [cross-h: 7, cross-v: 6, 3x3-sq: 8] (Step Score: 2.05)</text>
+</g>
+<g class="step-status-28">
+  <text x="16" y="566" class="status-text">Step 29 / 43: [Naked Single] at (2,0) = 7</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (2,0): only 7 fits [cross-h: 8, cross-v: 4, 3x3-sq: 6] (Step Score: 1.90)</text>
+</g>
+<g class="step-status-29">
+  <text x="16" y="566" class="status-text">Step 30 / 43: [Naked Single] at (4,0) = 1</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (4,0): only 1 fits [cross-h: 7, cross-v: 5, 3x3-sq: 7] (Step Score: 1.95)</text>
+</g>
+<g class="step-status-30">
+  <text x="16" y="566" class="status-text">Step 31 / 43: [Naked Single] at (1,0) = 9</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (1,0): only 9 fits [cross-h: 7, cross-v: 6, 3x3-sq: 7] (Step Score: 2.00)</text>
+</g>
+<g class="step-status-31">
+  <text x="16" y="566" class="status-text">Step 32 / 43: [Naked Single] at (1,2) = 1</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (1,2): only 1 fits [cross-h: 8, cross-v: 6, 3x3-sq: 8] (Step Score: 2.10)</text>
+</g>
+<g class="step-status-32">
+  <text x="16" y="566" class="status-text">Step 33 / 43: [Naked Single] at (4,2) = 7</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (4,2): only 7 fits [cross-h: 8, cross-v: 7, 3x3-sq: 8] (Step Score: 2.15)</text>
+</g>
+<g class="step-status-33">
+  <text x="16" y="566" class="status-text">Step 34 / 43: [Naked Single] at (6,0) = 4</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (6,0): only 4 fits [cross-h: 7, cross-v: 7, 3x3-sq: 6] (Step Score: 2.00)</text>
+</g>
+<g class="step-status-34">
+  <text x="16" y="566" class="status-text">Step 35 / 43: [Naked Single] at (6,7) = 5</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (6,7): only 5 fits [cross-h: 8, cross-v: 8, 3x3-sq: 5] (Step Score: 2.05)</text>
+</g>
+<g class="step-status-35">
+  <text x="16" y="566" class="status-text">Step 36 / 43: [Naked Single] at (7,3) = 9</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (7,3): only 9 fits [cross-h: 6, cross-v: 8, 3x3-sq: 6] (Step Score: 2.00)</text>
+</g>
+<g class="step-status-36">
+  <text x="16" y="566" class="status-text">Step 37 / 43: [Naked Single] at (7,4) = 6</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (7,4): only 6 fits [cross-h: 7, cross-v: 8, 3x3-sq: 7] (Step Score: 2.10)</text>
+</g>
+<g class="step-status-37">
+  <text x="16" y="566" class="status-text">Step 38 / 43: [Naked Single] at (7,8) = 2</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (7,8): only 2 fits [cross-h: 8, cross-v: 7, 3x3-sq: 6] (Step Score: 2.05)</text>
+</g>
+<g class="step-status-38">
+  <text x="16" y="566" class="status-text">Step 39 / 43: [Naked Single] at (8,0) = 2</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (8,0): only 2 fits [cross-h: 4, cross-v: 8, 3x3-sq: 7] (Step Score: 1.95)</text>
+</g>
+<g class="step-status-39">
+  <text x="16" y="566" class="status-text">Step 40 / 43: [Naked Single] at (8,2) = 9</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (8,2): only 9 fits [cross-h: 5, cross-v: 8, 3x3-sq: 8] (Step Score: 2.05)</text>
+</g>
+<g class="step-status-40">
+  <text x="16" y="566" class="status-text">Step 41 / 43: [Naked Single] at (8,5) = 5</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (8,5): only 5 fits [cross-h: 6, cross-v: 8, 3x3-sq: 8] (Step Score: 2.10)</text>
+</g>
+<g class="step-status-41">
+  <text x="16" y="566" class="status-text">Step 42 / 43: [Naked Single] at (8,6) = 3</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (8,6): only 3 fits [cross-h: 7, cross-v: 8, 3x3-sq: 7] (Step Score: 2.10)</text>
+</g>
+<g class="step-status-42">
+  <text x="16" y="566" class="status-text">Step 43 / 43: [Naked Single] at (8,8) = 1</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (8,8): only 1 fits [cross-h: 8, cross-v: 8, 3x3-sq: 8] (Step Score: 2.20)</text>
+</g>
+</svg>

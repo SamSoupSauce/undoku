@@ -38,3 +38,9 @@ Undoku includes a zero-dependency SVG graphics rendering engine for Sudoku board
 ### 3. Trajectory Line Chart (`RenderTrajectorySVG`)
 - Generates step-by-step difficulty curves.
 - Visually flags step-to-step suddenness spikes along the solution path.
+
+### 4. Interactive SVG Puzzle Player (`RenderInteractivePlayerSVG`)
+- Renders a fully self-contained, playable Sudoku app inside a single SVG vector graphic.
+- Embedded JavaScript and CSS handle cell focus, peer row/col/box highlighting, digit matching, keyboard navigation (`1-9`, `Backspace`, Arrow keys), SVG keypad input, hints (`💡`), reset (`↺`), and victory detection (`🎉 PUZZLE SOLVED!`).
+- Generated on the fly via `GET /api/puzzles/:id/player.svg` or saved directly to `exports/puzzle_X_player.svg` via `SaveInteractivePlayerSVG`.
+

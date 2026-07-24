@@ -406,3 +406,433 @@ func SaveAnimatedSVG(b models.Board, report models.DifficultyReport, outputDir, 
 
 	return filePath, nil
 }
+
+// RenderInteractivePlayerSVG renders a fully interactive, self-contained SVG Sudoku puzzle player with embedded JavaScript and CSS
+func RenderInteractivePlayerSVG(b models.Board, solution models.Board, report models.DifficultyReport, opts SVGOptions) string {
+	cellSize := 60
+	boardSize := cellSize * 9 // 540px
+	leftMargin := 30
+	topHeight := 50
+	canvasWidth := 600
+	canvasHeight := 750
+	keypadY := topHeight + boardSize + 12 // 602px
+
+	bgColor := "#090d16"
+	cellBgDark := "#0d1322"
+	cellBgAlt := "#111827"
+	gridLineColor := "#1f293d"
+	boxLineColor := "#6366f1"
+	textColorGiven := "#f9fafb"
+	textColorUser := "#818cf8"
+	textColorMatch := "#c084fc"
+	ghostColor := "#818cf8"
+	btnBg := "#1f293d"
+	btnHover := "#374151"
+	btnText := "#f3f4f6"
+	colorScheme := "dark"
+
+	if !opts.DarkMode {
+		bgColor = "#f8fafc"
+		cellBgDark = "#ffffff"
+		cellBgAlt = "#f1f5f9"
+		gridLineColor = "#e2e8f0"
+		boxLineColor = "#4f46e5"
+		textColorGiven = "#0f172a"
+		textColorUser = "#4f46e5"
+		textColorMatch = "#7c3aed"
+		ghostColor = "#6366f1"
+		btnBg = "#e2e8f0"
+		btnHover = "#cbd5e1"
+		btnText = "#0f172a"
+		colorScheme = "light"
+	}
+
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" width="100%%" height="100%%" tabIndex="0" id="undoku-svg-player">`,
+		canvasWidth, canvasHeight))
+
+	sb.WriteString("\n<style>\n")
+	sb.WriteString(fmt.Sprintf(`  :root, #undoku-svg-player { color-scheme: %s; forced-color-adjust: none; outline: none; font-family: 'Inter', system-ui, -apple-system, sans-serif; user-select: none; -webkit-user-select: none; max-width: 600px; max-height: 750px; width: 100%%; height: auto; display: block; margin-left: auto; margin-right: 0; }`, colorScheme) + "\n")
+	sb.WriteString(fmt.Sprintf(`  .header-title { font-size: 16px; font-weight: 700; fill: %s; }`, textColorGiven) + "\n")
+	sb.WriteString(fmt.Sprintf(`  .header-badge { font-size: 12px; font-weight: 600; fill: %s; }`, boxLineColor) + "\n")
+	sb.WriteString(`  .timer-text { font-size: 14px; font-weight: 600; fill: #9ca3af; text-anchor: end; }` + "\n")
+	sb.WriteString(`  .cell-rect { cursor: pointer; transition: fill 0.15s ease; }` + "\n")
+	sb.WriteString(fmt.Sprintf(`  .cell-rect:hover { fill: %s !important; opacity: 0.85; }`, ghostColor) + "\n")
+	sb.WriteString(fmt.Sprintf(`  .text-given { font-size: 33px; font-weight: 700; text-anchor: middle; dominant-baseline: central; fill: %s; pointer-events: none; }`, textColorGiven) + "\n")
+	sb.WriteString(fmt.Sprintf(`  .text-user { font-size: 33px; font-weight: 700; text-anchor: middle; dominant-baseline: central; fill: %s; pointer-events: none; }`, textColorUser) + "\n")
+	sb.WriteString(fmt.Sprintf(`  .text-match { fill: %s !important; font-weight: 800 !important; }`, textColorMatch) + "\n")
+	sb.WriteString(`  .text-error { fill: #f87171 !important; }` + "\n")
+	sb.WriteString(fmt.Sprintf(`  .btn-bg { fill: %s; rx: 8px; cursor: pointer; transition: fill 0.15s ease; }`, btnBg) + "\n")
+	sb.WriteString(fmt.Sprintf(`  .btn-bg:hover { fill: %s; }`, btnHover) + "\n")
+	sb.WriteString(fmt.Sprintf(`  .btn-digit-text { font-size: 20px; font-weight: 700; fill: %s; text-anchor: middle; dominant-baseline: central; pointer-events: none; }`, btnText) + "\n")
+	sb.WriteString(fmt.Sprintf(`  .btn-action-text { font-size: 14px; font-weight: 700; fill: %s; text-anchor: middle; dominant-baseline: central; pointer-events: none; }`, btnText) + "\n")
+	sb.WriteString(fmt.Sprintf(`  .btn-action { fill: %s; }`, btnHover) + "\n")
+	sb.WriteString(fmt.Sprintf(`  #svg-keypad { transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); opacity: 1; transform: translateY(%dpx); }`, keypadY) + "\n")
+	sb.WriteString(fmt.Sprintf(`  .keypad-vanish { opacity: 0 !important; transform: translateY(%dpx) scale(0.95) !important; pointer-events: none !important; }`, keypadY+25) + "\n")
+	sb.WriteString(`  .status-banner { font-size: 20px; font-weight: 800; fill: #10b981; text-anchor: middle; dominant-baseline: central; transition: opacity 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); opacity: 0; transform: translateY(15px) scale(0.85); pointer-events: none; }` + "\n")
+	sb.WriteString(`  .status-banner-appear { opacity: 1 !important; transform: translateY(0px) scale(1) !important; }` + "\n")
+	sb.WriteString("</style>\n")
+
+	// Canvas background
+	sb.WriteString(fmt.Sprintf(`<rect width="%d" height="%d" fill="%s" rx="12"/>`+"\n", canvasWidth, canvasHeight, bgColor))
+
+	// Top Header Bar
+	sb.WriteString(fmt.Sprintf(`<text x="%d" y="30" class="header-title">Undoku 🧩 <tspan class="header-badge">[%s - Score: %.1f]</tspan></text>`+"\n",
+		leftMargin, report.Rating, report.TotalScore))
+	sb.WriteString(fmt.Sprintf(`<text x="%d" y="30" id="svg-timer" class="timer-text">00:00</text>`+"\n", leftMargin+boardSize))
+
+	// Board Background & Cells Group
+	sb.WriteString(fmt.Sprintf(`<g id="svg-board-cells" transform="translate(%d, %d)">`+"\n", leftMargin, topHeight))
+
+	for r := 0; r < 9; r++ {
+		for c := 0; c < 9; c++ {
+			x, y := c*cellSize, r*cellSize
+			bg := cellBgDark
+			if (r/3+c/3)%2 == 1 {
+				bg = cellBgAlt
+			}
+
+			givenVal := b[r][c]
+			solVal := solution[r][c]
+			isGiven := givenVal != 0
+
+			valStr := ""
+			if isGiven {
+				valStr = fmt.Sprintf("%d", givenVal)
+			}
+
+			textClass := "text-user"
+			if isGiven {
+				textClass = "text-given"
+			}
+
+			sb.WriteString(fmt.Sprintf(`  <g id="cell-%d-%d" data-r="%d" data-c="%d" data-given="%t" data-val="%d" data-sol="%d" onclick="window.undokuSelectCell(%d,%d)">`+"\n",
+				r, c, r, c, isGiven, givenVal, solVal, r, c))
+			sb.WriteString(fmt.Sprintf(`    <rect id="rect-%d-%d" class="cell-rect" x="%d" y="%d" width="%d" height="%d" fill="%s" stroke="%s" stroke-width="1"/>`+"\n",
+				r, c, x, y, cellSize, cellSize, bg, gridLineColor))
+			sb.WriteString(fmt.Sprintf(`    <rect id="match-%d-%d" x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1.5" stroke-dasharray="3,3" rx="6" opacity="0" pointer-events="none"/>`+"\n",
+				r, c, x+6, y+6, cellSize-12, cellSize-12, textColorMatch))
+			sb.WriteString(fmt.Sprintf(`    <text id="text-%d-%d" x="%d" y="%d" class="%s">%s</text>`+"\n",
+				r, c, x+cellSize/2, y+cellSize/2, textClass, valStr))
+			sb.WriteString(`  </g>` + "\n")
+		}
+	}
+
+	// Minor & Major Grid Lines
+	for i := 1; i < 9; i++ {
+		if i%3 != 0 {
+			pos := i * cellSize
+			sb.WriteString(fmt.Sprintf(`  <line x1="%d" y1="0" x2="%d" y2="%d" stroke="%s" stroke-width="1"/>`+"\n", pos, pos, boardSize, gridLineColor))
+			sb.WriteString(fmt.Sprintf(`  <line x1="0" y1="%d" x2="%d" y2="%d" stroke="%s" stroke-width="1"/>`+"\n", pos, boardSize, pos, gridLineColor))
+		}
+	}
+	for i := 0; i <= 9; i += 3 {
+		pos := i * cellSize
+		w := 3
+		if i == 0 || i == 9 {
+			w = 4
+		}
+		sb.WriteString(fmt.Sprintf(`  <line x1="%d" y1="0" x2="%d" y2="%d" stroke="%s" stroke-width="%d"/>`+"\n", pos, pos, boardSize, boxLineColor, w))
+		sb.WriteString(fmt.Sprintf(`  <line x1="0" y1="%d" x2="%d" y2="%d" stroke="%s" stroke-width="%d"/>`+"\n", pos, boardSize, pos, boxLineColor, w))
+	}
+
+	// V-H Axis Ghost Trails & Active Focus Indicators (Overlay Layer)
+	sb.WriteString(fmt.Sprintf(`  <line id="vh-ghost-h" x1="0" y1="-100" x2="%d" y2="-100" stroke="%s" stroke-width="2" stroke-dasharray="5,4" opacity="0" pointer-events="none"/>`+"\n", boardSize, ghostColor))
+	sb.WriteString(fmt.Sprintf(`  <line id="vh-ghost-v" x1="-100" y1="0" x2="-100" y2="%d" stroke="%s" stroke-width="2" stroke-dasharray="5,4" opacity="0" pointer-events="none"/>`+"\n", boardSize, ghostColor))
+	sb.WriteString(fmt.Sprintf(`  <rect id="active-cell-focus" x="-100" y="-100" width="%d" height="%d" fill="none" stroke="%s" stroke-width="3" rx="4" opacity="0" pointer-events="none"/>`+"\n", cellSize, cellSize, ghostColor))
+	sb.WriteString(fmt.Sprintf(`  <rect id="active-box-focus" x="-100" y="-100" width="%d" height="%d" fill="none" stroke="%s" stroke-width="2" stroke-dasharray="6,6" rx="6" opacity="0" pointer-events="none"/>`+"\n", cellSize*3, cellSize*3, boxLineColor))
+
+	sb.WriteString("</g>\n") // End Board Group
+
+	// Bottom Control Keypad Group (2 Rows)
+	sb.WriteString(fmt.Sprintf(`<g id="svg-keypad" transform="translate(0, %d)">`+"\n", keypadY))
+
+	// Row 1: Digits 1-9 (Spacious & Big Touch Targets)
+	digitBtnW := 54
+	digitBtnH := 48
+	digitGap := 6
+	digitStartX := leftMargin + 3 // 33px
+
+	for i := 1; i <= 9; i++ {
+		kx := digitStartX + (i-1)*(digitBtnW+digitGap)
+		sb.WriteString(fmt.Sprintf(`  <rect class="btn-bg" x="%d" y="0" width="%d" height="%d" onclick="window.undokuInputDigit(%d)"/>`+"\n", kx, digitBtnW, digitBtnH, i))
+		sb.WriteString(fmt.Sprintf(`  <text class="btn-digit-text" x="%d" y="%d">%d</text>`+"\n", kx+digitBtnW/2, digitBtnH/2, i))
+	}
+
+	// Row 2: Action Buttons (⌫ ERASE, 💡 HINT, ↺ RESET)
+	actionY := 56
+	actionBtnW := 168
+	actionBtnH := 44
+	actionGap := 15
+	actionStartX := leftMargin + 3
+
+	// Erase
+	actX := actionStartX
+	sb.WriteString(fmt.Sprintf(`  <rect class="btn-bg btn-action" x="%d" y="%d" width="%d" height="%d" onclick="window.undokuErase()"/>`+"\n", actX, actionY, actionBtnW, actionBtnH))
+	sb.WriteString(fmt.Sprintf(`  <text class="btn-action-text" x="%d" y="%d">⌫ ERASE</text>`+"\n", actX+actionBtnW/2, actionY+actionBtnH/2))
+
+	// Hint
+	actX += actionBtnW + actionGap
+	sb.WriteString(fmt.Sprintf(`<rect class="btn-bg btn-action" x="%d" y="%d" width="%d" height="%d" onclick="window.undokuHint()"/>`+"\n", actX, actionY, actionBtnW, actionBtnH))
+	sb.WriteString(fmt.Sprintf(`  <text class="btn-action-text" x="%d" y="%d">💡 HINT</text>`+"\n", actX+actionBtnW/2, actionY+actionBtnH/2))
+
+	// Reset
+	actX += actionBtnW + actionGap
+	sb.WriteString(fmt.Sprintf(`<rect class="btn-bg btn-action" x="%d" y="%d" width="%d" height="%d" onclick="window.undokuReset()"/>`+"\n", actX, actionY, actionBtnW, actionBtnH))
+	sb.WriteString(fmt.Sprintf(`  <text class="btn-action-text" x="%d" y="%d">↺ RESET</text>`+"\n", actX+actionBtnW/2, actionY+actionBtnH/2))
+
+	sb.WriteString("</g>\n")
+
+	// Victory / Status Banner (positioned gracefully where keypad was)
+	sb.WriteString(fmt.Sprintf(`<text id="svg-status-banner" x="%d" y="%d" class="status-banner">🎉 PUZZLE SOLVED!</text>`+"\n",
+		canvasWidth/2, keypadY+45))
+
+	// Embedded JavaScript Engine
+	sb.WriteString("<script><![CDATA[\n")
+	sb.WriteString(fmt.Sprintf(`(function() {
+		var selR = -1, selC = -1;
+		var seconds = 0;
+		var timerInterval = null;
+		var bgDark = "%s";
+		var bgAlt = "%s";
+		var gridStroke = "%s";
+
+		function formatTime(s) {
+			var m = Math.floor(s / 60);
+			var sec = s %% 60;
+			return (m < 10 ? '0' + m : m) + ':' + (sec < 10 ? '0' + sec : sec);
+		}
+
+		function startTimer() {
+			if (!timerInterval) {
+				timerInterval = setInterval(function() {
+					seconds++;
+					var timerEl = document.getElementById('svg-timer');
+					if (timerEl) timerEl.textContent = formatTime(seconds);
+				}, 1000);
+			}
+		}
+
+		function highlightBoard() {
+			var ghostH = document.getElementById('vh-ghost-h');
+			var ghostV = document.getElementById('vh-ghost-v');
+			var focusCell = document.getElementById('active-cell-focus');
+			var focusBox = document.getElementById('active-box-focus');
+
+			var targetVal = (selR >= 0 && selC >= 0) ? document.getElementById('cell-' + selR + '-' + selC).getAttribute('data-val') : '0';
+
+			if (selR >= 0 && selC >= 0) {
+				var cy = selR * 60 + 30;
+				var cx = selC * 60 + 30;
+
+				if (ghostH) {
+					ghostH.setAttribute('y1', cy);
+					ghostH.setAttribute('y2', cy);
+					ghostH.setAttribute('opacity', '0.75');
+				}
+				if (ghostV) {
+					ghostV.setAttribute('x1', cx);
+					ghostV.setAttribute('x2', cx);
+					ghostV.setAttribute('opacity', '0.75');
+				}
+				if (focusCell) {
+					focusCell.setAttribute('x', selC * 60);
+					focusCell.setAttribute('y', selR * 60);
+					focusCell.setAttribute('opacity', '1');
+				}
+				if (focusBox) {
+					focusBox.setAttribute('x', Math.floor(selC / 3) * 180);
+					focusBox.setAttribute('y', Math.floor(selR / 3) * 180);
+					focusBox.setAttribute('opacity', '1');
+				}
+			} else {
+				if (ghostH) ghostH.setAttribute('opacity', '0');
+				if (ghostV) ghostV.setAttribute('opacity', '0');
+				if (focusCell) focusCell.setAttribute('opacity', '0');
+				if (focusBox) focusBox.setAttribute('opacity', '0');
+			}
+
+			for (var r = 0; r < 9; r++) {
+				for (var c = 0; c < 9; c++) {
+					var cell = document.getElementById('cell-' + r + '-' + c);
+					var rect = document.getElementById('rect-' + r + '-' + c);
+					var text = document.getElementById('text-' + r + '-' + c);
+					var matchRing = document.getElementById('match-' + r + '-' + c);
+					var defaultBg = ((Math.floor(r/3) + Math.floor(c/3)) %% 2 === 1) ? bgAlt : bgDark;
+
+					rect.setAttribute('fill', defaultBg);
+					rect.setAttribute('stroke', gridStroke);
+					rect.setAttribute('stroke-width', '1');
+
+					var val = cell.getAttribute('data-val');
+
+					if (targetVal !== '0' && val === targetVal) {
+						text.classList.add('text-match');
+						if (matchRing) matchRing.setAttribute('opacity', '1');
+					} else {
+						text.classList.remove('text-match');
+						if (matchRing) matchRing.setAttribute('opacity', '0');
+					}
+				}
+			}
+		}
+
+		window.undokuSelectCell = function(r, c) {
+			selR = r;
+			selC = c;
+			highlightBoard();
+		};
+
+		window.undokuInputDigit = function(num) {
+			if (selR < 0 || selC < 0) return;
+			var cell = document.getElementById('cell-' + selR + '-' + selC);
+			if (cell.getAttribute('data-given') === 'true') return;
+
+			cell.setAttribute('data-val', num.toString());
+			var text = document.getElementById('text-' + selR + '-' + selC);
+			text.textContent = num.toString();
+			text.classList.remove('text-error');
+
+			highlightBoard();
+			checkWinCondition();
+		};
+
+		window.undokuErase = function() {
+			if (selR < 0 || selC < 0) return;
+			var cell = document.getElementById('cell-' + selR + '-' + selC);
+			if (cell.getAttribute('data-given') === 'true') return;
+
+			cell.setAttribute('data-val', '0');
+			var text = document.getElementById('text-' + selR + '-' + selC);
+			text.textContent = '';
+			text.classList.remove('text-error');
+
+			highlightBoard();
+		};
+
+		window.undokuHint = function() {
+			if (selR < 0 || selC < 0) return;
+			var cell = document.getElementById('cell-' + selR + '-' + selC);
+			if (cell.getAttribute('data-given') === 'true') return;
+
+			var sol = cell.getAttribute('data-sol');
+			window.undokuInputDigit(parseInt(sol, 10));
+		};
+
+		window.undokuReset = function() {
+			var keypad = document.getElementById('svg-keypad');
+			if (keypad) keypad.classList.remove('keypad-vanish');
+
+			var banner = document.getElementById('svg-status-banner');
+			if (banner) banner.classList.remove('status-banner-appear');
+
+			for (var r = 0; r < 9; r++) {
+				for (var c = 0; c < 9; c++) {
+					var cell = document.getElementById('cell-' + r + '-' + c);
+					if (cell.getAttribute('data-given') !== 'true') {
+						cell.setAttribute('data-val', '0');
+						var text = document.getElementById('text-' + r + '-' + c);
+						text.textContent = '';
+						text.classList.remove('text-error');
+					}
+				}
+			}
+			selR = -1;
+			selC = -1;
+			highlightBoard();
+		};
+
+		function checkWinCondition() {
+			var filled = 0;
+			var correct = 0;
+			for (var r = 0; r < 9; r++) {
+				for (var c = 0; c < 9; c++) {
+					var cell = document.getElementById('cell-' + r + '-' + c);
+					var val = cell.getAttribute('data-val');
+					var sol = cell.getAttribute('data-sol');
+					if (val !== '0') filled++;
+					if (val === sol) correct++;
+				}
+			}
+			if (filled === 81 && correct === 81) {
+				var keypad = document.getElementById('svg-keypad');
+				if (keypad) keypad.classList.add('keypad-vanish');
+
+				var banner = document.getElementById('svg-status-banner');
+				if (banner) banner.classList.add('status-banner-appear');
+
+				if (timerInterval) clearInterval(timerInterval);
+				selR = -1;
+				selC = -1;
+				highlightBoard();
+			}
+		}
+
+		document.addEventListener('keydown', function(e) {
+			if (e.key === 'Escape') {
+				selR = -1;
+				selC = -1;
+				highlightBoard();
+				return;
+			}
+			if (selR < 0 || selC < 0) return;
+			if (e.key >= '1' && e.key <= '9') {
+				window.undokuInputDigit(parseInt(e.key, 10));
+			} else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') {
+				window.undokuErase();
+			} else if (e.key === 'ArrowUp') {
+				selR = (selR + 8) %% 9;
+				highlightBoard();
+			} else if (e.key === 'ArrowDown') {
+				selR = (selR + 1) %% 9;
+				highlightBoard();
+			} else if (e.key === 'ArrowLeft') {
+				selC = (selC + 8) %% 9;
+				highlightBoard();
+			} else if (e.key === 'ArrowRight') {
+				selC = (selC + 1) %% 9;
+				highlightBoard();
+			}
+		});
+
+		startTimer();
+		highlightBoard();
+	})();
+	]]></script>`, cellBgDark, cellBgAlt, gridLineColor) + "\n")
+
+	sb.WriteString("</svg>")
+	return sb.String()
+}
+
+// SaveInteractivePlayerSVG renders and writes the interactive SVG player file to the filesystem
+func SaveInteractivePlayerSVG(b models.Board, solution models.Board, report models.DifficultyReport, outputDir, filename string) (string, error) {
+	if outputDir == "" {
+		outputDir = "exports"
+	}
+	if filename == "" {
+		filename = "puzzle_player.svg"
+	}
+	if !strings.HasSuffix(filename, ".svg") {
+		filename += ".svg"
+	}
+
+	if err := os.MkdirAll(outputDir, 0755); err != nil {
+		return "", fmt.Errorf("failed to create directory %s: %w", outputDir, err)
+	}
+
+	filePath := filepath.Join(outputDir, filename)
+	svgContent := RenderInteractivePlayerSVG(b, solution, report, DefaultOptions())
+
+	if err := os.WriteFile(filePath, []byte(svgContent), 0644); err != nil {
+		return "", fmt.Errorf("failed to write SVG player file to %s: %w", filePath, err)
+	}
+
+	// Also copy to wiki/public if wiki directory exists
+	wikiPublicDir := "wiki/public"
+	if _, err := os.Stat("wiki"); err == nil {
+		os.MkdirAll(wikiPublicDir, 0755)
+		os.WriteFile(filepath.Join(wikiPublicDir, filename), []byte(svgContent), 0644)
+	}
+
+	return filePath, nil
+}

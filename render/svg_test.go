@@ -86,3 +86,38 @@ func TestSaveAnimatedSVG(t *testing.T) {
 		t.Errorf("expected non-empty file path from SaveAnimatedSVG")
 	}
 }
+
+func TestRenderInteractivePlayerSVG(t *testing.T) {
+	var board, solution models.Board
+	board[0][0] = 5
+	solution[0][0] = 5
+	solution[0][1] = 3
+
+	var report models.DifficultyReport
+	report.Rating = "Hard"
+	report.TotalScore = 85.2
+
+	svg := RenderInteractivePlayerSVG(board, solution, report, DefaultOptions())
+
+	if !strings.Contains(svg, "id=\"undoku-svg-player\"") {
+		t.Errorf("expected id undoku-svg-player in interactive SVG output")
+	}
+	if !strings.Contains(svg, "window.undokuSelectCell") || !strings.Contains(svg, "window.undokuInputDigit") {
+		t.Errorf("expected embedded JavaScript engine in interactive SVG output")
+	}
+}
+
+func TestSaveInteractivePlayerSVG(t *testing.T) {
+	var board, solution models.Board
+	var report models.DifficultyReport
+
+	path, err := SaveInteractivePlayerSVG(board, solution, report, "test_exports", "test_player.svg")
+	if err != nil {
+		t.Fatalf("SaveInteractivePlayerSVG returned error: %v", err)
+	}
+
+	if path == "" {
+		t.Errorf("expected non-empty file path from SaveInteractivePlayerSVG")
+	}
+}
+
