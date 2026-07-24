@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"samuel-meyers.com/undoku/models"
+	"samuel-meyers.com/undoku/render"
 	"samuel-meyers.com/undoku/storage"
 )
 
@@ -568,6 +569,12 @@ func (srv *Server) handleGetPuzzleByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	path := r.URL.Path
+	if strings.HasSuffix(path, "/svg") || strings.HasSuffix(path, "/heatmap.svg") || strings.HasSuffix(path, "/trajectory.svg") {
+		srv.handleGetPuzzleSVG(w, r)
+		return
+	}
+
 	idStr := strings.TrimPrefix(r.URL.Path, "/api/puzzles/")
 	idVal, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
@@ -583,6 +590,55 @@ func (srv *Server) handleGetPuzzleByID(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(record)
+}
+
+func (srv *Server) handleGetPuzzleSVG(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path
+	var idStr string
+	if strings.HasSuffix(path, "/heatmap.svg") {
+		idStr = strings.TrimSuffix(strings.TrimPrefix(path, "/api/puzzles/"), "/heatmap.svg")
+	} else if strings.HasSuffix(path, "/trajectory.svg") {
+		idStr = strings.TrimSuffix(strings.TrimPrefix(path, "/api/puzzles/"), "/trajectory.svg")
+	} else {
+		idStr = strings.TrimSuffix(strings.TrimPrefix(path, "/api/puzzles/"), "/svg")
+	}
+
+	idVal, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		http.Error(w, "Invalid puzzle ID", http.StatusBadRequest)
+		return
+	}
+
+	record, err := srv.store.GetPuzzleByID(uint(idVal))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	board, err := models.StringToBoard(record.BoardState)
+	if err != nil {
+		http.Error(w, "Failed to parse board state", http.StatusInternalServerError)
+		return
+	}
+
+	report, err := record.ToDifficultyReport()
+	if err != nil {
+		http.Error(w, "Failed to parse difficulty report", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "image/svg+xml")
+
+	if strings.HasSuffix(path, "/heatmap.svg") {
+		svg := render.RenderHeatmapSVG(board, report, render.DefaultOptions())
+		w.Write([]byte(svg))
+	} else if strings.HasSuffix(path, "/trajectory.svg") {
+		svg := render.RenderTrajectorySVG(report, 600, 240)
+		w.Write([]byte(svg))
+	} else {
+		svg := render.RenderBoardSVG(board, render.DefaultOptions())
+		w.Write([]byte(svg))
+	}
 }
 
 func main() {
