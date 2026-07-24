@@ -379,6 +379,7 @@ func (s *Sudoku) SolveAndEvaluate(puzzle models.Board) (models.DifficultyReport,
 		report.Rating = "Expert"
 	}
 
+	report.CalculateMetrics()
 	return report, true
 }
 
@@ -461,6 +462,27 @@ func PrintBoard(b *models.Board) {
 		}
 		fmt.Println()
 	}
+}
+
+func PrintDifficultyReport(report models.DifficultyReport) {
+	fmt.Printf("\n--- Sudoku Difficulty Evaluation Report ---\n")
+	fmt.Printf("Aggregate Numerical Score : %.2f\n", report.TotalScore)
+	fmt.Printf("Assigned Difficulty Rating: %s\n\n", report.Rating)
+
+	fmt.Printf("Individual Elimination Reason Breakdown:\n")
+	fmt.Printf(" - Cross-Horizontal (Row) constraints : %d\n", report.ReasonCounts.CrossHorizontal)
+	fmt.Printf(" - Cross-Vertical (Column) constraints: %d\n", report.ReasonCounts.CrossVertical)
+	fmt.Printf(" - Impossible 3x3 Square constraints  : %d\n", report.ReasonCounts.Box3x3)
+	fmt.Printf(" - Total Elimination Reasons          : %d\n\n", report.ReasonCounts.Total())
+
+	fmt.Printf("Statistical Analytics & Complexity Metrics:\n")
+	fmt.Printf(" - Step Score Min / Max / Spread     : %.2f / %.2f / %.2f\n", report.Metrics.MinStepScore, report.Metrics.MaxStepScore, report.Metrics.ScoreSpread)
+	fmt.Printf(" - Variance & Standard Deviation     : %.4f (StdDev: %.4f)\n", report.Metrics.ScoreVariance, report.Metrics.ScoreStdDev)
+	fmt.Printf(" - Divergence (Mean Abs Deviation)   : %.4f\n", report.Metrics.ScoreDivergence)
+	fmt.Printf(" - Suddenness (Max Step-to-Step Jump): %.4f\n", report.Metrics.Suddenness)
+	fmt.Printf(" - Longest Technique Streak           : %d consecutive [%s]\n", report.Metrics.MaxStreak, report.Metrics.MaxStreakTechnique)
+	fmt.Printf(" - Most Frequent Technique            : %s\n", report.Metrics.MostFrequentTechnique)
+	fmt.Printf(" - Least Frequent Technique           : %s\n\n", report.Metrics.LeastFrequentTechnique)
 }
 
 type Server struct {

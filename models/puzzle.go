@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 
@@ -32,12 +33,122 @@ type Deduction struct {
 	Description string             `json:"description"`
 }
 
+type AdvancedMetrics struct {
+	MinStepScore           float64 `json:"min_step_score"`
+	MaxStepScore           float64 `json:"max_step_score"`
+	ScoreSpread            float64 `json:"score_spread"`
+	ScoreVariance          float64 `json:"score_variance"`
+	ScoreStdDev            float64 `json:"score_std_dev"`
+	ScoreDivergence        float64 `json:"score_divergence"` // Mean Absolute Deviation from mean
+	Suddenness             float64 `json:"suddenness"`        // Max adjacent step-to-step score delta
+	MaxStreak              int     `json:"max_streak"`        // Longest consecutive technique streak
+	MaxStreakTechnique     string  `json:"max_streak_technique"`
+	MostFrequentTechnique  string  `json:"most_frequent_technique"`
+	LeastFrequentTechnique string  `json:"least_frequent_technique"`
+}
+
 type DifficultyReport struct {
 	TotalScore      float64            `json:"total_score"`
 	Rating          string             `json:"rating"`
 	ReasonCounts    EliminationReasons `json:"reason_counts"`
 	TechniqueCounts map[string]int     `json:"technique_counts"`
+	Metrics         AdvancedMetrics    `json:"advanced_metrics"`
 	StepDeductions  []Deduction        `json:"step_deductions"`
+}
+
+// CalculateMetrics computes analytical metrics (spread, variance, divergence, streaks, suddenness, frequency)
+func (report *DifficultyReport) CalculateMetrics() {
+	n := len(report.StepDeductions)
+	if n == 0 {
+		return
+	}
+
+	scores := make([]float64, n)
+	var sum float64
+	minScore := report.StepDeductions[0].StepScore
+	maxScore := report.StepDeductions[0].StepScore
+
+	for i, d := range report.StepDeductions {
+		s := d.StepScore
+		scores[i] = s
+		sum += s
+		if s < minScore {
+			minScore = s
+		}
+		if s > maxScore {
+			maxScore = s
+		}
+	}
+
+	mean := sum / float64(n)
+
+	// Variance, Standard Deviation, and Divergence (MAD)
+	var varSum, madSum float64
+	for _, s := range scores {
+		diff := s - mean
+		varSum += diff * diff
+		madSum += math.Abs(diff)
+	}
+
+	variance := varSum / float64(n)
+	stdDev := math.Sqrt(variance)
+	mad := madSum / float64(n)
+
+	// Suddenness (Max adjacent step score delta)
+	var maxSuddenness float64
+	for i := 0; i < n-1; i++ {
+		delta := math.Abs(scores[i+1] - scores[i])
+		if delta > maxSuddenness {
+			maxSuddenness = delta
+		}
+	}
+
+	// Streaks (Consecutive identical techniques)
+	currentStreak := 1
+	maxStreak := 1
+	maxStreakTech := report.StepDeductions[0].Technique
+
+	for i := 1; i < n; i++ {
+		if report.StepDeductions[i].Technique == report.StepDeductions[i-1].Technique {
+			currentStreak++
+			if currentStreak > maxStreak {
+				maxStreak = currentStreak
+				maxStreakTech = report.StepDeductions[i].Technique
+			}
+		} else {
+			currentStreak = 1
+		}
+	}
+
+	// Most & Least Frequent Technique
+	var mostFreqTech, leastFreqTech string
+	mostCount := -1
+	leastCount := math.MaxInt
+
+	for tech, count := range report.TechniqueCounts {
+		if count > mostCount {
+			mostCount = count
+			mostFreqTech = tech
+		}
+		if count < leastCount {
+			leastCount = count
+			leastFreqTech = tech
+		}
+	}
+
+	report.Metrics = AdvancedMetrics{
+		MinStepScore:           minScore,
+		MaxStepScore:           maxScore,
+		ScoreSpread:            maxScore - minScore,
+		ScoreVariance:          variance,
+		ScoreStdDev:            stdDev,
+		ScoreDivergence:        mad,
+		Suddenness:             maxSuddenness,
+		MaxStreak:              maxStreak,
+		MaxStreakTechnique:     maxStreakTech,
+		MostFrequentTechnique:  mostFreqTech,
+		LeastFrequentTechnique: leastFreqTech,
+	}
 }
 
 // PuzzleRecord is the GORM PostgreSQL database model for storing puzzles and difficulty metrics
@@ -48,10 +159,15 @@ type PuzzleRecord struct {
 	BlanksCount            int     `gorm:"not null" json:"blanks_count"`
 	DifficultyRating       string  `gorm:"type:varchar(32);not null;index" json:"difficulty_rating"`
 	TotalScore             float64 `gorm:"type:numeric(10,2);not null" json:"total_score"`
+	ScoreSpread            float64 `gorm:"type:numeric(10,2);not null" json:"score_spread"`
+	ScoreVariance          float64 `gorm:"type:numeric(10,2);not null" json:"score_variance"`
+	Suddenness             float64 `gorm:"type:numeric(10,2);not null" json:"suddenness"`
+	MaxStreak              int     `gorm:"not null" json:"max_streak"`
 	CrossHorizontalReasons int     `gorm:"not null" json:"cross_horizontal_reasons"`
 	CrossVerticalReasons   int     `gorm:"not null" json:"cross_vertical_reasons"`
 	Box3x3Reasons          int     `gorm:"not null" json:"box_3x3_reasons"`
 	TotalReasons           int     `gorm:"not null" json:"total_reasons"`
+	MetricsJSON            string  `gorm:"type:text" json:"metrics_json"`
 	TechniqueCountsJSON    string  `gorm:"type:text" json:"technique_counts_json"`
 	DeductionsJSON         string  `gorm:"type:text" json:"deductions_json"`
 }
@@ -93,9 +209,16 @@ func StringToBoard(s string) (Board, error) {
 
 // CreateRecord converts full solution, carved puzzle, and difficulty report to GORM PuzzleRecord
 func CreateRecord(full Board, puzzle Board, report DifficultyReport) (PuzzleRecord, error) {
+	report.CalculateMetrics()
+
 	techJSON, err := json.Marshal(report.TechniqueCounts)
 	if err != nil {
 		return PuzzleRecord{}, fmt.Errorf("failed to marshal technique counts: %w", err)
+	}
+
+	metricsJSON, err := json.Marshal(report.Metrics)
+	if err != nil {
+		return PuzzleRecord{}, fmt.Errorf("failed to marshal metrics: %w", err)
 	}
 
 	deductionsJSON, err := json.Marshal(report.StepDeductions)
@@ -118,10 +241,15 @@ func CreateRecord(full Board, puzzle Board, report DifficultyReport) (PuzzleReco
 		BlanksCount:            blanks,
 		DifficultyRating:       report.Rating,
 		TotalScore:             report.TotalScore,
+		ScoreSpread:            report.Metrics.ScoreSpread,
+		ScoreVariance:          report.Metrics.ScoreVariance,
+		Suddenness:             report.Metrics.Suddenness,
+		MaxStreak:              report.Metrics.MaxStreak,
 		CrossHorizontalReasons: report.ReasonCounts.CrossHorizontal,
 		CrossVerticalReasons:   report.ReasonCounts.CrossVertical,
 		Box3x3Reasons:          report.ReasonCounts.Box3x3,
 		TotalReasons:           report.ReasonCounts.Total(),
+		MetricsJSON:            string(metricsJSON),
 		TechniqueCountsJSON:    string(techJSON),
 		DeductionsJSON:         string(deductionsJSON),
 	}, nil
@@ -133,6 +261,13 @@ func (rec *PuzzleRecord) ToDifficultyReport() (DifficultyReport, error) {
 	if rec.TechniqueCountsJSON != "" {
 		if err := json.Unmarshal([]byte(rec.TechniqueCountsJSON), &techCounts); err != nil {
 			return DifficultyReport{}, fmt.Errorf("failed to unmarshal technique counts: %w", err)
+		}
+	}
+
+	var metrics AdvancedMetrics
+	if rec.MetricsJSON != "" {
+		if err := json.Unmarshal([]byte(rec.MetricsJSON), &metrics); err != nil {
+			return DifficultyReport{}, fmt.Errorf("failed to unmarshal metrics: %w", err)
 		}
 	}
 
@@ -152,6 +287,7 @@ func (rec *PuzzleRecord) ToDifficultyReport() (DifficultyReport, error) {
 			Box3x3:          rec.Box3x3Reasons,
 		},
 		TechniqueCounts: techCounts,
+		Metrics:         metrics,
 		StepDeductions:  deductions,
 	}, nil
 }

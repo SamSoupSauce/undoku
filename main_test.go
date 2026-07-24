@@ -54,6 +54,30 @@ func TestCarveWithTargetDifficulty(t *testing.T) {
 	}
 }
 
+func TestAdvancedMetrics(t *testing.T) {
+	s := NewSudoku()
+	var full models.Board
+	s.FillGrid(&full)
+
+	_, report := s.CarveWithTargetDifficulty(full, "medium", 0)
+
+	if report.Metrics.MinStepScore <= 0 {
+		t.Errorf("expected positive MinStepScore, got %f", report.Metrics.MinStepScore)
+	}
+	if report.Metrics.MaxStepScore < report.Metrics.MinStepScore {
+		t.Errorf("MaxStepScore (%f) should be >= MinStepScore (%f)", report.Metrics.MaxStepScore, report.Metrics.MinStepScore)
+	}
+	if report.Metrics.ScoreSpread < 0 {
+		t.Errorf("expected non-negative ScoreSpread, got %f", report.Metrics.ScoreSpread)
+	}
+	if report.Metrics.ScoreVariance < 0 {
+		t.Errorf("expected non-negative ScoreVariance, got %f", report.Metrics.ScoreVariance)
+	}
+	if report.Metrics.MaxStreak < 1 {
+		t.Errorf("expected MaxStreak >= 1, got %d", report.Metrics.MaxStreak)
+	}
+}
+
 func TestGORMStorageCRUD(t *testing.T) {
 	store, err := storage.NewSQLiteStorage(":memory:")
 	if err != nil {
