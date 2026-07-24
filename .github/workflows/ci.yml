@@ -45,7 +45,7 @@ jobs:
           npx astro build \
             --site "${{ steps.pages.outputs.origin }}" \
             --base "${{ steps.pages.outputs.base_path }}"
-        working-directory: ${{ env.BUILD_PATH }}
+        working-directory: ${{ env.BUILD_PATH }}/wiki
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
@@ -55,7 +55,7 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      url: /wiki/
+      url: # aaaa
     needs: build
     runs-on: ubuntu-latest
     name: Deploy
