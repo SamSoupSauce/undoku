@@ -45,7 +45,7 @@ jobs:
           npx astro build \
             --site "${{ steps.pages.outputs.origin }}" \
             --base "${{ steps.pages.outputs.base_path }}"
-        working-directory: ${{ env.BUILD_PATH }}/wiki
+        working-directory: ${{ env.BUILD_PATH }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
