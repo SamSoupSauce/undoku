@@ -2,21 +2,21 @@
 
 **Undoku** is a high-performance Go-based Sudoku puzzle generator, solver, difficulty evaluator, vector SVG renderer, and persistent storage API engine. It generates uniquely solvable Sudoku boards with step-by-step logical deduction provenance and fine-grained difficulty scoring.
 
-[![Documentation Wiki](https://img.shields.io/badge/Wiki-Astro%20Starlight-6366f1?style=for-the-badge&logo=astro)](file:///home/mrovkill/Projects/undoku/wiki)
+[![Documentation Wiki](https://img.shields.io/badge/Wiki-Astro%20Starlight-6366f1?style=for-the-badge&logo=astro)](https://samsoupsauce.github.io/undoku/)
 [![GitHub Repository](https://img.shields.io/badge/GitHub-SamSoupSauce%2Fundoku-181717?style=for-the-badge&logo=github)](https://github.com/SamSoupSauce/undoku)
 
 ---
 
 ## Documentation Wiki 📚
 
-For detailed guides, mathematical formulas, and REST API specifications, explore the [**Undoku Documentation Wiki**](file:///home/mrovkill/Projects/undoku/wiki):
+For detailed guides, mathematical formulas, and REST API specifications, explore the [**Undoku Documentation Wiki**](https://samsoupsauce.github.io/undoku/):
 
-- [📖 **Overview & Quick Start**](file:///home/mrovkill/Projects/undoku/wiki/src/content/docs/guides/quickstart.md)
-- [⚡ **Fast PRNG & Vector Graphics Architecture**](file:///home/mrovkill/Projects/undoku/wiki/src/content/docs/guides/architecture.md)
-- [🧩 **Deduction & Carving Engine**](file:///home/mrovkill/Projects/undoku/wiki/src/content/docs/guides/solver.md)
-- [📊 **Elimination Metrics & Advanced Difficulty Analytics**](file:///home/mrovkill/Projects/undoku/wiki/src/content/docs/guides/difficulty.md)
-- [🗄️ **PostgreSQL & GORM Database Storage**](file:///home/mrovkill/Projects/undoku/wiki/src/content/docs/guides/database.md)
-- [🔌 **REST API & SVG Graphics Specification**](file:///home/mrovkill/Projects/undoku/wiki/src/content/docs/reference/api.md)
+- [📖 **Overview & Quick Start**](wiki/src/content/docs/guides/quickstart.md)
+- [⚡ **Fast PRNG & Vector Graphics Architecture**](wiki/src/content/docs/guides/architecture.md)
+- [🧩 **Deduction & Carving Engine**](wiki/src/content/docs/guides/solver.md)
+- [📊 **Elimination Metrics & Advanced Difficulty Analytics**](wiki/src/content/docs/guides/difficulty.md)
+- [🗄️ **PostgreSQL & GORM Database Storage**](wiki/src/content/docs/guides/database.md)
+- [🔌 **REST API & SVG Graphics Specification**](wiki/src/content/docs/reference/api.md)
 
 ---
 
