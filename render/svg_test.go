@@ -55,3 +55,34 @@ func TestRenderTrajectorySVG(t *testing.T) {
 		t.Errorf("expected polyline element in trajectory SVG output")
 	}
 }
+
+func TestRenderAnimatedSVG(t *testing.T) {
+	var board models.Board
+	var report models.DifficultyReport
+	report.StepDeductions = []models.Deduction{
+		{Row: 0, Col: 0, Val: 5, Technique: "Naked Single", StepScore: 1.5, Description: "Naked Single test"},
+	}
+
+	svg := RenderAnimatedSVG(board, report, DefaultOptions())
+
+	if !strings.Contains(svg, "@keyframes") || !strings.Contains(svg, ".step-val-0") {
+		t.Errorf("expected CSS keyframes in animated SVG output")
+	}
+}
+
+func TestSaveAnimatedSVG(t *testing.T) {
+	var board models.Board
+	var report models.DifficultyReport
+	report.StepDeductions = []models.Deduction{
+		{Row: 0, Col: 0, Val: 5, Technique: "Naked Single", StepScore: 1.5, Description: "Naked Single test"},
+	}
+
+	path, err := SaveAnimatedSVG(board, report, "test_exports", "test_anim.svg")
+	if err != nil {
+		t.Fatalf("SaveAnimatedSVG returned error: %v", err)
+	}
+
+	if path == "" {
+		t.Errorf("expected non-empty file path from SaveAnimatedSVG")
+	}
+}

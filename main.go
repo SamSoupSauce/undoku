@@ -570,7 +570,7 @@ func (srv *Server) handleGetPuzzleByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := r.URL.Path
-	if strings.HasSuffix(path, "/svg") || strings.HasSuffix(path, "/heatmap.svg") || strings.HasSuffix(path, "/trajectory.svg") {
+	if strings.HasSuffix(path, "/svg") || strings.HasSuffix(path, "/heatmap.svg") || strings.HasSuffix(path, "/trajectory.svg") || strings.HasSuffix(path, "/animated.svg") {
 		srv.handleGetPuzzleSVG(w, r)
 		return
 	}
@@ -599,6 +599,8 @@ func (srv *Server) handleGetPuzzleSVG(w http.ResponseWriter, r *http.Request) {
 		idStr = strings.TrimSuffix(strings.TrimPrefix(path, "/api/puzzles/"), "/heatmap.svg")
 	} else if strings.HasSuffix(path, "/trajectory.svg") {
 		idStr = strings.TrimSuffix(strings.TrimPrefix(path, "/api/puzzles/"), "/trajectory.svg")
+	} else if strings.HasSuffix(path, "/animated.svg") {
+		idStr = strings.TrimSuffix(strings.TrimPrefix(path, "/api/puzzles/"), "/animated.svg")
 	} else {
 		idStr = strings.TrimSuffix(strings.TrimPrefix(path, "/api/puzzles/"), "/svg")
 	}
@@ -634,6 +636,9 @@ func (srv *Server) handleGetPuzzleSVG(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(svg))
 	} else if strings.HasSuffix(path, "/trajectory.svg") {
 		svg := render.RenderTrajectorySVG(report, 600, 240)
+		w.Write([]byte(svg))
+	} else if strings.HasSuffix(path, "/animated.svg") {
+		svg := render.RenderAnimatedSVG(board, report, render.DefaultOptions())
 		w.Write([]byte(svg))
 	} else {
 		svg := render.RenderBoardSVG(board, render.DefaultOptions())
@@ -671,6 +676,10 @@ func main() {
 			if err := store.SavePuzzle(&rec); err == nil {
 				log.Printf("[Init] Saved %s puzzle (ID: %d, Blanks: %d, Rating: %s, Score: %.2f)\n",
 					targetDiff, rec.ID, rec.BlanksCount, rec.DifficultyRating, rec.TotalScore)
+
+				if savedPath, err := render.SaveAnimatedSVG(puzzle, report, "exports", fmt.Sprintf("puzzle_%d_animated.svg", rec.ID)); err == nil {
+					log.Printf("[Export] Saved step-by-step animated SVG to filesystem: %s\n", savedPath)
+				}
 			}
 		}
 	}

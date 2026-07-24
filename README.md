@@ -23,7 +23,8 @@ For detailed guides, mathematical formulas, and REST API specifications, explore
 ## Key Features 🚀
 
 - **Fast PRNG Seeding (`FastRand`)**: Custom non-blocking Xorshift64 pseudo-random number generator for high-throughput grid generation.
-- **Pure Go Vector SVG Renderer**: Renders resolution-independent SVG vector graphics of board grids, elimination heatmaps, and step difficulty trajectory curves.
+- **Step-by-Step Animated SVG Export (`SaveAnimatedSVG`)**: Renders and writes keyframed step-by-step solution SVG animations directly to `exports/` on the filesystem.
+- **Pure Go Vector SVG Renderer**: Renders resolution-independent SVG vector graphics of board grids, elimination heatmaps, difficulty trajectory curves, and animated step provenance.
 - **Detailed Difficulty & Statistical Analytics**:
   - Breakdown by candidate elimination reasons (`cross-horizontal`, `cross-vertical`, `impossible 3x3 square`).
   - Advanced metrics: step score spread, variance, standard deviation, divergence (MAD), suddenness spikes, and technique streaks.
@@ -38,13 +39,14 @@ For detailed guides, mathematical formulas, and REST API specifications, explore
 
 ```
 undoku/
+├── exports/           # Step-by-step animated SVG files written to filesystem (e.g. puzzle_1_animated.svg)
 ├── main.go            # Entry point, HTTP server endpoints, core Sudoku generator & solver
 ├── main_test.go       # Unit test suite for generator, PRNG, solver, and database operations
 ├── models/
 │   └── puzzle.go      # Board matrix types, elimination reasons, difficulty report, & GORM models
 ├── render/
-│   ├── svg.go         # Pure Go vector SVG renderer for boards, heatmaps, & trajectory charts
-│   └── svg_test.go    # Unit tests for SVG renderer
+│   ├── svg.go         # Pure Go vector SVG renderer & animated filesystem exporter (SaveAnimatedSVG)
+│   └── svg_test.go    # Unit tests for SVG renderer and animated SVG exporter
 ├── storage/
 │   └── db.go          # GORM repository layer supporting PostgreSQL and SQLite drivers
 ├── wiki/              # Astro Starlight documentation wiki site
@@ -90,3 +92,4 @@ npm run dev
 | `GET` | `/api/puzzles/:id/svg` | `image/svg+xml` | Render Sudoku board vector SVG graphic |
 | `GET` | `/api/puzzles/:id/heatmap.svg` | `image/svg+xml` | Render elimination density heatmap SVG |
 | `GET` | `/api/puzzles/:id/trajectory.svg` | `image/svg+xml` | Render difficulty step trajectory curve SVG |
+| `GET` | `/api/puzzles/:id/animated.svg` | `image/svg+xml` | Render step-by-step animated solution SVG |
