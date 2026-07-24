@@ -1,6 +1,6 @@
 ---
-title: Fast PRNG & Core Generator Architecture
-description: Technical architecture of Undoku FastRand PRNG and grid generation engine.
+title: Fast PRNG & Vector Graphics Architecture
+description: Technical architecture of Undoku FastRand PRNG, grid generator, and pure Go SVG vector renderer.
 ---
 
 ## Fast PRNG Engine (`FastRand`)
@@ -21,21 +21,20 @@ func NewFastRand() *FastRand {
 }
 ```
 
-### Advantages over Standard PRNG:
-- **Lock-Free Execution**: Standard `rand.Source` calls involve atomic synchronization or mutex locks. `FastRand` operates strictly in local memory.
-- **Fast Seed Mixing**: Combines current Unix nanoseconds with golden-ratio constant `0x9E3779B97F4A7C15` to ensure high entropy on seed startup.
-- **High-Throughput Permutations**: Used by `Perm(n)` and `Shuffle(n, swap)` during grid filling and position selection.
-
 ---
 
-## Full Grid Generation (`FillGrid`)
+## Pure Go SVG Vector Renderer (`render/svg.go`)
 
-Grid generation uses randomized depth-first search (DFS) with recursive backtracking:
+Undoku includes a zero-dependency SVG graphics rendering engine for Sudoku boards, elimination heatmaps, and difficulty step curves.
 
-1. Identify the first empty cell $(r, c)$ with value `0`.
-2. Generate a random permutation of numbers `[1..9]` using `s.rng.Perm(9)`.
-3. For each candidate number `num`:
-   - Validate using `s.IsValid(b, r, c, num)` across row `r`, column `c`, and the $3 \times 3$ box.
-   - Assign `b[r][c] = num` and recursively call `s.FillGrid(b)`.
-   - If recursive branch fails, revert `b[r][c] = 0` and attempt the next candidate.
-4. Return `true` when all 81 cells are validly filled.
+### 1. Board Vector Graphic (`RenderBoardSVG`)
+- Renders responsive vector SVG graphics (`image/svg+xml`).
+- Supports dark mode palette with customizable cell dimensions and subgrid borders.
+
+### 2. Elimination Heatmap (`RenderHeatmapSVG`)
+- Maps candidate elimination intensity per cell across the $9 \times 9$ matrix.
+- Color gradient maps values from cool indigo (`#818cf8`) to warm pink (`#f472b6`).
+
+### 3. Trajectory Line Chart (`RenderTrajectorySVG`)
+- Generates step-by-step difficulty curves.
+- Visually flags step-to-step suddenness spikes along the solution path.

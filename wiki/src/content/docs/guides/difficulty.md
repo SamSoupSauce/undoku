@@ -1,6 +1,6 @@
 ---
-title: Elimination Metrics & Difficulty Scoring
-description: Detailed mathematical equations, reason tracking, and difficulty classification tiers.
+title: Elimination Metrics & Advanced Difficulty Analytics
+description: Mathematical equations, statistical metrics (variance, spread, divergence, suddenness), and difficulty classification tiers.
 ---
 
 ## Candidate Elimination Reasons (`EliminationReasons`)
@@ -13,13 +13,11 @@ For every empty cell $(r, c)$, Undoku tracks why digits $1..9$ cannot fit:
 | `CrossVertical` | Number already exists in column $c$ | Column constraint |
 | `Box3x3` | Number already exists in $3 \times 3$ subgrid | Subgrid constraint |
 
-### Reason Metric Total
-
 $$\text{TotalReasons} = \text{CrossHorizontal} + \text{CrossVertical} + \text{Box3x3}$$
 
 ---
 
-## Step Score Formula
+## Step Score & Aggregate Difficulty Formula
 
 For each deduction step $i$:
 
@@ -30,13 +28,25 @@ Where $\text{BaseTechniqueWeight}$ is:
 - `1.5` for Hidden Single (3x3 Box)
 - `1.8` for Hidden Single (Row / Column)
 
+Aggregate Score:
+$$\text{TotalScore} = \sum_{i=1}^{N} \text{StepScore}_i$$
+
 ---
 
-## Aggregate Numerical Score
+## Advanced Statistical Metrics (`AdvancedMetrics`)
 
-The aggregate difficulty score is the sum of step scores across all required deductions:
+Undoku computes trajectory statistics across all step scores $S_1, S_2, \dots, S_N$:
 
-$$\text{TotalScore} = \sum_{i=1}^{N} \text{StepScore}_i$$
+| Metric | Formula / Definition | Purpose |
+|---|---|---|
+| **`ScoreSpread`** | $\max(S_i) - \min(S_i)$ | Range of difficulty between easiest and hardest steps |
+| **`ScoreVariance`** | $\sigma^2 = \frac{1}{N} \sum_{i=1}^N (S_i - \mu)^2$ | Measure of step difficulty volatility |
+| **`ScoreStdDev`** | $\sigma = \sqrt{\sigma^2}$ | Standard deviation of step scores |
+| **`ScoreDivergence`** | $\text{MAD} = \frac{1}{N} \sum_{i=1}^N \|S_i - \mu\|$ | Mean Absolute Deviation from average difficulty |
+| **`Suddenness`** | $\max_{1 \le i < N} \|S_{i+1} - S_i\|$ | Sharpest step-to-step difficulty jump |
+| **`MaxStreak`** | $\max(\text{Consecutive identical techniques})$ | Longest sequence of single-technique deductions |
+| **`MostFrequentTechnique`** | $\text{Mode}(\text{Techniques})$ | Technique used most often |
+| **`LeastFrequentTechnique`** | $\text{MinFreq}(\text{Techniques})$ | Technique used least often |
 
 ---
 
