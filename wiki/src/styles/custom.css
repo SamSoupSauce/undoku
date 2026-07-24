@@ -1,0 +1,49 @@
+/* Custom Starlight styling for Undoku Wiki */
+:root {
+	--sl-color-accent-low: #1e1b4b;
+	--sl-color-accent: #6366f1;
+	--sl-color-accent-high: #a5b4fc;
+	--sl-color-white: #ffffff;
+	--sl-color-gray-1: #f3f4f6;
+	--sl-color-gray-2: #e5e7eb;
+	--sl-color-gray-3: #9ca3af;
+	--sl-color-gray-4: #4b5563;
+	--sl-color-gray-5: #1f2937;
+	--sl-color-gray-6: #111827;
+	--sl-color-black: #030712;
+}
+
+[data-theme='dark'] {
+	--sl-color-accent-low: #312e81;
+	--sl-color-accent: #818cf8;
+	--sl-color-accent-high: #c7d2fe;
+}
+
+.hero-gradient {
+	background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	font-weight: 800;
+}
+
+.card-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 1.5rem;
+	margin-top: 2rem;
+}
+
+.feature-card {
+	padding: 1.5rem;
+	border-radius: 12px;
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	backdrop-filter: blur(10px);
+	transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+	transform: translateY(-4px);
+	border-color: #818cf8;
+	box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.25);
+}

@@ -1,0 +1,34 @@
+---
+title: Undoku Documentation Wiki
+description: High-Performance Sudoku Generator, Difficulty Evaluator, & GORM Database API Engine.
+template: splash
+hero:
+  tagline: High-Performance Deterministic Sudoku Generator, Candidate Elimination Metric Evaluator, & GORM Database API Engine.
+  actions:
+    - text: Get Started
+      link: /guides/quickstart/
+      icon: right-arrow
+    - text: API Reference
+      link: /reference/api/
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Feature Highlights
+
+<CardGrid grid>
+	<Card title="⚡ Fast PRNG (FastRand)" icon="rocket">
+		Non-blocking Xorshift64 pseudo-random number generator for high-throughput grid generation and zero-mutex contention shuffling.
+	</Card>
+	<Card title="🧩 Logical Carving Engine" icon="puzzle">
+		Guarantees 100% logical solvability without guessing. Step-by-step backtrack search ensures clean deduction paths.
+	</Card>
+	<Card title="📊 Elimination Metrics & Difficulty" icon="document">
+		Tracks candidate elimination reasons (`cross-horizontal`, `cross-vertical`, `impossible 3x3 square`) and assigns aggregate numerical difficulty ratings (`Easy`, `Medium`, `Hard`, `Expert`).
+	</Card>
+	<Card title="🗄️ PostgreSQL & GORM Storage" icon="setting">
+		Relational GORM database persistence for full solutions, board states, technique breakdowns, and step deductions with SQLite fallback.
+	</Card>
+</CardGrid>
