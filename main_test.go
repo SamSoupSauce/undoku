@@ -1,6 +1,9 @@
 package main
 
 import (
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"samuel-meyers.com/undoku/models"
@@ -107,3 +110,31 @@ func TestGORMStorageCRUD(t *testing.T) {
 		t.Errorf("expected difficulty rating %s, got %s", record.DifficultyRating, fetched.DifficultyRating)
 	}
 }
+
+func TestHandleHomepage(t *testing.T) {
+	store, err := storage.NewSQLiteStorage(":memory:")
+	if err != nil {
+		t.Fatalf("failed to create memory sqlite storage: %v", err)
+	}
+	server := NewServer(store)
+
+	req := httptest.NewRequest("GET", "/", nil)
+	w := httptest.NewRecorder()
+	server.handleHomepage(w, req)
+
+	resp := w.Result()
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected status 200, got %d", resp.StatusCode)
+	}
+
+	contentType := resp.Header.Get("Content-Type")
+	if !strings.Contains(contentType, "text/html") {
+		t.Errorf("expected text/html content-type, got %s", contentType)
+	}
+
+	body := w.Body.String()
+	if !strings.Contains(body, "Web Canvas") {
+		t.Errorf("expected body to contain 'Web Canvas'")
+	}
+}
+

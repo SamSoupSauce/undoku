@@ -381,6 +381,277 @@ func RenderAnimatedSVG(b models.Board, report models.DifficultyReport, opts SVGO
 	return sb.String()
 }
 
+// RenderReplaySVG generates a self-contained animated SVG that demonstrates:
+// 1. Showcase full solved board followed by deliberate, high-impact unsolving with dissolve rings
+// 2. Fast-paced, visually rich step-by-step deduction playthrough with crosshair laser beams, box highlights, and pop-in animations
+// 3. Victory celebration phase
+func RenderReplaySVG(solution models.Board, carved models.Board, report models.DifficultyReport, opts SVGOptions) string {
+	if opts.Size <= 0 {
+		opts.Size = 540
+	}
+	cellSize := opts.Size / 9
+	boardSize := cellSize * 9
+	totalHeight := boardSize + 75
+
+	n := len(report.StepDeductions)
+	if n == 0 {
+		return RenderBoardSVG(carved, opts)
+	}
+
+	// Dynamic timing: showcase + rhythmic unsolving + fast solver playback + victory
+	showcaseSec := 0.8
+	unsolveCarveSec := 2.7
+	unsolveTotalSec := showcaseSec + unsolveCarveSec // 3.5s total unsolving
+	stepSec := 0.32                                  // snappy 320ms per deduction step
+	playthroughSec := float64(n) * stepSec
+	victorySec := 2.2
+	totalSec := unsolveTotalSec + playthroughSec + victorySec
+
+	showcasePct := (showcaseSec / totalSec) * 100.0
+	unsolvePct := (unsolveTotalSec / totalSec) * 100.0
+	playthroughPct := ((unsolveTotalSec + playthroughSec) / totalSec) * 100.0
+
+	// Identify carved blank cells
+	type cellPos struct{ r, c, val int }
+	var blanks []cellPos
+	for r := 0; r < 9; r++ {
+		for c := 0; c < 9; c++ {
+			if carved[r][c] == 0 {
+				blanks = append(blanks, cellPos{r: r, c: c, val: solution[r][c]})
+			}
+		}
+	}
+
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" width="%d" height="%d">`,
+		boardSize, totalHeight, boardSize, totalHeight))
+	sb.WriteString("\n<style>\n")
+	sb.WriteString(`  .text-given { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: ` + fmt.Sprintf("%dpx", cellSize*55/100) + `; text-anchor: middle; dominant-baseline: central; fill: #f9fafb; }` + "\n")
+	sb.WriteString(`  .text-unsolve { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: ` + fmt.Sprintf("%dpx", cellSize*55/100) + `; text-anchor: middle; dominant-baseline: central; fill: #38bdf8; }` + "\n")
+	sb.WriteString(`  .text-step { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: ` + fmt.Sprintf("%dpx", cellSize*55/100) + `; text-anchor: middle; dominant-baseline: central; fill: #818cf8; }` + "\n")
+	sb.WriteString(`  .status-text { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 13px; fill: #f3f4f6; }` + "\n")
+	sb.WriteString(`  .sub-status { font-family: 'Inter', system-ui, sans-serif; font-weight: 400; font-size: 11px; fill: #9ca3af; }` + "\n")
+	sb.WriteString(`  .status-unsolve { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 13px; fill: #38bdf8; }` + "\n")
+	sb.WriteString(`  .status-victory { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 13px; fill: #fbbf24; }` + "\n")
+
+	// Phase 1: Showcase & Unsolving Keyframes for each carved blank cell
+	numBlanks := len(blanks)
+	if numBlanks == 0 {
+		numBlanks = 1
+	}
+	for i, b := range blanks {
+		dissolveStartPct := showcasePct + (float64(i)/float64(numBlanks))*(unsolveCarveSec/totalSec)*100.0*0.88
+		dissolveEndPct := dissolveStartPct + ((unsolveCarveSec/totalSec)*100.0*0.18)
+		if dissolveEndPct > unsolvePct {
+			dissolveEndPct = unsolvePct
+		}
+
+		// Digit keyframe: visible during showcase, dissolves out during carve
+		sb.WriteString(fmt.Sprintf("@keyframes anim-unsolve-val-%d-%d {\n", b.r, b.c))
+		sb.WriteString(fmt.Sprintf("  0%%, %.2f%% { opacity: 1; transform: scale(1); }\n", dissolveStartPct))
+		sb.WriteString(fmt.Sprintf("  %.2f%% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }\n", (dissolveStartPct+dissolveEndPct)/2))
+		sb.WriteString(fmt.Sprintf("  %.2f%%, 100%% { opacity: 0; transform: scale(0.2); }\n", dissolveEndPct))
+		sb.WriteString("}\n")
+
+		// Cell background keyframe: flash on carve with cyan vaporize glow
+		sb.WriteString(fmt.Sprintf("@keyframes anim-unsolve-bg-%d-%d {\n", b.r, b.c))
+		sb.WriteString(fmt.Sprintf("  0%%, %.2f%% { fill: #0d1322; }\n", dissolveStartPct))
+		sb.WriteString(fmt.Sprintf("  %.2f%% { fill: rgba(244, 63, 94, 0.45); }\n", (dissolveStartPct+dissolveEndPct)/2))
+		sb.WriteString(fmt.Sprintf("  %.2f%%, 100%% { fill: #0d1322; }\n", dissolveEndPct))
+		sb.WriteString("}\n")
+
+		sb.WriteString(fmt.Sprintf(".unsolve-val-%d-%d { animation: anim-unsolve-val-%d-%d %.1fs infinite; transform-origin: %dpx %dpx; }\n",
+			b.r, b.c, b.r, b.c, totalSec, b.c*cellSize+cellSize/2, b.r*cellSize+cellSize/2))
+		sb.WriteString(fmt.Sprintf(".unsolve-bg-%d-%d { animation: anim-unsolve-bg-%d-%d %.1fs infinite; }\n",
+			b.r, b.c, b.r, b.c, totalSec))
+	}
+
+	// Phase 2: Step Playthrough Keyframes with Laser Crosshairs, Box Highlights, and Digit Pop-in
+	for i, d := range report.StepDeductions {
+		stepStartPct := unsolvePct + (float64(i)/float64(n))*(playthroughPct-unsolvePct)
+		stepActivePct := unsolvePct + (float64(i+1)/float64(n))*(playthroughPct-unsolvePct)
+		stepPeakPct := stepStartPct + (stepActivePct-stepStartPct)*0.4
+
+		// Keyframe for deduced digit pop-in (scale bounce)
+		sb.WriteString(fmt.Sprintf("@keyframes anim-replay-step-%d {\n", i))
+		sb.WriteString(fmt.Sprintf("  0%%, %.2f%% { opacity: 0; transform: scale(0.2); }\n", stepStartPct))
+		sb.WriteString(fmt.Sprintf("  %.2f%% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }\n", stepPeakPct))
+		sb.WriteString(fmt.Sprintf("  %.2f%%, 100%% { opacity: 1; transform: scale(1); fill: #818cf8; }\n", stepActivePct))
+		sb.WriteString("}\n")
+
+		// Keyframe for cell highlight during deduction
+		sb.WriteString(fmt.Sprintf("@keyframes anim-replay-bg-%d {\n", i))
+		sb.WriteString(fmt.Sprintf("  0%%, %.2f%% { fill: #0d1322; }\n", stepStartPct))
+		sb.WriteString(fmt.Sprintf("  %.2f%% { fill: rgba(245, 158, 11, 0.6); }\n", stepPeakPct))
+		sb.WriteString(fmt.Sprintf("  %.2f%%, 100%% { fill: rgba(99, 102, 241, 0.2); }\n", stepActivePct))
+		sb.WriteString("}\n")
+
+		// Keyframe for laser crosshair & box scanning beams
+		sb.WriteString(fmt.Sprintf("@keyframes anim-beam-%d {\n", i))
+		sb.WriteString(fmt.Sprintf("  0%%, %.2f%% { opacity: 0; }\n", stepStartPct))
+		sb.WriteString(fmt.Sprintf("  %.2f%%, %.2f%% { opacity: 1; }\n", stepStartPct+0.01, stepActivePct))
+		sb.WriteString(fmt.Sprintf("  %.2f%%, 100%% { opacity: 0; }\n", stepActivePct+0.01))
+		sb.WriteString("}\n")
+
+		// Keyframe for status bar step text
+		sb.WriteString(fmt.Sprintf("@keyframes anim-replay-status-%d {\n", i))
+		sb.WriteString(fmt.Sprintf("  0%%, %.2f%% { opacity: 0; }\n", stepStartPct))
+		sb.WriteString(fmt.Sprintf("  %.2f%%, %.2f%% { opacity: 1; }\n", stepStartPct+0.01, stepActivePct))
+		sb.WriteString(fmt.Sprintf("  %.2f%%, 100%% { opacity: 0; }\n", stepActivePct+0.01))
+		sb.WriteString("}\n")
+
+		sb.WriteString(fmt.Sprintf(".replay-step-val-%d { animation: anim-replay-step-%d %.1fs infinite; transform-origin: %dpx %dpx; }\n",
+			i, i, totalSec, d.Col*cellSize+cellSize/2, d.Row*cellSize+cellSize/2))
+		sb.WriteString(fmt.Sprintf(".replay-step-bg-%d { animation: anim-replay-bg-%d %.1fs infinite; }\n", i, i, totalSec))
+		sb.WriteString(fmt.Sprintf(".replay-beam-%d { animation: anim-beam-%d %.1fs infinite; }\n", i, i, totalSec))
+		sb.WriteString(fmt.Sprintf(".replay-step-status-%d { animation: anim-replay-status-%d %.1fs infinite; }\n", i, i, totalSec))
+	}
+
+	// Status Keyframe for Unsolve Phase
+	sb.WriteString(fmt.Sprintf("@keyframes anim-status-unsolve-phase {\n"))
+	sb.WriteString(fmt.Sprintf("  0%%, %.2f%% { opacity: 1; }\n", unsolvePct))
+	sb.WriteString(fmt.Sprintf("  %.2f%%, 100%% { opacity: 0; }\n", unsolvePct+0.05))
+	sb.WriteString("}\n")
+	sb.WriteString(fmt.Sprintf(".status-phase-unsolve { animation: anim-status-unsolve-phase %.1fs infinite; }\n", totalSec))
+
+	// Status Keyframe for Victory Phase
+	sb.WriteString(fmt.Sprintf("@keyframes anim-status-victory-phase {\n"))
+	sb.WriteString(fmt.Sprintf("  0%%, %.2f%% { opacity: 0; }\n", playthroughPct))
+	sb.WriteString(fmt.Sprintf("  %.2f%%, 100%% { opacity: 1; }\n", playthroughPct+0.05))
+	sb.WriteString("}\n")
+	sb.WriteString(fmt.Sprintf(".status-phase-victory { animation: anim-status-victory-phase %.1fs infinite; }\n", totalSec))
+
+	sb.WriteString("</style>\n")
+
+	// Canvas background
+	sb.WriteString(fmt.Sprintf(`<rect width="%d" height="%d" fill="#090d16"/>`+"\n", boardSize, totalHeight))
+
+	// Cell backgrounds & Givens
+	for r := 0; r < 9; r++ {
+		for c := 0; c < 9; c++ {
+			x, y := c*cellSize, r*cellSize
+			bg := "#0d1322"
+			if (r/3+c/3)%2 == 1 {
+				bg = "#111827"
+			}
+			if carved[r][c] != 0 {
+				// Static given clue
+				sb.WriteString(fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="%s"/>`+"\n", x, y, cellSize, cellSize, bg))
+				sb.WriteString(fmt.Sprintf(`<text x="%d" y="%d" class="text-given">%d</text>`+"\n", x+cellSize/2, y+cellSize/2, carved[r][c]))
+			} else {
+				// Carved blank: unsolving animation layer
+				sb.WriteString(fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="%s" class="unsolve-bg-%d-%d"/>`+"\n",
+					x, y, cellSize, cellSize, bg, r, c))
+				sb.WriteString(fmt.Sprintf(`<text x="%d" y="%d" class="text-unsolve unsolve-val-%d-%d">%d</text>`+"\n",
+					x+cellSize/2, y+cellSize/2, r, c, solution[r][c]))
+			}
+		}
+	}
+
+	// Laser Crosshairs and 3x3 Box Deduction Scanning Highlights
+	for i, d := range report.StepDeductions {
+		x, y := d.Col*cellSize, d.Row*cellSize
+		boxR := (d.Row / 3) * 3 * cellSize
+		boxC := (d.Col / 3) * 3 * cellSize
+
+		// Group of crosshair laser lines and box highlight
+		sb.WriteString(fmt.Sprintf(`<g class="replay-beam-%d">`+"\n", i))
+		// Row laser beam
+		sb.WriteString(fmt.Sprintf(`  <rect x="0" y="%d" width="%d" height="%d" fill="rgba(99, 102, 241, 0.12)"/>`+"\n", y, boardSize, cellSize))
+		sb.WriteString(fmt.Sprintf(`  <line x1="0" y1="%d" x2="%d" y2="%d" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>`+"\n", y+cellSize/2, boardSize, y+cellSize/2))
+		// Column laser beam
+		sb.WriteString(fmt.Sprintf(`  <rect x="%d" y="0" width="%d" height="%d" fill="rgba(99, 102, 241, 0.12)"/>`+"\n", x, cellSize, boardSize))
+		sb.WriteString(fmt.Sprintf(`  <line x1="%d" y1="0" x2="%d" y2="%d" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>`+"\n", x+cellSize/2, x+cellSize/2, boardSize))
+		// Box 3x3 quadrant soft glow
+		sb.WriteString(fmt.Sprintf(`  <rect x="%d" y="%d" width="%d" height="%d" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>`+"\n",
+			boxC, boxR, cellSize*3, cellSize*3))
+		sb.WriteString("</g>\n")
+	}
+
+	// Deduction playthrough cell backgrounds and pop-in digits
+	for i, d := range report.StepDeductions {
+		x, y := d.Col*cellSize, d.Row*cellSize
+		sb.WriteString(fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" class="replay-step-bg-%d"/>`+"\n",
+			x, y, cellSize, cellSize, i))
+		sb.WriteString(fmt.Sprintf(`<text x="%d" y="%d" class="text-step replay-step-val-%d">%d</text>`+"\n",
+			x+cellSize/2, y+cellSize/2, i, d.Val))
+	}
+
+	// Minor & Major Grid Lines
+	for i := 1; i < 9; i++ {
+		if i%3 != 0 {
+			pos := i * cellSize
+			sb.WriteString(fmt.Sprintf(`<line x1="%d" y1="0" x2="%d" y2="%d" stroke="#1f293d" stroke-width="1"/>`+"\n", pos, pos, boardSize))
+			sb.WriteString(fmt.Sprintf(`<line x1="0" y1="%d" x2="%d" y2="%d" stroke="#1f293d" stroke-width="1"/>`+"\n", pos, boardSize, pos))
+		}
+	}
+	for i := 0; i <= 9; i += 3 {
+		pos := i * cellSize
+		w := 3
+		if i == 0 || i == 9 {
+			w = 4
+		}
+		sb.WriteString(fmt.Sprintf(`<line x1="%d" y1="0" x2="%d" y2="%d" stroke="#6366f1" stroke-width="%d"/>`+"\n", pos, pos, boardSize, w))
+		sb.WriteString(fmt.Sprintf(`<line x1="0" y1="%d" x2="%d" y2="%d" stroke="#6366f1" stroke-width="%d"/>`+"\n", pos, boardSize, pos, w))
+	}
+
+	// Status Container
+	sb.WriteString(fmt.Sprintf(`<rect x="0" y="%d" width="%d" height="75" fill="#0d1322" stroke="#1f293d" stroke-width="1"/>`+"\n", boardSize, boardSize))
+
+	// 1. Phase 1 Unsolve Status
+	sb.WriteString(`<g class="status-phase-unsolve">` + "\n")
+	sb.WriteString(fmt.Sprintf(`  <text x="16" y="%d" class="status-unsolve">⚡ Phase 1: Rapid Unsolving &amp; Carving</text>`+"\n", boardSize+26))
+	sb.WriteString(fmt.Sprintf(`  <text x="16" y="%d" class="sub-status">Carving solved board into %d unique clues (Difficulty: %s)...</text>`+"\n",
+		boardSize+48, 81-numBlanks, report.Rating))
+	sb.WriteString("</g>\n")
+
+	// 2. Phase 2 Step Playthrough Statuses
+	for i, d := range report.StepDeductions {
+		sb.WriteString(fmt.Sprintf(`<g class="replay-step-status-%d">`+"\n", i))
+		sb.WriteString(fmt.Sprintf(`  <text x="16" y="%d" class="status-text">Step %d / %d: [%s] at (%d,%d) = %d</text>`+"\n",
+			boardSize+26, i+1, n, d.Technique, d.Row, d.Col, d.Val))
+		sb.WriteString(fmt.Sprintf(`  <text x="16" y="%d" class="sub-status">%s (Score: %.2f | Reasons: ⬌%d ⬍%d ▦%d)</text>`+"\n",
+			boardSize+48, d.Description, d.StepScore, d.Reasons.CrossHorizontal, d.Reasons.CrossVertical, d.Reasons.Box3x3))
+		sb.WriteString("</g>\n")
+	}
+
+	// 3. Phase 3 Victory Status
+	sb.WriteString(`<g class="status-phase-victory">` + "\n")
+	sb.WriteString(fmt.Sprintf(`  <text x="16" y="%d" class="status-victory">🏆 Victory: Puzzle 100%% Logically Proven</text>`+"\n", boardSize+26))
+	sb.WriteString(fmt.Sprintf(`  <text x="16" y="%d" class="sub-status">Rating: %s | Total Score: %.2f | Solved in %d steps</text>`+"\n",
+		boardSize+48, report.Rating, report.TotalScore, n))
+	sb.WriteString("</g>\n")
+
+	sb.WriteString("</svg>")
+	return sb.String()
+}
+
+// SaveReplaySVG renders and writes the full unsolve -> playthrough animated SVG to the filesystem
+func SaveReplaySVG(solution models.Board, carved models.Board, report models.DifficultyReport, outputDir, filename string) (string, error) {
+	if outputDir == "" {
+		outputDir = "exports"
+	}
+	if filename == "" {
+		filename = "puzzle_replay.svg"
+	}
+	if !strings.HasSuffix(filename, ".svg") {
+		filename += ".svg"
+	}
+
+	if err := os.MkdirAll(outputDir, 0755); err != nil {
+		return "", fmt.Errorf("failed to create directory %s: %w", outputDir, err)
+	}
+
+	filePath := filepath.Join(outputDir, filename)
+	svgContent := RenderReplaySVG(solution, carved, report, DefaultOptions())
+
+	if err := os.WriteFile(filePath, []byte(svgContent), 0644); err != nil {
+		return "", fmt.Errorf("failed to write Replay SVG animation file to %s: %w", filePath, err)
+	}
+
+	return filePath, nil
+}
+
 // SaveAnimatedSVG renders and writes the step-by-step animated SVG to the specified directory on the filesystem
 func SaveAnimatedSVG(b models.Board, report models.DifficultyReport, outputDir, filename string) (string, error) {
 	if outputDir == "" {

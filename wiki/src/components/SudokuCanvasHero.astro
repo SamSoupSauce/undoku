@@ -1,0 +1,1038 @@
+---
+// SudokuCanvasHero.astro - Web Canvas Sudoku Engine & Visualizer
+---
+
+<div class="canvas-hero-container">
+  <div class="canvas-hero-card">
+    <div class="canvas-header">
+      <div class="badge-row">
+        <span class="engine-badge">⚡ HTML5 Web Canvas Engine</span>
+        <span class="difficulty-badge" id="canvas-hero-diff">Hard</span>
+        <span class="score-badge" id="canvas-hero-score">Score: 84.50</span>
+      </div>
+      <div class="canvas-controls">
+        <button class="hero-btn hero-diff-btn" data-diff="easy">Easy</button>
+        <button class="hero-btn hero-diff-btn" data-diff="medium">Med</button>
+        <button class="hero-btn hero-diff-btn active" data-diff="hard">Hard</button>
+        <button class="hero-btn hero-diff-btn" data-diff="expert">Exp</button>
+        <button id="hero-btn-mutate" class="hero-btn hero-btn-accent" title="Mutate & Generate New Puzzle">🎲 New</button>
+        <button id="hero-btn-prev" class="hero-btn" title="Previous Step">⏮</button>
+        <button id="hero-btn-play" class="hero-btn hero-btn-primary" title="Play/Pause">▶ Play</button>
+        <button id="hero-btn-next" class="hero-btn" title="Next Step">⏭</button>
+        <button id="hero-btn-reset" class="hero-btn" title="Reset Board">↺</button>
+        <button id="hero-btn-heatmap" class="hero-btn hero-btn-toggle" title="Toggle Elimination Heatmap">🔥</button>
+      </div>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="heroSudokuCanvas" width="540" height="540"></canvas>
+    </div>
+
+    <div class="deduction-hud" id="hero-hud">
+      <div class="hud-top">
+        <span class="hud-technique" id="hud-tech">Naked Single</span>
+        <span class="hud-step" id="hud-step-num">Step 1 / 44</span>
+      </div>
+      <div class="hud-desc" id="hud-desc">Deduction provenance will appear as steps execute.</div>
+      <div class="hud-reasons">
+        <div class="reason-pill" title="Cross-Horizontal (Row) eliminations">
+          <span class="reason-icon">⬌ Row:</span>
+          <span class="reason-val" id="hud-reason-h">4</span>
+        </div>
+        <div class="reason-pill" title="Cross-Vertical (Column) eliminations">
+          <span class="reason-icon">⬍ Col:</span>
+          <span class="reason-val" id="hud-reason-v">3</span>
+        </div>
+        <div class="reason-pill" title="3x3 Box eliminations">
+          <span class="reason-icon">▦ Box:</span>
+          <span class="reason-val" id="hud-reason-b">2</span>
+        </div>
+        <div class="reason-pill score-pill" title="Step Complexity Score">
+          <span class="reason-icon">★ Step:</span>
+          <span class="reason-val" id="hud-step-score">1.45</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .canvas-hero-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1.5rem 0 2.5rem 0;
+    width: 100%;
+  }
+
+  .canvas-hero-card {
+    background: radial-gradient(circle at 50% 0%, #151d30 0%, #0a0e18 100%);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    border-radius: 16px;
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 30px rgba(99, 102, 241, 0.15);
+    padding: 1.25rem;
+    max-width: 580px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .canvas-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .badge-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .engine-badge {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.3));
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    color: #c084fc;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.6rem;
+    border-radius: 9999px;
+  }
+
+  .difficulty-badge {
+    background: rgba(245, 158, 11, 0.2);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: #fbbf24;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.6rem;
+    border-radius: 9999px;
+  }
+
+  .score-badge {
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #34d399;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.6rem;
+    border-radius: 9999px;
+  }
+
+  .canvas-controls {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+  }
+
+  .hero-btn {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    color: #f1f5f9;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .hero-btn:hover {
+    background: rgba(51, 65, 85, 0.9);
+    border-color: rgba(148, 163, 184, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .hero-btn-accent {
+    background: linear-gradient(135deg, #0284c7, #38bdf8);
+    border-color: #7dd3fc;
+    color: #0f172a;
+    font-weight: 700;
+  }
+
+  .hero-btn-primary {
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    border-color: #818cf8;
+    color: white;
+  }
+
+  .hero-btn-primary:hover {
+    background: linear-gradient(135deg, #4338ca, #4f46e5);
+  }
+
+  .hero-btn-toggle.active {
+    background: linear-gradient(135deg, #dc2626, #f97316);
+    border-color: #fdba74;
+    color: white;
+  }
+
+  .hero-diff-btn.active {
+    background: linear-gradient(135deg, #4f46e5, #6366f1) !important;
+    border-color: #a5b4fc !important;
+    color: white !important;
+    font-weight: 700 !important;
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.45);
+  }
+
+  .canvas-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    background: #080c14;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+  }
+
+  #heroSudokuCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: pointer;
+  }
+
+  .deduction-hud {
+    margin-top: 1rem;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    border-radius: 10px;
+    padding: 0.85rem;
+  }
+
+  .hud-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.35rem;
+  }
+
+  .hud-technique {
+    color: #818cf8;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+  }
+
+  .hud-step {
+    color: #94a3b8;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .hud-desc {
+    color: #cbd5e1;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin-bottom: 0.6rem;
+  }
+
+  .hud-reasons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .reason-pill {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(71, 85, 105, 0.4);
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    color: #94a3b8;
+    display: flex;
+    gap: 0.3rem;
+  }
+
+  .reason-val {
+    font-weight: 700;
+    color: #f1f5f9;
+  }
+
+  .score-pill {
+    background: rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.4);
+    color: #a5b4fc;
+    margin-left: auto;
+  }
+  .score-pill .reason-val {
+    color: #c7d2fe;
+  }
+</style>
+
+<script is:inline>
+  // Canvas Sudoku Interactive Engine & Rule-Based Mutator
+  (function () {
+    const canvas = document.getElementById('heroSudokuCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    class SudokuEngine {
+      static isValid(board, r, c, num) {
+        for (let i = 0; i < 9; i++) {
+          if (board[r][i] === num || board[i][c] === num) return false;
+        }
+        const startR = Math.floor(r / 3) * 3;
+        const startC = Math.floor(c / 3) * 3;
+        for (let row = startR; row < startR + 3; row++) {
+          for (let col = startC; col < startC + 3; col++) {
+            if (board[row][col] === num) return false;
+          }
+        }
+        return true;
+      }
+
+      static shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      }
+
+      static generateSeedBoard() {
+        const board = Array(9).fill(0).map(() => Array(9).fill(0));
+        function solve(b) {
+          for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+              if (b[r][c] === 0) {
+                const nums = SudokuEngine.shuffle([1,2,3,4,5,6,7,8,9]);
+                for (const num of nums) {
+                  if (SudokuEngine.isValid(b, r, c, num)) {
+                    b[r][c] = num;
+                    if (solve(b)) return true;
+                    b[r][c] = 0;
+                  }
+                }
+                return false;
+              }
+            }
+          }
+          return true;
+        }
+        solve(board);
+        return board;
+      }
+
+      static mutate(puzzle, solution = null) {
+        const p = puzzle.map(r => [...r]);
+        const s = solution ? solution.map(r => [...r]) : null;
+
+        const digits = SudokuEngine.shuffle([1,2,3,4,5,6,7,8,9]);
+        const mapping = {};
+        for (let i = 1; i <= 9; i++) mapping[i] = digits[i - 1];
+
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) {
+            if (p[r][c] !== 0) p[r][c] = mapping[p[r][c]];
+            if (s && s[r][c] !== 0) s[r][c] = mapping[s[r][c]];
+          }
+        }
+
+        for (let band = 0; band < 3; band++) {
+          const rowIndices = SudokuEngine.shuffle([0, 1, 2]);
+          const tempP = p.map(r => [...r]);
+          const tempS = s ? s.map(r => [...r]) : null;
+          for (let i = 0; i < 3; i++) {
+            const fromR = band * 3 + rowIndices[i];
+            const toR = band * 3 + i;
+            p[toR] = [...tempP[fromR]];
+            if (s) s[toR] = [...tempS[fromR]];
+          }
+        }
+
+        for (let stack = 0; stack < 3; stack++) {
+          const colIndices = SudokuEngine.shuffle([0, 1, 2]);
+          const tempP = p.map(r => [...r]);
+          const tempS = s ? s.map(r => [...r]) : null;
+          for (let r = 0; r < 9; r++) {
+            for (let i = 0; i < 3; i++) {
+              const fromC = stack * 3 + colIndices[i];
+              const toC = stack * 3 + i;
+              p[r][toC] = tempP[r][fromC];
+              if (s) s[r][toC] = tempS[r][fromC];
+            }
+          }
+        }
+
+        const bandOrder = SudokuEngine.shuffle([0, 1, 2]);
+        const tempP = p.map(r => [...r]);
+        const tempS = s ? s.map(r => [...r]) : null;
+        for (let b = 0; b < 3; b++) {
+          const fromB = bandOrder[b];
+          for (let r = 0; r < 3; r++) {
+            p[b * 3 + r] = [...tempP[fromB * 3 + r]];
+            if (s) s[b * 3 + r] = [...tempS[fromB * 3 + r]];
+          }
+        }
+
+        if (Math.random() > 0.5) {
+          const tp = p.map(r => [...r]);
+          const ts = s ? s.map(r => [...r]) : null;
+          for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+              p[r][c] = tp[c][r];
+              if (s) s[r][c] = ts[c][r];
+            }
+          }
+        }
+
+        return { puzzle: p, solution: s };
+      }
+
+      static getCandidates(b, r, c) {
+        if (b[r][c] !== 0) return [];
+        const used = new Set();
+        for (let i = 0; i < 9; i++) {
+          if (b[r][i] !== 0) used.add(b[r][i]);
+          if (b[i][c] !== 0) used.add(b[i][c]);
+        }
+        const startR = Math.floor(r / 3) * 3;
+        const startC = Math.floor(c / 3) * 3;
+        for (let row = startR; row < startR + 3; row++) {
+          for (let col = startC; col < startC + 3; col++) {
+            if (b[row][col] !== 0) used.add(b[row][col]);
+          }
+        }
+        const candidates = [];
+        for (let num = 1; num <= 9; num++) {
+          if (!used.has(num)) candidates.push(num);
+        }
+        return candidates;
+      }
+
+      static analyzeEliminations(b, r, c) {
+        if (b[r][c] !== 0) return { h: 0, v_: 0, b: 0 };
+        let h = 0, v = 0, box = 0;
+        const startR = Math.floor(r / 3) * 3;
+        const startC = Math.floor(c / 3) * 3;
+
+        for (let num = 1; num <= 9; num++) {
+          if (SudokuEngine.isValid(b, r, c, num)) continue;
+          let inRow = false;
+          for (let i = 0; i < 9; i++) if (b[r][i] === num) inRow = true;
+          if (inRow) h++;
+
+          let inCol = false;
+          for (let i = 0; i < 9; i++) if (b[i][c] === num) inCol = true;
+          if (inCol) v++;
+
+          let inBox = false;
+          for (let row = startR; row < startR + 3; row++) {
+            for (let col = startC; col < startC + 3; col++) {
+              if (b[row][col] === num) inBox = true;
+            }
+          }
+          if (inBox) box++;
+        }
+        return { h, v_: v, b: box };
+      }
+
+      static findNextDeduction(b) {
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) {
+            if (b[r][c] === 0) {
+              const cands = SudokuEngine.getCandidates(b, r, c);
+              if (cands.length === 1) {
+                const val = cands[0];
+                const reasons = SudokuEngine.analyzeEliminations(b, r, c);
+                const score = 1.0 + (reasons.h + reasons.v_ + reasons.b) * 0.05;
+                return {
+                  r, c, v: val,
+                  tech: "Naked Single",
+                  h: reasons.h, v_: reasons.v_, b: reasons.b,
+                  score,
+                  desc: `Naked Single at (${r},${c}): only ${val} fits [row: ${reasons.h}, col: ${reasons.v_}, box: ${reasons.b}]`
+                };
+              }
+            }
+          }
+        }
+
+        for (let boxR = 0; boxR < 9; boxR += 3) {
+          for (let boxC = 0; boxC < 9; boxC += 3) {
+            for (let num = 1; num <= 9; num++) {
+              let count = 0, targetR = -1, targetC = -1;
+              for (let r = boxR; r < boxR + 3; r++) {
+                for (let c = boxC; c < boxC + 3; c++) {
+                  if (b[r][c] === 0 && SudokuEngine.isValid(b, r, c, num)) {
+                    count++;
+                    targetR = r;
+                    targetC = c;
+                  }
+                }
+              }
+              if (count === 1) {
+                const reasons = SudokuEngine.analyzeEliminations(b, targetR, targetC);
+                const score = 1.5 + (reasons.h + reasons.v_ + reasons.b) * 0.05;
+                return {
+                  r: targetR, c: targetC, v: num,
+                  tech: "Hidden Single Box",
+                  h: reasons.h, v_: reasons.v_, b: reasons.b,
+                  score,
+                  desc: `Hidden Single in Box at (${targetR},${targetC}): ${num} is unique in box`
+                };
+              }
+            }
+          }
+        }
+
+        for (let r = 0; r < 9; r++) {
+          for (let num = 1; num <= 9; num++) {
+            let count = 0, targetC = -1;
+            for (let c = 0; c < 9; c++) {
+              if (b[r][c] === 0 && SudokuEngine.isValid(b, r, c, num)) {
+                count++;
+                targetC = c;
+              }
+            }
+            if (count === 1) {
+              const reasons = SudokuEngine.analyzeEliminations(b, r, targetC);
+              const score = 1.8 + (reasons.h + reasons.v_ + reasons.b) * 0.05;
+              return {
+                r, c: targetC, v: num,
+                tech: "Hidden Single Row",
+                h: reasons.h, v_: reasons.v_, b: reasons.b,
+                score,
+                desc: `Hidden Single in Row ${r} at (${r},${targetC}): ${num} is unique in row`
+              };
+            }
+          }
+        }
+
+        for (let c = 0; c < 9; c++) {
+          for (let num = 1; num <= 9; num++) {
+            let count = 0, targetR = -1;
+            for (let r = 0; r < 9; r++) {
+              if (b[r][c] === 0 && SudokuEngine.isValid(b, r, c, num)) {
+                count++;
+                targetR = r;
+              }
+            }
+            if (count === 1) {
+              const reasons = SudokuEngine.analyzeEliminations(b, targetR, c);
+              const score = 1.8 + (reasons.h + reasons.v_ + reasons.b) * 0.05;
+              return {
+                r: targetR, c, v: num,
+                tech: "Hidden Single Col",
+                h: reasons.h, v_: reasons.v_, b: reasons.b,
+                score,
+                desc: `Hidden Single in Col ${c} at (${targetR},${c}): ${num} is unique in column`
+              };
+            }
+          }
+        }
+
+        return null;
+      }
+
+      static solveAndAssess(puzzle) {
+        const work = puzzle.map(r => [...r]);
+        const steps = [];
+        let totalScore = 0;
+
+        while (true) {
+          let filled = true;
+          for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+              if (work[r][c] === 0) { filled = false; break; }
+            }
+            if (!filled) break;
+          }
+          if (filled) break;
+
+          const deduction = SudokuEngine.findNextDeduction(work);
+          if (!deduction) return { solved: false, steps, totalScore, rating: "Expert+" };
+
+          work[deduction.r][deduction.c] = deduction.v;
+          steps.push(deduction);
+          totalScore += deduction.score;
+        }
+
+        let rating = "Easy";
+        if (totalScore >= 115) rating = "Expert";
+        else if (totalScore >= 75) rating = "Hard";
+        else if (totalScore >= 45) rating = "Medium";
+
+        return { solved: true, steps, totalScore, rating };
+      }
+
+      static generateAndCarve(targetDiff = "hard") {
+        let full = SudokuEngine.generateSeedBoard();
+        full = SudokuEngine.mutate(full).puzzle;
+
+        let targetBlanks = 46;
+        if (targetDiff === "easy") targetBlanks = 32;
+        else if (targetDiff === "medium") targetBlanks = 40;
+        else if (targetDiff === "hard") targetBlanks = 48;
+        else if (targetDiff === "expert") targetBlanks = 54;
+
+        let puzzle = full.map(r => [...r]);
+        const positions = [];
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) positions.push({ r, c });
+        }
+        SudokuEngine.shuffle(positions);
+
+        for (const pos of positions) {
+          if (targetBlanks <= 0) break;
+          const orig = puzzle[pos.r][pos.c];
+          puzzle[pos.r][pos.c] = 0;
+          const test = SudokuEngine.solveAndAssess(puzzle);
+          if (test.solved) targetBlanks--;
+          else puzzle[pos.r][pos.c] = orig;
+        }
+
+        const mutated = SudokuEngine.mutate(puzzle, full);
+        puzzle = mutated.puzzle;
+        full = mutated.solution;
+
+        const assessment = SudokuEngine.solveAndAssess(puzzle);
+        return {
+          puzzle,
+          solution: full,
+          steps: assessment.steps,
+          rating: assessment.rating,
+          totalScore: assessment.totalScore
+        };
+      }
+    }
+
+    let initialBoard = [];
+    let steps = [];
+    let currentStep = 0;
+    let isPlaying = true;
+    let showHeatmap = false;
+    let selectedCell = null;
+    let isUnsolvingHero = false;
+
+    function animateUnsolvingHeroTransition(solutionBoard, puzzleBoard) {
+      isUnsolvingHero = true;
+      isPlaying = false;
+      const btnPlay = document.getElementById('hero-btn-play');
+      if (btnPlay) btnPlay.innerText = '▶ Play';
+
+      initialBoard = solutionBoard.map(row => [...row]);
+      const blanks = [];
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (puzzleBoard[r][c] === 0) {
+            blanks.push({ r, c });
+          }
+        }
+      }
+      SudokuEngine.shuffle(blanks);
+
+      let idx = 0;
+      const rect = canvas.getBoundingClientRect();
+      const cellSize = rect.width / 9;
+
+      const timer = setInterval(() => {
+        if (idx >= blanks.length) {
+          clearInterval(timer);
+          isUnsolvingHero = false;
+          initialBoard = puzzleBoard.map(row => [...row]);
+          currentStep = 0;
+          isPlaying = true;
+          if (btnPlay) btnPlay.innerText = '⏸ Pause';
+          updateHUD();
+          return;
+        }
+
+        const b = blanks[idx];
+        initialBoard[b.r][b.c] = 0;
+        createParticles(b.c * cellSize + cellSize / 2, b.r * cellSize + cellSize / 2, "#38bdf8");
+        idx++;
+      }, 14);
+    }
+
+    function generateNewHeroPuzzle(diff = "hard") {
+      const res = SudokuEngine.generateAndCarve(diff);
+      steps = res.steps;
+      currentStep = 0;
+
+      const diffBadge = document.getElementById('canvas-hero-diff');
+      const scoreBadge = document.getElementById('canvas-hero-score');
+      if (diffBadge) diffBadge.innerText = res.rating;
+      if (scoreBadge) scoreBadge.innerText = `Score: ${res.totalScore.toFixed(2)}`;
+
+      animateUnsolvingHeroTransition(res.solution, res.puzzle);
+    }
+
+    function getGridAtStep(stepIndex) {
+      const grid = initialBoard.map(row => [...row]);
+      if (isUnsolvingHero) return grid;
+      for (let i = 0; i < stepIndex && i < steps.length; i++) {
+        const s = steps[i];
+        grid[s.r][s.c] = s.v;
+      }
+      return grid;
+    }
+
+    function createParticles(x, y, color) {
+      for (let i = 0; i < 16; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 1.5 + Math.random() * 3.5;
+        particles.push({
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          radius: 2 + Math.random() * 2.5,
+          color,
+          alpha: 1.0,
+          decay: 0.02 + Math.random() * 0.03
+        });
+      }
+    }
+
+    function updateParticles() {
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= p.decay;
+        if (p.alpha <= 0) particles.splice(i, 1);
+      }
+    }
+
+    function draw() {
+      if (!initialBoard.length) return;
+      const rect = canvas.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+      const cellSize = width / 9;
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Background
+      ctx.fillStyle = "#0a0e1a";
+      ctx.fillRect(0, 0, width, height);
+
+      const currentGrid = getGridAtStep(currentStep);
+      const latestStep = currentStep > 0 && currentStep <= steps.length ? steps[currentStep - 1] : null;
+
+      // 1. Heatmap
+      if (showHeatmap) {
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) {
+            if (initialBoard[r][c] === 0) {
+              const stepForCell = steps.find(s => s.r === r && s.c === c);
+              const elims = stepForCell ? (stepForCell.h + stepForCell.v_ + stepForCell.b) : 7;
+              const intensity = Math.min(1, Math.max(0.15, elims / 12));
+              ctx.fillStyle = `rgba(239, 68, 68, ${intensity * 0.55})`;
+              ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
+            }
+          }
+        }
+      }
+
+      // 2. Active Deduction Highlights with Laser Beams
+      if (latestStep) {
+        const pulse = 0.5 + 0.5 * Math.sin(animPhase * 8);
+
+        // Row laser beam
+        ctx.fillStyle = "rgba(99, 102, 241, 0.16)";
+        ctx.fillRect(0, latestStep.r * cellSize, width, cellSize);
+        ctx.strokeStyle = "rgba(129, 140, 248, 0.4)";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(0, latestStep.r * cellSize + cellSize / 2);
+        ctx.lineTo(width, latestStep.r * cellSize + cellSize / 2);
+        ctx.stroke();
+
+        // Column laser beam
+        ctx.fillStyle = "rgba(99, 102, 241, 0.16)";
+        ctx.fillRect(latestStep.c * cellSize, 0, cellSize, height);
+        ctx.beginPath();
+        ctx.moveTo(latestStep.c * cellSize + cellSize / 2, 0);
+        ctx.lineTo(latestStep.c * cellSize + cellSize / 2, height);
+        ctx.stroke();
+
+        // 3x3 Box Constraint Highlight
+        const boxR = Math.floor(latestStep.r / 3) * 3;
+        const boxC = Math.floor(latestStep.c / 3) * 3;
+        ctx.fillStyle = "rgba(168, 85, 247, 0.12)";
+        ctx.fillRect(boxC * cellSize, boxR * cellSize, cellSize * 3, cellSize * 3);
+        ctx.strokeStyle = "rgba(168, 85, 247, 0.45)";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(boxC * cellSize + 1, boxR * cellSize + 1, cellSize * 3 - 2, cellSize * 3 - 2);
+
+        // Target Cell Glowing Pop
+        ctx.fillStyle = `rgba(245, 158, 11, ${0.35 + pulse * 0.35})`;
+        ctx.fillRect(latestStep.c * cellSize, latestStep.r * cellSize, cellSize, cellSize);
+
+        ctx.strokeStyle = `rgba(251, 191, 36, ${0.8 + pulse * 0.2})`;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(latestStep.c * cellSize + 1.5, latestStep.r * cellSize + 1.5, cellSize - 3, cellSize - 3);
+      }
+
+      // 3. Selected Cell
+      if (selectedCell) {
+        ctx.fillStyle = "rgba(56, 189, 248, 0.25)";
+        ctx.fillRect(selectedCell.c * cellSize, selectedCell.r * cellSize, cellSize, cellSize);
+        ctx.strokeStyle = "#38bdf8";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(selectedCell.c * cellSize + 1, selectedCell.r * cellSize + 1, cellSize - 2, cellSize - 2);
+
+        const selectedVal = currentGrid[selectedCell.r][selectedCell.c];
+        if (selectedVal !== 0) {
+          for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+              if ((r !== selectedCell.r || c !== selectedCell.c) && currentGrid[r][c] === selectedVal) {
+                ctx.fillStyle = "rgba(56, 189, 248, 0.15)";
+                ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
+              }
+            }
+          }
+        }
+      }
+
+      // 4. Minor Grid lines
+      ctx.strokeStyle = "rgba(51, 65, 85, 0.6)";
+      ctx.lineWidth = 1;
+      for (let i = 1; i < 9; i++) {
+        if (i % 3 !== 0) {
+          ctx.beginPath();
+          ctx.moveTo(i * cellSize, 0);
+          ctx.lineTo(i * cellSize, height);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(0, i * cellSize);
+          ctx.lineTo(width, i * cellSize);
+          ctx.stroke();
+        }
+      }
+
+      // Major 3x3 box grid lines
+      ctx.strokeStyle = "#6366f1";
+      ctx.lineWidth = 2.5;
+      for (let i = 0; i <= 9; i += 3) {
+        ctx.beginPath();
+        ctx.moveTo(i * cellSize, 0);
+        ctx.lineTo(i * cellSize, height);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(0, i * cellSize);
+        ctx.lineTo(width, i * cellSize);
+        ctx.stroke();
+      }
+
+      // 5. Numbers
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      const fontSize = Math.floor(cellSize * 0.55);
+
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          const val = currentGrid[r][c];
+          if (val === 0) continue;
+
+          const isGiven = initialBoard[r][c] !== 0;
+          const isLatest = latestStep && latestStep.r === r && latestStep.c === c;
+
+          const cx = c * cellSize + cellSize / 2;
+          const cy = r * cellSize + cellSize / 2;
+
+          if (isGiven) {
+            ctx.font = `bold ${fontSize}px 'Inter', system-ui, sans-serif`;
+            ctx.fillStyle = "#f8fafc";
+            ctx.fillText(val.toString(), cx, cy);
+          } else if (isLatest) {
+            ctx.font = `bold ${fontSize + 2}px 'Inter', system-ui, sans-serif`;
+            ctx.fillStyle = "#fbbf24";
+            ctx.shadowColor = "rgba(251, 191, 36, 0.8)";
+            ctx.shadowBlur = 8;
+            ctx.fillText(val.toString(), cx, cy);
+            ctx.shadowBlur = 0;
+          } else {
+            ctx.font = `bold ${fontSize}px 'Inter', system-ui, sans-serif`;
+            ctx.fillStyle = "#818cf8";
+            ctx.fillText(val.toString(), cx, cy);
+          }
+        }
+      }
+
+      // 6. Particles
+      updateParticles();
+      for (const p of particles) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1.0;
+    }
+
+    function updateHUD() {
+      const hudStep = document.getElementById('hud-step-num');
+      const hudTech = document.getElementById('hud-tech');
+      const hudDesc = document.getElementById('hud-desc');
+      const hudRh = document.getElementById('hud-reason-h');
+      const hudRv = document.getElementById('hud-reason-v');
+      const hudRb = document.getElementById('hud-reason-b');
+      const hudScore = document.getElementById('hud-step-score');
+
+      if (currentStep === 0) {
+        if (hudStep) hudStep.innerText = `Step 0 / ${steps.length}`;
+        if (hudTech) hudTech.innerText = `Rule-Mutated Board Ready`;
+        if (hudDesc) hudDesc.innerText = `Press Play or Step Forward to trigger dynamic logical deduction algorithms.`;
+        if (hudRh) hudRh.innerText = `0`;
+        if (hudRv) hudRv.innerText = `0`;
+        if (hudRb) hudRb.innerText = `0`;
+        if (hudScore) hudScore.innerText = `0.00`;
+        return;
+      }
+
+      const s = steps[currentStep - 1];
+      if (hudStep) hudStep.innerText = `Step ${currentStep} / ${steps.length}`;
+      if (hudTech) hudTech.innerText = s.tech;
+      if (hudDesc) hudDesc.innerText = s.desc;
+      if (hudRh) hudRh.innerText = s.h.toString();
+      if (hudRv) hudRv.innerText = s.v_.toString();
+      if (hudRb) hudRb.innerText = s.b.toString();
+      if (hudScore) hudScore.innerText = s.score.toFixed(2);
+    }
+
+    function nextStep() {
+      if (currentStep < steps.length) {
+        currentStep++;
+        const s = steps[currentStep - 1];
+        const rect = canvas.getBoundingClientRect();
+        const cellSize = rect.width / 9;
+        createParticles(s.c * cellSize + cellSize / 2, s.r * cellSize + cellSize / 2, "#fbbf24");
+        updateHUD();
+      } else {
+        generateNewHeroPuzzle('hard');
+      }
+    }
+
+    function prevStep() {
+      if (currentStep > 0) {
+        currentStep--;
+        updateHUD();
+      }
+    }
+
+    let lastStepTime = 0;
+    const stepInterval = 300;
+
+    function animate(now) {
+      animPhase = now / 1000;
+      if (isPlaying && now - lastStepTime > stepInterval) {
+        nextStep();
+        lastStepTime = now;
+      }
+      draw();
+      requestAnimationFrame(animate);
+    }
+
+    const btnPlay = document.getElementById('hero-btn-play');
+    const btnNext = document.getElementById('hero-btn-next');
+    const btnPrev = document.getElementById('hero-btn-prev');
+    const btnReset = document.getElementById('hero-btn-reset');
+    const btnHeatmap = document.getElementById('hero-btn-heatmap');
+    const btnMutate = document.getElementById('hero-btn-mutate');
+
+    if (btnPlay) {
+      btnPlay.addEventListener('click', () => {
+        isPlaying = !isPlaying;
+        btnPlay.innerText = isPlaying ? '⏸ Pause' : '▶ Play';
+      });
+    }
+
+    if (btnNext) {
+      btnNext.addEventListener('click', () => {
+        isPlaying = false;
+        if (btnPlay) btnPlay.innerText = '▶ Play';
+        nextStep();
+      });
+    }
+
+    if (btnPrev) {
+      btnPrev.addEventListener('click', () => {
+        isPlaying = false;
+        if (btnPlay) btnPlay.innerText = '▶ Play';
+        prevStep();
+      });
+    }
+
+    if (btnReset) {
+      btnReset.addEventListener('click', () => {
+        isPlaying = false;
+        if (btnPlay) btnPlay.innerText = '▶ Play';
+        currentStep = 0;
+        updateHUD();
+      });
+    }
+
+    if (btnHeatmap) {
+      btnHeatmap.addEventListener('click', () => {
+        showHeatmap = !showHeatmap;
+        btnHeatmap.classList.toggle('active', showHeatmap);
+      });
+    }
+
+    let currentSelectedDiff = 'hard';
+
+    function setHeroDifficulty(diff) {
+      currentSelectedDiff = diff;
+      document.querySelectorAll('.hero-diff-btn').forEach(btn => {
+        if (btn.getAttribute('data-diff') === diff) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      generateNewHeroPuzzle(diff);
+    }
+
+    document.querySelectorAll('.hero-diff-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const diff = btn.getAttribute('data-diff');
+        setHeroDifficulty(diff);
+      });
+    });
+
+    if (btnMutate) {
+      btnMutate.addEventListener('click', () => {
+        generateNewHeroPuzzle(currentSelectedDiff);
+      });
+    }
+
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const cellSize = rect.width / 9;
+      const c = Math.floor(x / cellSize);
+      const r = Math.floor(y / cellSize);
+
+      if (r >= 0 && r < 9 && c >= 0 && c < 9) {
+        if (selectedCell && selectedCell.r === r && selectedCell.c === c) {
+          selectedCell = null;
+        } else {
+          selectedCell = { r, c };
+        }
+      }
+    });
+
+    setHeroDifficulty('hard');
+    requestAnimationFrame(animate);
+  })();
+</script>

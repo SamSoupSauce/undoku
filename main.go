@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -14,6 +15,9 @@ import (
 	"samuel-meyers.com/undoku/render"
 	"samuel-meyers.com/undoku/storage"
 )
+
+//go:embed web/index.html
+var indexHTML []byte
 
 // FastRand provides ultra-fast xorshift64 PRNG without mutex lock overhead
 type FastRand struct {
@@ -446,6 +450,142 @@ func (s *Sudoku) CarveWithTargetDifficulty(fullBoard models.Board, targetDifficu
 	return puzzle, report
 }
 
+// ApplyRuleBasedMutations applies validity-preserving isomorphic transformations:
+// 1. Digit relabeling (bijective permutation of 1..9)
+// 2. Row permutations within 3x3 bands
+// 3. Column permutations within 3x3 stacks
+// 4. Band permutations
+// 5. Stack permutations
+// 6. Transposition & Orthogonal reflections
+func (s *Sudoku) ApplyRuleBasedMutations(puzzle *models.Board, solution *models.Board) {
+	// 1. Digit Permutation
+	perm := s.rng.Perm(9)
+	mapping := make(map[int]int, 9)
+	for i := 0; i < 9; i++ {
+		mapping[i+1] = perm[i] + 1
+	}
+	for r := 0; r < 9; r++ {
+		for c := 0; c < 9; c++ {
+			if puzzle[r][c] != 0 {
+				puzzle[r][c] = mapping[puzzle[r][c]]
+			}
+			if solution != nil && solution[r][c] != 0 {
+				solution[r][c] = mapping[solution[r][c]]
+			}
+		}
+	}
+
+	// 2. Row permutations within bands
+	for band := 0; band < 3; band++ {
+		p := s.rng.Perm(3)
+		tempPuzzle := *puzzle
+		var tempSolution models.Board
+		if solution != nil {
+			tempSolution = *solution
+		}
+		for i := 0; i < 3; i++ {
+			fromR := band*3 + p[i]
+			toR := band*3 + i
+			puzzle[toR] = tempPuzzle[fromR]
+			if solution != nil {
+				solution[toR] = tempSolution[fromR]
+			}
+		}
+	}
+
+	// 3. Col permutations within stacks
+	for stack := 0; stack < 3; stack++ {
+		p := s.rng.Perm(3)
+		tempPuzzle := *puzzle
+		var tempSolution models.Board
+		if solution != nil {
+			tempSolution = *solution
+		}
+		for r := 0; r < 9; r++ {
+			for i := 0; i < 3; i++ {
+				fromC := stack*3 + p[i]
+				toC := stack*3 + i
+				puzzle[r][toC] = tempPuzzle[r][fromC]
+				if solution != nil {
+					solution[r][toC] = tempSolution[r][fromC]
+				}
+			}
+		}
+	}
+
+	// 4. Band swaps
+	bandPerm := s.rng.Perm(3)
+	tempPuzzle := *puzzle
+	var tempSolution models.Board
+	if solution != nil {
+		tempSolution = *solution
+	}
+	for b := 0; b < 3; b++ {
+		fromBand := bandPerm[b]
+		for r := 0; r < 3; r++ {
+			puzzle[b*3+r] = tempPuzzle[fromBand*3+r]
+			if solution != nil {
+				solution[b*3+r] = tempSolution[fromBand*3+r]
+			}
+		}
+	}
+
+	// 5. Stack swaps
+	stackPerm := s.rng.Perm(3)
+	tempPuzzle = *puzzle
+	if solution != nil {
+		tempSolution = *solution
+	}
+	for r := 0; r < 9; r++ {
+		for sIdx := 0; sIdx < 3; sIdx++ {
+			fromStack := stackPerm[sIdx]
+			for c := 0; c < 3; c++ {
+				puzzle[r][sIdx*3+c] = tempPuzzle[r][fromStack*3+c]
+				if solution != nil {
+					solution[r][sIdx*3+c] = tempSolution[r][fromStack*3+c]
+				}
+			}
+		}
+	}
+
+	// 6. Transposition & Reflection
+	if s.rng.Intn(2) == 1 {
+		tempPuzzle = *puzzle
+		if solution != nil {
+			tempSolution = *solution
+		}
+		for r := 0; r < 9; r++ {
+			for c := 0; c < 9; c++ {
+				puzzle[r][c] = tempPuzzle[c][r]
+				if solution != nil {
+					solution[r][c] = tempSolution[c][r]
+				}
+			}
+		}
+	}
+}
+
+// GenerateAndAssessPuzzle generates a full board, mutates it with rule-based transformations,
+// carves blanks according to target difficulty, mutates again, then solves and dynamically assesses difficulty.
+func (s *Sudoku) GenerateAndAssessPuzzle(targetDifficulty string, targetBlanks int) (models.Board, models.Board, models.DifficultyReport) {
+	var fullGrid models.Board
+	s.FillGrid(&fullGrid)
+
+	// Mutate full grid
+	s.ApplyRuleBasedMutations(&fullGrid, nil)
+
+	// Carve blanks
+	puzzleGrid, _ := s.CarveWithTargetDifficulty(fullGrid, targetDifficulty, targetBlanks)
+
+	// Apply rule-based mutations to both puzzle and solution simultaneously
+	s.ApplyRuleBasedMutations(&puzzleGrid, &fullGrid)
+
+	// Run solver and evaluate difficulty dynamically
+	report, _ := s.SolveAndEvaluate(puzzleGrid)
+
+	return fullGrid, puzzleGrid, report
+}
+
 func PrintBoard(b *models.Board) {
 	for r := 0; r < 9; r++ {
 		if r%3 == 0 && r != 0 {
@@ -498,6 +638,15 @@ func NewServer(store *storage.Storage) *Server {
 	}
 }
 
+func (srv *Server) handleHomepage(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Write(indexHTML)
+}
+
 func (srv *Server) handleGenerateAndSave(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -512,10 +661,7 @@ func (srv *Server) handleGenerateAndSave(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
-	var fullGrid models.Board
-	srv.gen.FillGrid(&fullGrid)
-
-	puzzleGrid, report := srv.gen.CarveWithTargetDifficulty(fullGrid, diffTarget, blanksVal)
+	fullGrid, puzzleGrid, report := srv.gen.GenerateAndAssessPuzzle(diffTarget, blanksVal)
 	record, err := models.CreateRecord(fullGrid, puzzleGrid, report)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to format puzzle record: %v", err), http.StatusInternalServerError)
@@ -570,7 +716,7 @@ func (srv *Server) handleGetPuzzleByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := r.URL.Path
-	if strings.HasSuffix(path, "/svg") || strings.HasSuffix(path, "/heatmap.svg") || strings.HasSuffix(path, "/trajectory.svg") || strings.HasSuffix(path, "/animated.svg") || strings.HasSuffix(path, "/player.svg") {
+	if strings.HasSuffix(path, "/svg") || strings.HasSuffix(path, "/heatmap.svg") || strings.HasSuffix(path, "/trajectory.svg") || strings.HasSuffix(path, "/animated.svg") || strings.HasSuffix(path, "/player.svg") || strings.HasSuffix(path, "/replay.svg") {
 		srv.handleGetPuzzleSVG(w, r)
 		return
 	}
@@ -603,6 +749,8 @@ func (srv *Server) handleGetPuzzleSVG(w http.ResponseWriter, r *http.Request) {
 		idStr = strings.TrimSuffix(strings.TrimPrefix(path, "/api/puzzles/"), "/animated.svg")
 	} else if strings.HasSuffix(path, "/player.svg") {
 		idStr = strings.TrimSuffix(strings.TrimPrefix(path, "/api/puzzles/"), "/player.svg")
+	} else if strings.HasSuffix(path, "/replay.svg") {
+		idStr = strings.TrimSuffix(strings.TrimPrefix(path, "/api/puzzles/"), "/replay.svg")
 	} else {
 		idStr = strings.TrimSuffix(strings.TrimPrefix(path, "/api/puzzles/"), "/svg")
 	}
@@ -648,6 +796,9 @@ func (srv *Server) handleGetPuzzleSVG(w http.ResponseWriter, r *http.Request) {
 	} else if strings.HasSuffix(path, "/animated.svg") {
 		svg := render.RenderAnimatedSVG(board, report, render.DefaultOptions())
 		w.Write([]byte(svg))
+	} else if strings.HasSuffix(path, "/replay.svg") {
+		svg := render.RenderReplaySVG(solution, board, report, render.DefaultOptions())
+		w.Write([]byte(svg))
 	} else if strings.HasSuffix(path, "/player.svg") {
 		svg := render.RenderInteractivePlayerSVG(board, solution, report, render.DefaultOptions())
 		w.Write([]byte(svg))
@@ -678,16 +829,16 @@ func main() {
 	s := NewSudoku()
 	diffs := []string{"easy", "medium", "hard"}
 	for _, targetDiff := range diffs {
-		var fullGrid models.Board
-		s.FillGrid(&fullGrid)
-
-		puzzle, report := s.CarveWithTargetDifficulty(fullGrid, targetDiff, 0)
+		fullGrid, puzzle, report := s.GenerateAndAssessPuzzle(targetDiff, 0)
 		rec, err := models.CreateRecord(fullGrid, puzzle, report)
 		if err == nil {
 			if err := store.SavePuzzle(&rec); err == nil {
 				log.Printf("[Init] Saved %s puzzle (ID: %d, Blanks: %d, Rating: %s, Score: %.2f)\n",
 					targetDiff, rec.ID, rec.BlanksCount, rec.DifficultyRating, rec.TotalScore)
 
+				if savedPath, err := render.SaveReplaySVG(fullGrid, puzzle, report, "exports", fmt.Sprintf("puzzle_%d_replay.svg", rec.ID)); err == nil {
+					log.Printf("[Export] Saved animated replay SVG (unsolve + playthrough) to filesystem: %s\n", savedPath)
+				}
 				if savedPath, err := render.SaveAnimatedSVG(puzzle, report, "exports", fmt.Sprintf("puzzle_%d_animated.svg", rec.ID)); err == nil {
 					log.Printf("[Export] Saved step-by-step animated SVG to filesystem: %s\n", savedPath)
 				}
@@ -700,17 +851,23 @@ func main() {
 
 
 	server := NewServer(store)
+	http.HandleFunc("/", server.handleHomepage)
 	http.HandleFunc("/api/puzzles/generate", server.handleGenerateAndSave)
 	http.HandleFunc("/api/puzzles", server.handleListPuzzles)
 	http.HandleFunc("/api/puzzles/", server.handleGetPuzzleByID)
+
+	if _, err := os.Stat("wiki/dist"); err == nil {
+		http.Handle("/wiki/", http.StripPrefix("/wiki/", http.FileServer(http.Dir("wiki/dist"))))
+	}
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
-	log.Printf("Undoku REST API Server running on port %s...\n", port)
+	log.Printf("Undoku Web & REST API Server running on port %s...\n", port)
 	log.Printf("Endpoints:\n")
+	log.Printf("  GET  http://localhost:%s/ (Interactive Web Canvas Sudoku Engine)\n", port)
 	log.Printf("  POST http://localhost:%s/api/puzzles/generate?difficulty=hard\n", port)
 	log.Printf("  POST http://localhost:%s/api/puzzles/generate?difficulty=easy\n", port)
 	log.Printf("  GET  http://localhost:%s/api/puzzles\n", port)

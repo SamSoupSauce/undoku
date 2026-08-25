@@ -1,0 +1,10 @@
+{
+  "name": "undoku",
+  "version": "1.0.0",
+  "description": "High-Performance Go-based Sudoku Generator, Evaluator & Web Canvas Engine",
+  "scripts": {
+    "dev": "npm --prefix wiki run dev",
+    "build:wiki": "npm --prefix wiki run build",
+    "start": "RUN_HTTP_SERVER=true go run main.go"
+  }
+}

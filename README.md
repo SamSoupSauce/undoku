@@ -22,6 +22,8 @@ For detailed guides, mathematical formulas, and REST API specifications, explore
 
 ## Key Features 🚀
 
+- **HTML5 Web Canvas Rendering Engine**: High-DPI 60fps Web Canvas engine powering the interactive playable Sudoku board, real-time deduction crosshair scanlines, particle physics, elimination heatmaps, and difficulty trajectory curves.
+- **Interactive Web Canvas Homepage**: Full-featured web application served at `/` featuring live gameplay, on-screen keypad, pencil notes mode, solver step playback, and on-demand puzzle generation.
 - **Fast PRNG Seeding (`FastRand`)**: Custom non-blocking Xorshift64 pseudo-random number generator for high-throughput grid generation.
 - **Interactive Self-Contained SVG Puzzle Player (`RenderInteractivePlayerSVG` / `SaveInteractivePlayerSVG`)**: Renders a zero-dependency interactive Sudoku player inside a single SVG vector graphic with embedded JS/CSS (cell focus, keypad input, digit matching, keyboard navigation, hints, resets, and win detection).
 - **Step-by-Step Animated SVG Export (`SaveAnimatedSVG`)**: Renders and writes keyframed step-by-step solution SVG animations directly to `exports/` on the filesystem.
@@ -32,7 +34,7 @@ For detailed guides, mathematical formulas, and REST API specifications, explore
   - Difficulty classification (`Easy`, `Medium`, `Hard`, `Expert`).
 - **GORM PostgreSQL & SQLite Persistence**:
   - Production support for PostgreSQL (`POSTGRES_DSN`) with automatic fallback to local SQLite (`undoku.db`).
-- **REST API Server**: HTTP endpoints for puzzle generation, listing, detail lookup, and direct SVG vector graphics output.
+- **REST API Server & Web UI**: HTTP endpoints for puzzle generation, listing, detail lookup, direct SVG graphics output, and HTML5 Web Canvas app.
 
 ---
 
@@ -50,7 +52,9 @@ undoku/
 │   └── svg_test.go    # Unit tests for SVG renderer and animated SVG exporter
 ├── storage/
 │   └── db.go          # GORM repository layer supporting PostgreSQL and SQLite drivers
-├── wiki/              # Astro Starlight documentation wiki site
+├── web/
+│   └── index.html     # HTML5 Web Canvas Sudoku engine & interactive visualizer application
+├── wiki/              # Astro Starlight documentation wiki site (subfolder)
 ├── go.mod             # Go module definition
 ├── go.sum             # Go module checksums
 └── README.md          # Documentation
@@ -87,6 +91,7 @@ npm run dev
 
 | Method | Endpoint | Content Type | Description |
 |---|---|---|---|
+| `GET` | `/` | `text/html` | Interactive HTML5 Web Canvas Sudoku engine & visualizer |
 | `POST` | `/api/puzzles/generate` | `application/json` | Generate puzzle, calculate difficulty, save to DB |
 | `GET` | `/api/puzzles` | `application/json` | List saved puzzles with rating & pagination filters |
 | `GET` | `/api/puzzles/:id` | `application/json` | Get single puzzle record & step deductions |
@@ -94,4 +99,5 @@ npm run dev
 | `GET` | `/api/puzzles/:id/heatmap.svg` | `image/svg+xml` | Render elimination density heatmap SVG |
 | `GET` | `/api/puzzles/:id/trajectory.svg` | `image/svg+xml` | Render difficulty step trajectory curve SVG |
 | `GET` | `/api/puzzles/:id/animated.svg` | `image/svg+xml` | Render step-by-step animated solution SVG |
+| `GET` | `/api/puzzles/:id/replay.svg` | `image/svg+xml` | Render full animated SVG replay (rapid unsolve + deduction playthrough) |
 | `GET` | `/api/puzzles/:id/player.svg` | `image/svg+xml` | Render interactive SVG puzzle player (embedded JS & CSS) |

@@ -121,3 +121,48 @@ func TestSaveInteractivePlayerSVG(t *testing.T) {
 	}
 }
 
+func TestRenderReplaySVG(t *testing.T) {
+	var carved, solution models.Board
+	solution[0][0] = 5
+	solution[0][1] = 3
+	carved[0][0] = 5 // given
+	carved[0][1] = 0 // carved blank
+
+	var report models.DifficultyReport
+	report.Rating = "Hard"
+	report.TotalScore = 88.5
+	report.StepDeductions = []models.Deduction{
+		{Row: 0, Col: 1, Val: 3, Technique: "Naked Single", StepScore: 1.45, Description: "Naked Single at (0,1)"},
+	}
+
+	svg := RenderReplaySVG(solution, carved, report, DefaultOptions())
+
+	if !strings.Contains(svg, "@keyframes anim-unsolve-val-0-1") {
+		t.Errorf("expected unsolving keyframes in replay SVG")
+	}
+	if !strings.Contains(svg, "@keyframes anim-replay-step-0") {
+		t.Errorf("expected replay step keyframes in replay SVG")
+	}
+	if !strings.Contains(svg, "status-phase-unsolve") || !strings.Contains(svg, "status-phase-victory") {
+		t.Errorf("expected unsolve and victory phase status in replay SVG")
+	}
+}
+
+func TestSaveReplaySVG(t *testing.T) {
+	var carved, solution models.Board
+	var report models.DifficultyReport
+	report.StepDeductions = []models.Deduction{
+		{Row: 0, Col: 0, Val: 5, Technique: "Naked Single", StepScore: 1.5, Description: "Naked Single test"},
+	}
+
+	path, err := SaveReplaySVG(solution, carved, report, "test_exports", "test_replay.svg")
+	if err != nil {
+		t.Fatalf("SaveReplaySVG returned error: %v", err)
+	}
+
+	if path == "" {
+		t.Errorf("expected non-empty file path from SaveReplaySVG")
+	}
+}
+
+
