@@ -44,6 +44,7 @@ jobs:
           cp web/index.html site_dist/index.html
           mkdir -p site_dist/wiki
           cp -r wiki/dist/* site_dist/wiki/
+          touch site_dist/.nojekyll
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
