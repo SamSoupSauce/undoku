@@ -38,15 +38,17 @@ jobs:
           cd wiki
           npm run build
 
-      - name: Copy standalone Web Canvas App to dist
+      - name: Assemble GitHub Pages Deployment (Game at Root /, Wiki at /wiki/)
         run: |
-          mkdir -p wiki/dist/app
-          cp web/index.html wiki/dist/app/index.html
+          mkdir -p site_dist
+          cp web/index.html site_dist/index.html
+          mkdir -p site_dist/wiki
+          cp -r wiki/dist/* site_dist/wiki/
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: wiki/dist
+          path: site_dist
 
   deploy:
     environment:

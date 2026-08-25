@@ -5,7 +5,7 @@ import starlight from '@astrojs/starlight';
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://samsoupsauce.github.io',
-	base: '/undoku',
+	base: '/undoku/wiki',
 	integrations: [
 		starlight({
 			title: 'Undoku Wiki',

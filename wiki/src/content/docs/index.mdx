@@ -5,11 +5,15 @@ template: splash
 hero:
   tagline: High-Performance Deterministic Sudoku Generator, Candidate Elimination Metric Evaluator, & GORM Database API Engine.
   actions:
-    - text: Get Started
-      link: /undoku/guides/quickstart/
+    - text: 🧩 Play Web Canvas Game
+      link: /undoku/
+      icon: rocket
+      variant: primary
+    - text: Getting Started
+      link: /undoku/wiki/guides/quickstart/
       icon: right-arrow
     - text: API Reference
-      link: /undoku/reference/api/
+      link: /undoku/wiki/reference/api/
       icon: external
       variant: minimal
 ---
@@ -23,15 +27,15 @@ import SudokuCanvasHero from '../../components/SudokuCanvasHero.astro';
 
 <CardGrid grid>
 	<Card title="⚡ Fast PRNG (FastRand)" icon="rocket">
-		Non-blocking Xorshift64 pseudo-random generator. Learn more in the [Architecture Guide](/undoku/guides/architecture/).
+		Non-blocking Xorshift64 pseudo-random generator. Learn more in the [Architecture Guide](/undoku/wiki/guides/architecture/).
 	</Card>
 	<Card title="🧩 Logical Carving Engine" icon="puzzle">
-		Guarantees 100% logical solvability. Learn more in the [Solver Guide](/undoku/guides/solver/).
+		Guarantees 100% logical solvability. Learn more in the [Solver Guide](/undoku/wiki/guides/solver/).
 	</Card>
 	<Card title="📊 Elimination Metrics & Difficulty" icon="document">
-		Tracks `cross-horizontal`, `cross-vertical`, and `box-3x3` elimination reasons. Learn more in the [Difficulty Guide](/undoku/guides/difficulty/).
+		Tracks `cross-horizontal`, `cross-vertical`, and `box-3x3` elimination reasons. Learn more in the [Difficulty Guide](/undoku/wiki/guides/difficulty/).
 	</Card>
 	<Card title="🗄️ PostgreSQL & GORM Storage" icon="setting">
-		Relational GORM database persistence with SQLite fallback. Learn more in the [Database Guide](/undoku/guides/database/).
+		Relational GORM database persistence with SQLite fallback. Learn more in the [Database Guide](/undoku/wiki/guides/database/).
 	</Card>
 </CardGrid>
