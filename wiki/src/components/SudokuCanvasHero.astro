@@ -618,6 +618,8 @@
     let showHeatmap = false;
     let selectedCell = null;
     let isUnsolvingHero = false;
+    let particles = [];
+    let animPhase = 0;
 
     function animateUnsolvingHeroTransition(solutionBoard, puzzleBoard) {
       isUnsolvingHero = true;
