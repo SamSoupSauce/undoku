@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "npm --prefix wiki run dev",
     "build:wiki": "npm --prefix wiki run build",
+    "deploy": "./scripts/deploy.sh",
     "start": "RUN_HTTP_SERVER=true go run main.go"
   }
 }
