@@ -130,4 +130,57 @@ describe('SudokuEngine Mathematical & Analytical Engine', () => {
       }
     }
   });
+
+  it('should detect Locked Candidates pointing and claiming correctly', () => {
+    // Setup a candidate grid where box 1 has candidate 5 only in row 0
+    const b = Array.from({ length: 9 }, () => new Array(9).fill(0));
+    const cands = Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => [1, 2, 3, 4, 6, 7, 8, 9]));
+    // In box 1 (r: 0..2, c: 0..2), add candidate 5 only at (0,0) and (0,1)
+    cands[0][0].push(5);
+    cands[0][1].push(5);
+    // In row 0 outside box 1, add candidate 5 at (0,5)
+    cands[0][5].push(5);
+
+    const reduction = SudokuEngine.findLockedCandidates(b, cands);
+    assert.ok(reduction, 'Should find locked candidates pointing reduction');
+    assert.strictEqual(reduction.technique, 'Locked Candidates Pointing');
+    assert.ok(reduction.eliminations.some(e => e.r === 0 && e.c === 5 && e.val === 5));
+    assert.ok(reduction.assertions >= 18 && reduction.assertions <= 36);
+    assert.ok(reduction.step_score >= 2.40);
+  });
+
+  it('should detect Naked Pairs and Naked Triples correctly', () => {
+    const b = Array.from({ length: 9 }, () => new Array(9).fill(0));
+    const cands = Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => [3, 4, 5, 6, 7, 8, 9]));
+    // In row 0, set cells (0,0) and (0,1) to exactly candidates [1, 2]
+    cands[0][0] = [1, 2];
+    cands[0][1] = [1, 2];
+    // Set cell (0,2) to have [1, 3, 4] so candidate 1 should be eliminated
+    cands[0][2] = [1, 3, 4];
+
+    const reduction = SudokuEngine.findNakedSubsets(b, cands, 2);
+    assert.ok(reduction, 'Should find Naked Pair reduction');
+    assert.strictEqual(reduction.technique, 'Naked Pair');
+    assert.ok(reduction.eliminations.some(e => e.r === 0 && e.c === 2 && e.val === 1));
+    assert.ok(reduction.assertions > 0);
+    assert.ok(reduction.step_score >= 2.80);
+  });
+
+  it('should detect Hidden Pairs correctly', () => {
+    const b = Array.from({ length: 9 }, () => new Array(9).fill(0));
+    const cands = Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => [3, 4, 5, 6]));
+    // In row 0, add digits 1 and 2 ONLY to cells (0,0) and (0,1)
+    cands[0][0] = [1, 2, 7, 8];
+    cands[0][1] = [1, 2, 9];
+
+    const reduction = SudokuEngine.findHiddenSubsets(b, cands, 2);
+    assert.ok(reduction, 'Should find Hidden Pair reduction');
+    assert.strictEqual(reduction.technique, 'Hidden Pair');
+    // Candidates 7, 8 from (0,0) and 9 from (0,1) should be eliminated
+    assert.ok(reduction.eliminations.some(e => e.r === 0 && e.c === 0 && e.val === 7));
+    assert.ok(reduction.eliminations.some(e => e.r === 0 && e.c === 1 && e.val === 9));
+    assert.ok(reduction.assertions > 0);
+    assert.ok(reduction.step_score >= 3.50);
+  });
 });
+
