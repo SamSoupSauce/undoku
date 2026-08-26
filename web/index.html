@@ -7432,31 +7432,44 @@
           }
         }
 
-        // ---- PEER-VALIDATED ANTI-CHEAT ----------------------------------------
-        // We (the receiving device) are ground truth for the sender's entropy.
-        // Compare their reported entropy against our own live session baseline.
+        // ---- CROSS-VALIDATED ANTI-CHEAT ----------------------------------------
+        // Ground truth is the RECEIVING device — but the receiving device must
+        // itself be demonstrably human before it can penalize anyone.
+        // This prevents a cheating host from nuking the challenger's score and
+        // a cheating challenger from nuking the host's score.
+        //
+        // Validation only fires if:
+        //   1. WE have sufficient entropy (we are human — can validate)
+        //   2. THEY have suspicious entropy (absolute OR relative to us)
+        //
+        // The penalty message carries OUR entropy so they can verify we were human
+        // when we issued it — if they receive a penalty from a device with bot-level
+        // entropy, they REJECT it.
+        // -------------------------------------------------------------------------
         const myEntropy = inputEntropy.score();
         const theirEntropy = typeof msg.entropyScore === "number" ? msg.entropyScore : 1;
-        const opponentPlayer = (versusMatch.localPlayer === 1) ? 2 : 1; // which player the sender is
+        const opponentPlayer = (versusMatch.localPlayer === 1) ? 2 : 1;
         const opponentStrikesKey = `p${opponentPlayer}Strikes`;
         const opponentDroppedKey = `p${opponentPlayer}DroppedPts`;
         const opponentNick = (versusMatch.localPlayer === 1 ? versusMatch.p2Nick : versusMatch.p1Nick);
 
-        // Flag if: they self-reported suspicious, OR their entropy is < 0.12,
-        // OR their entropy is less than 15% of our own (relative baseline).
+        // We can only validate if we ourselves are human (entropy > 0.15)
+        const weAreHuman = myEntropy > 0.15;
+
+        // Flag opponent if: they self-reported suspicious, absolute bot threshold,
+        // OR their entropy is less than 15% of ours (relative)
         const relativelyLow = myEntropy > 0.05 && theirEntropy < myEntropy * 0.15;
-        const peerFlagged = msg.suspicious || theirEntropy < 0.12 || relativelyLow;
+        const peerFlagged = weAreHuman && (msg.suspicious || theirEntropy < 0.12 || relativelyLow);
 
         if (peerFlagged) {
           versusMatch[opponentStrikesKey] = (versusMatch[opponentStrikesKey] || 0) + 1;
-          console.warn(`[PeerAntiCheat] ${opponentNick} strike ${versusMatch[opponentStrikesKey]} — entropy: ${theirEntropy.toFixed(3)} (local baseline: ${myEntropy.toFixed(3)})`);
+          console.warn(`[CrossValidate] ${opponentNick} strike ${versusMatch[opponentStrikesKey]} | their: ${theirEntropy.toFixed(3)} | ours: ${myEntropy.toFixed(3)}`);
 
           if (versusMatch[opponentStrikesKey] % 10 === 0) {
-            // Every 10 strikes → issue 1 penalty point deduction
             versusMatch[opponentDroppedKey] = (versusMatch[opponentDroppedKey] || 0) + 1;
             const droppedTotal = versusMatch[opponentDroppedKey];
 
-            // Deduct a point from their score (minimum 0)
+            // Deduct locally
             if (opponentPlayer === 1) {
               versusMatch.p1Score = Math.max(0, versusMatch.p1Score - 1);
             } else {
@@ -7464,29 +7477,33 @@
             }
             updateVersusHUD();
 
-            // Broadcast the penalty so both screens agree
+            // Send penalty WITH our entropy so opponent can verify we were human
             sendVersusMessage({
               type: "CHEAT_PENALTY",
               penalisedPlayer: opponentPlayer,
               droppedTotal,
               p1Score: versusMatch.p1Score,
               p2Score: versusMatch.p2Score,
+              validatorEntropy: myEntropy,   // ← opponent checks this to accept/reject
             });
 
             showVersusToast("⚠️", `${opponentNick} penalty −1 pt (${droppedTotal}/10). Strikes: ${versusMatch[opponentStrikesKey]}`, 3500);
 
             if (droppedTotal >= 10) {
-              // 10 penalty points → force reconnect
-              sendVersusMessage({ type: "FORCE_RECONNECT", reason: "Repeated suspicious input detected by peer." });
+              sendVersusMessage({
+                type: "FORCE_RECONNECT",
+                reason: "Repeated suspicious input detected by peer.",
+                validatorEntropy: myEntropy,
+              });
               showVersusToast("🚫", `${opponentNick} removed for suspicious input. Reconnect required.`, 6000);
               versusMatch.isFinished = true;
               stopVersusPing();
             }
           }
         }
-        // -----------------------------------------------------------------------
+        // -------------------------------------------------------------------------
 
-        // Sync authoritative match state from sender
+        // Sync authoritative match state from sender (after any local penalty adj.)
         if (msg.match) {
           versusMatch.p1Score = msg.match.p1Score ?? versusMatch.p1Score;
           versusMatch.p2Score = msg.match.p2Score ?? versusMatch.p2Score;
@@ -7497,7 +7514,6 @@
         updateVersusHUD();
         const opponentFlag = peerFlagged ? ` ⚠️ (flagged ${versusMatch[opponentStrikesKey]}x)` : "";
         showVersusToast("🎯", `${opponentNick} placed ${msg.val} (+${msg.points} pts).${opponentFlag} YOUR TURN!`, 2500);
-        // Start local thinking clock and fresh entropy window for our turn
         if (versusMatch.activeTurn === versusMatch.localPlayer) {
           inputEntropy.reset();
           startVersusThinkingClock();
@@ -7506,28 +7522,44 @@
       }
 
       if (msg.type === "CHEAT_PENALTY") {
-        // Opponent's device issued a penalty against us — apply it locally so both
-        // screens stay in agreement. We don't dispute it; entropy is ground truth.
+        // Cross-validation gate: only accept this penalty if the VALIDATOR was human.
+        // A bot validator (low entropy) cannot penalize a legitimate player.
+        const validatorEntropy = typeof msg.validatorEntropy === "number" ? msg.validatorEntropy : 0;
+        if (validatorEntropy < 0.15) {
+          console.warn(`[CrossValidate] CHEAT_PENALTY REJECTED — validator entropy too low: ${validatorEntropy.toFixed(3)}. Possible bad-faith host/challenger.`);
+          showVersusToast("🛡️", "Penalty rejected — validator flagged as non-human.", 3500);
+          return;
+        }
+
+        // Validator was human — accept the penalty
         if (msg.p1Score !== undefined) versusMatch.p1Score = msg.p1Score;
         if (msg.p2Score !== undefined) versusMatch.p2Score = msg.p2Score;
         updateVersusHUD();
-        const penalisedNick = (msg.penalisedPlayer === 1 ? versusMatch.p1Nick : versusMatch.p2Nick);
         const isUs = (msg.penalisedPlayer === versusMatch.localPlayer);
+        const penalisedNick = (msg.penalisedPlayer === 1 ? versusMatch.p1Nick : versusMatch.p2Nick);
         if (isUs) {
-          showVersusToast("🚫", `Your input was flagged by opponent. Penalty −1 pt (${msg.droppedTotal}/10).`, 4000);
+          showVersusToast("🚫", `Your input was flagged by opponent (entropy validated). −1 pt (${msg.droppedTotal}/10).`, 4000);
         } else {
-          showVersusToast("⚠️", `${penalisedNick} penalised. −1 pt (${msg.droppedTotal}/10).`, 3000);
+          showVersusToast("⚠️", `${penalisedNick} penalised (cross-validated). −1 pt (${msg.droppedTotal}/10).`, 3000);
         }
         return;
       }
 
       if (msg.type === "FORCE_RECONNECT") {
-        // Issued when 10 penalty points accumulate — session integrity failed.
+        // Same gate — must be from a demonstrably human validator
+        const validatorEntropy = typeof msg.validatorEntropy === "number" ? msg.validatorEntropy : 0;
+        if (validatorEntropy < 0.15) {
+          console.warn(`[CrossValidate] FORCE_RECONNECT REJECTED — validator entropy: ${validatorEntropy.toFixed(3)}. Bot cannot kick human.`);
+          showVersusToast("🛡️", "Reconnect request rejected — validator flagged as non-human.", 4000);
+          return;
+        }
+
+        // Human validator — session integrity genuinely failed
         versusMatch.isFinished = true;
         stopVersusPing();
         stopVersusThinkingClock();
-        showVersusToast("🚫", `Session ended: ${msg.reason || "Repeated suspicious input detected."} Reconnect to start a new match.`, 8000);
-        console.warn("[PeerAntiCheat] FORCE_RECONNECT received:", msg.reason);
+        showVersusToast("🚫", `Session ended: ${msg.reason || "Repeated suspicious input."} Reconnect to start a new match.`, 8000);
+        console.warn("[CrossValidate] FORCE_RECONNECT accepted. Validator entropy:", validatorEntropy.toFixed(3));
         return;
       }
     }
