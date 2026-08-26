@@ -1,9 +1,10 @@
 /**
  * Undoku Universal Sudoku Mathematical & Generation Engine
  * Shared single source of truth for both Express Server (Node.js) & Web UI (Static Browser).
+ * Supports Generalized Rectangular Subgrid Topologies (Br x Bc) for N x N boards.
  */
 (function (root, factory) {
-  if (typeof module === 'object' && typeof module.exports === 'object') {
+  if (typeof module === "object" && typeof module.exports === "object") {
     module.exports = factory();
   } else {
     const exports = factory();
@@ -11,13 +12,13 @@
     root.FastRand = exports.FastRand;
     root.SudokuEngine = exports.SudokuEngine;
   }
-}(typeof self !== 'undefined' ? self : this, function () {
-  'use strict';
+}(typeof self !== "undefined" ? self : this, function () {
+  "use strict";
 
   class FastRand {
     constructor(seed) {
       if (seed === undefined || seed === null) {
-        if (typeof process !== 'undefined' && process.hrtime) {
+        if (typeof process !== "undefined" && process.hrtime) {
           const hr = process.hrtime();
           this.state = (BigInt(Date.now()) ^ (BigInt(hr[1]) << 16n) ^ 0x9e3779b97f4a7c15n) & 0xffffffffffffffffn;
         } else {
@@ -64,9 +65,79 @@
     }
   }
 
+  const SUPPORTED_CONFIGURATIONS = {
+    "mini_4x4":     { Br: 2, Bc: 2, N: 4,  label: "4x4 Mini (2x2 Box)", defaultClues: 6 },
+    "wide_6x6":     { Br: 2, Bc: 3, N: 6,  label: "6x6 Wide (2x3 Box)", defaultClues: 14 },
+    "wide_8x8":     { Br: 2, Bc: 4, N: 8,  label: "8x8 Wide (2x4 Box)", defaultClues: 26 },
+    "classic_9x9":  { Br: 3, Bc: 3, N: 9,  label: "9x9 Classic (3x3 Box)", defaultClues: 30 },
+    "wide_10x10":   { Br: 2, Bc: 5, N: 10, label: "10x10 Decimal (2x5 Box)", defaultClues: 40 },
+    "duo_12x12":    { Br: 3, Bc: 4, N: 12, label: "12x12 Duodecimal (3x4 Box)", defaultClues: 56 },
+    "ultra_12x12":  { Br: 2, Bc: 6, N: 12, label: "12x12 Wide-Band (2x6 Box)", defaultClues: 56 },
+    "hexa_16x16":   { Br: 4, Bc: 4, N: 16, label: "16x16 Hexadoku (4x4 Box)", defaultClues: 98 }
+  };
+
   class SudokuEngine {
-    static createBoard() {
-      return Array.from({ length: 9 }, () => new Array(9).fill(0));
+    static get SUPPORTED_CONFIGURATIONS() {
+      return SUPPORTED_CONFIGURATIONS;
+    }
+
+    static resolveTopology(bOrNOrKey, Br = null, Bc = null) {
+      if (typeof bOrNOrKey === "string" && SUPPORTED_CONFIGURATIONS[bOrNOrKey]) {
+        const cfg = SUPPORTED_CONFIGURATIONS[bOrNOrKey];
+        return { ...cfg, key: bOrNOrKey };
+      }
+      const N = Array.isArray(bOrNOrKey) ? bOrNOrKey.length : (typeof bOrNOrKey === "number" ? bOrNOrKey : 9);
+      if (Br && Bc && Br * Bc === N) {
+        return { Br, Bc, N, key: `${N}x${N}_${Br}x${Bc}`, label: `${N}x${N} (${Br}x${Bc} Box)` };
+      }
+      if (Br && !Bc && N % Br === 0) {
+        const c = N / Br;
+        return { Br, Bc: c, N, key: `${N}x${N}_${Br}x${c}`, label: `${N}x${N} (${Br}x${c} Box)` };
+      }
+      switch (N) {
+        case 4:  return { ...SUPPORTED_CONFIGURATIONS["mini_4x4"], key: "mini_4x4" };
+        case 6:  return { ...SUPPORTED_CONFIGURATIONS["wide_6x6"], key: "wide_6x6" };
+        case 8:  return { ...SUPPORTED_CONFIGURATIONS["wide_8x8"], key: "wide_8x8" };
+        case 9:  return { ...SUPPORTED_CONFIGURATIONS["classic_9x9"], key: "classic_9x9" };
+        case 10: return { ...SUPPORTED_CONFIGURATIONS["wide_10x10"], key: "wide_10x10" };
+        case 12: return { ...SUPPORTED_CONFIGURATIONS["duo_12x12"], key: "duo_12x12" };
+        case 16: return { ...SUPPORTED_CONFIGURATIONS["hexa_16x16"], key: "hexa_16x16" };
+        default: {
+          const sq = Math.floor(Math.sqrt(N));
+          if (sq * sq === N) return { Br: sq, Bc: sq, N, key: `sq_${N}x${N}`, label: `${N}x${N} (${sq}x${sq} Box)` };
+          for (let r = Math.floor(Math.sqrt(N)); r >= 2; r--) {
+            if (N % r === 0) return { Br: r, Bc: N / r, N, key: `rect_${N}x${N}`, label: `${N}x${N} (${r}x${N/r} Box)` };
+          }
+          return { Br: 1, Bc: N, N, key: `linear_${N}x${N}`, label: `${N}x${N} (1x${N} Box)` };
+        }
+      }
+    }
+
+    static getSymbols(N = 9) {
+      const syms = [];
+      for (let i = 1; i <= N; i++) {
+        if (i <= 9) syms.push(i.toString());
+        else syms.push(String.fromCharCode(65 + (i - 10)));
+      }
+      return syms;
+    }
+
+    static symbolForVal(val, N = 9) {
+      if (val === 0 || !val) return ".";
+      if (val <= 9) return val.toString();
+      return String.fromCharCode(65 + (val - 10));
+    }
+
+    static valForSymbol(sym, N = 9) {
+      if (!sym || sym === "." || sym === "0") return 0;
+      if (sym >= "1" && sym <= "9") return parseInt(sym, 10);
+      const code = sym.toUpperCase().charCodeAt(0);
+      if (code >= 65 && code <= 90) return 10 + (code - 65);
+      return 0;
+    }
+
+    static createBoard(N = 9) {
+      return Array.from({ length: N }, () => new Array(N).fill(0));
     }
 
     static cloneBoard(b) {
@@ -74,123 +145,151 @@
     }
 
     static boardToString(b) {
-      let str = '';
-      for (let r = 0; r < 9; r++) {
-        for (let c = 0; c < 9; c++) {
-          str += b[r][c] === 0 ? '.' : b[r][c].toString();
+      const N = b.length;
+      let str = "";
+      for (let r = 0; r < N; r++) {
+        for (let c = 0; c < N; c++) {
+          str += SudokuEngine.symbolForVal(b[r][c], N);
         }
       }
       return str;
     }
 
-    static stringToBoard(str) {
-      if (typeof str !== 'string' || str.length !== 81) {
-        throw new Error(`Invalid board string length ${str ? str.length : 0}, expected 81`);
+    static stringToBoard(str, configKeyOrN = "classic_9x9") {
+      const topo = SudokuEngine.resolveTopology(configKeyOrN);
+      const N = topo.N;
+      const expectedLen = N * N;
+      if (typeof str !== "string" || str.length !== expectedLen) {
+        throw new Error(`Invalid board string length ${str ? str.length : 0}, expected ${expectedLen} for ${N}x${N}`);
       }
-      const b = SudokuEngine.createBoard();
-      for (let i = 0; i < 81; i++) {
-        const r = Math.floor(i / 9);
-        const c = i % 9;
-        const ch = str[i];
-        if (ch === '.' || ch === '0') {
-          b[r][c] = 0;
-        } else if (ch >= '1' && ch <= '9') {
-          b[r][c] = parseInt(ch, 10);
-        } else {
-          throw new Error(`Invalid character '${ch}' at index ${i}`);
-        }
+      const b = SudokuEngine.createBoard(N);
+      for (let i = 0; i < expectedLen; i++) {
+        const r = Math.floor(i / N);
+        const c = i % N;
+        b[r][c] = SudokuEngine.valForSymbol(str[i], N);
       }
       return b;
     }
 
-    static isValid(b, row, col, num) {
-      for (let i = 0; i < 9; i++) {
+    static isValid(b, row, col, num, Br = null, Bc = null) {
+      const topo = SudokuEngine.resolveTopology(b, Br, Bc);
+      const N = topo.N;
+      const boxR = topo.Br;
+      const boxC = topo.Bc;
+
+      for (let i = 0; i < N; i++) {
         if (b[row][i] === num || b[i][col] === num) return false;
       }
-      const startR = Math.floor(row / 3) * 3;
-      const startC = Math.floor(col / 3) * 3;
-      for (let r = startR; r < startR + 3; r++) {
-        for (let c = startC; c < startC + 3; c++) {
+      const startR = Math.floor(row / boxR) * boxR;
+      const startC = Math.floor(col / boxC) * boxC;
+      for (let r = startR; r < startR + boxR; r++) {
+        for (let c = startC; c < startC + boxC; c++) {
           if (b[r][c] === num) return false;
         }
       }
       return true;
     }
 
-    static fillGrid(b, rng = new FastRand()) {
-      for (let r = 0; r < 9; r++) {
-        for (let c = 0; c < 9; c++) {
+    static fillGrid(b, rng = new FastRand(), Br = null, Bc = null) {
+      const topo = SudokuEngine.resolveTopology(b, Br, Bc);
+      const N = topo.N;
+      const boxR = topo.Br;
+      const boxC = topo.Bc;
+
+      let bestR = -1, bestC = -1, minCands = N + 1, bestCands = null;
+      for (let r = 0; r < N; r++) {
+        for (let c = 0; c < N; c++) {
           if (b[r][c] === 0) {
-            const perm = rng.perm(9);
-            for (let i = 0; i < 9; i++) {
-              const num = perm[i] + 1;
-              if (SudokuEngine.isValid(b, r, c, num)) {
-                b[r][c] = num;
-                if (SudokuEngine.fillGrid(b, rng)) return true;
-                b[r][c] = 0;
-              }
+            const cands = SudokuEngine.getCandidates(b, r, c, boxR, boxC);
+            if (cands.length === 0) return false;
+            if (cands.length < minCands) {
+              minCands = cands.length;
+              bestR = r;
+              bestC = c;
+              bestCands = cands;
+              if (minCands === 1) break;
             }
-            return false;
           }
         }
+        if (minCands === 1) break;
       }
-      return true;
+
+      if (bestR === -1) return true;
+
+      rng.shuffle(bestCands);
+      for (const num of bestCands) {
+        b[bestR][bestC] = num;
+        if (SudokuEngine.fillGrid(b, rng, boxR, boxC)) return true;
+        b[bestR][bestC] = 0;
+      }
+      return false;
     }
 
-    static generateSeedBoard(rng = new FastRand()) {
-      const b = SudokuEngine.createBoard();
-      SudokuEngine.fillGrid(b, rng);
+    static generateSeedBoard(rng = new FastRand(), Br = 3, Bc = 3) {
+      const topo = SudokuEngine.resolveTopology(Br * Bc, Br, Bc);
+      const b = SudokuEngine.createBoard(topo.N);
+      SudokuEngine.fillGrid(b, rng, topo.Br, topo.Bc);
       return b;
     }
 
-    static getCandidates(b, r, c) {
+    static getCandidates(b, r, c, Br = null, Bc = null) {
       if (b[r][c] !== 0) return [];
-      const used = new Array(10).fill(false);
-      for (let i = 0; i < 9; i++) {
+      const topo = SudokuEngine.resolveTopology(b, Br, Bc);
+      const N = topo.N;
+      const boxR = topo.Br;
+      const boxC = topo.Bc;
+
+      const used = new Array(N + 1).fill(false);
+      for (let i = 0; i < N; i++) {
         if (b[r][i] !== 0) used[b[r][i]] = true;
         if (b[i][c] !== 0) used[b[i][c]] = true;
       }
-      const startR = Math.floor(r / 3) * 3;
-      const startC = Math.floor(c / 3) * 3;
-      for (let i = startR; i < startR + 3; i++) {
-        for (let j = startC; j < startC + 3; j++) {
+      const startR = Math.floor(r / boxR) * boxR;
+      const startC = Math.floor(c / boxC) * boxC;
+      for (let i = startR; i < startR + boxR; i++) {
+        for (let j = startC; j < startC + boxC; j++) {
           if (b[i][j] !== 0) used[b[i][j]] = true;
         }
       }
       const cands = [];
-      for (let num = 1; num <= 9; num++) {
+      for (let num = 1; num <= N; num++) {
         if (!used[num]) cands.push(num);
       }
       return cands;
     }
 
-    static analyzeEliminations(b, r, c) {
+    static analyzeEliminations(b, r, c, Br = null, Bc = null) {
       let h = 0, v = 0, box = 0;
+      const topo = SudokuEngine.resolveTopology(b, Br, Bc);
+      const N = topo.N;
+      const boxR = topo.Br;
+      const boxC = topo.Bc;
+
       if (b[r][c] !== 0) {
         return { cross_horizontal: 0, cross_vertical: 0, box_3x3: 0, total: 0 };
       }
 
-      const startR = Math.floor(r / 3) * 3;
-      const startC = Math.floor(c / 3) * 3;
+      const startR = Math.floor(r / boxR) * boxR;
+      const startC = Math.floor(c / boxC) * boxC;
 
-      for (let num = 1; num <= 9; num++) {
-        if (SudokuEngine.isValid(b, r, c, num)) continue;
+      for (let num = 1; num <= N; num++) {
+        if (SudokuEngine.isValid(b, r, c, num, boxR, boxC)) continue;
 
         let inRow = false;
-        for (let i = 0; i < 9; i++) {
+        for (let i = 0; i < N; i++) {
           if (b[r][i] === num) { inRow = true; break; }
         }
         if (inRow) h++;
 
         let inCol = false;
-        for (let i = 0; i < 9; i++) {
+        for (let i = 0; i < N; i++) {
           if (b[i][c] === num) { inCol = true; break; }
         }
         if (inCol) v++;
 
         let inBox = false;
-        for (let br = startR; br < startR + 3; br++) {
-          for (let bc = startC; bc < startC + 3; bc++) {
+        for (let br = startR; br < startR + boxR; br++) {
+          for (let bc = startC; bc < startC + boxC; bc++) {
             if (b[br][bc] === num) { inBox = true; break; }
           }
         }
@@ -222,52 +321,66 @@
       return result;
     }
 
-    static getUnitDefinitions() {
+    static getUnitDefinitions(Br = 3, Bc = 3) {
+      const topo = SudokuEngine.resolveTopology(Br * Bc, Br, Bc);
+      const N = topo.N;
+      const boxR = topo.Br;
+      const boxC = topo.Bc;
       const units = [];
-      // 1. Rows
-      for (let r = 0; r < 9; r++) {
+
+      for (let r = 0; r < N; r++) {
         const u = [];
-        for (let c = 0; c < 9; c++) u.push({ r, c });
-        units.push({ type: 'row', name: `Row ${r + 1}`, cells: u });
+        for (let c = 0; c < N; c++) u.push({ r, c });
+        units.push({ type: "row", name: `Row ${r + 1}`, cells: u });
       }
-      // 2. Columns
-      for (let c = 0; c < 9; c++) {
+
+      for (let c = 0; c < N; c++) {
         const u = [];
-        for (let r = 0; r < 9; r++) u.push({ r, c });
-        units.push({ type: 'col', name: `Col ${c + 1}`, cells: u });
+        for (let r = 0; r < N; r++) u.push({ r, c });
+        units.push({ type: "col", name: `Col ${c + 1}`, cells: u });
       }
-      // 3. 3x3 Boxes
-      for (let br = 0; br < 9; br += 3) {
-        for (let bc = 0; bc < 9; bc += 3) {
+
+      const numBands = boxC;
+      const numStacks = boxR;
+      for (let band = 0; band < numBands; band++) {
+        for (let stack = 0; stack < numStacks; stack++) {
+          const startR = band * boxR;
+          const startC = stack * boxC;
           const u = [];
-          for (let dr = 0; dr < 3; dr++) {
-            for (let dc = 0; dc < 3; dc++) u.push({ r: br + dr, c: bc + dc });
+          for (let dr = 0; dr < boxR; dr++) {
+            for (let dc = 0; dc < boxC; dc++) {
+              u.push({ r: startR + dr, c: startC + dc });
+            }
           }
-          const boxIdx = (br / 3) * 3 + (bc / 3) + 1;
-          units.push({ type: 'box', name: `Box ${boxIdx}`, cells: u });
+          const boxIdx = band * boxR + stack + 1;
+          units.push({ type: "box", name: `Box ${boxIdx}`, cells: u });
         }
       }
       return units;
     }
 
-    // 1. Naked Single
-    static findNakedSingle(b, cands) {
-      for (let r = 0; r < 9; r++) {
-        for (let c = 0; c < 9; c++) {
+    static findNakedSingle(b, cands = null, Br = null, Bc = null) {
+      const topo = SudokuEngine.resolveTopology(b, Br, Bc);
+      const N = topo.N;
+      const boxR = topo.Br;
+      const boxC = topo.Bc;
+
+      for (let r = 0; r < N; r++) {
+        for (let c = 0; c < N; c++) {
           if (b[r][c] === 0) {
-            const cellCands = cands ? cands[r][c] : SudokuEngine.getCandidates(b, r, c);
+            const cellCands = cands ? cands[r][c] : SudokuEngine.getCandidates(b, r, c, boxR, boxC);
             if (cellCands.length === 1) {
               const val = cellCands[0];
-              const reasons = SudokuEngine.analyzeEliminations(b, r, c);
+              const reasons = SudokuEngine.analyzeEliminations(b, r, c, boxR, boxC);
 
               let rowOpen = 0, colOpen = 0, boxOpen = 0;
-              for (let i = 0; i < 9; i++) {
+              for (let i = 0; i < N; i++) {
                 if (b[r][i] === 0) rowOpen++;
                 if (b[i][c] === 0) colOpen++;
               }
-              const br = Math.floor(r / 3) * 3, bc = Math.floor(c / 3) * 3;
-              for (let dr = 0; dr < 3; dr++) {
-                for (let dc = 0; dc < 3; dc++) {
+              const br = Math.floor(r / boxR) * boxR, bc = Math.floor(c / boxC) * boxC;
+              for (let dr = 0; dr < boxR; dr++) {
+                for (let dc = 0; dc < boxC; dc++) {
                   if (b[br + dr][bc + dc] === 0) boxOpen++;
                 }
               }
@@ -283,9 +396,10 @@
               else assertions = Math.min(22, 16 + (minOpen - 6) * 2);
 
               const score = 1.0 + (assertions / 22.0) * 0.75;
-              const desc = `Naked Single at (${r + 1},${c + 1}): only ${val} fits [assertions: ${assertions}, min-open: ${minOpen}, cross-h: ${reasons.cross_horizontal}, cross-v: ${reasons.cross_vertical}, 3x3-sq: ${reasons.box_3x3}]`;
+              const sym = SudokuEngine.symbolForVal(val, N);
+              const desc = `Naked Single at (${r + 1},${c + 1}): only ${sym} fits [assertions: ${assertions}, min-open: ${minOpen}, cross-h: ${reasons.cross_horizontal}, cross-v: ${reasons.cross_vertical}, box: ${reasons.box_3x3}]`;
               return {
-                type: 'placement',
+                type: "placement",
                 row: r,
                 col: c,
                 val,
@@ -302,24 +416,33 @@
       return null;
     }
 
-    // 2. Hidden Single (Box)
-    static findHiddenSingleBox(b, cands) {
-      for (let boxR = 0; boxR < 9; boxR += 3) {
-        for (let boxC = 0; boxC < 9; boxC += 3) {
-          for (let num = 1; num <= 9; num++) {
+    static findHiddenSingleBox(b, cands = null, Br = null, Bc = null) {
+      const topo = SudokuEngine.resolveTopology(b, Br, Bc);
+      const N = topo.N;
+      const boxR = topo.Br;
+      const boxC = topo.Bc;
+
+      const numBands = boxC;
+      const numStacks = boxR;
+
+      for (let band = 0; band < numBands; band++) {
+        for (let stack = 0; stack < numStacks; stack++) {
+          const startR = band * boxR;
+          const startC = stack * boxC;
+          for (let num = 1; num <= N; num++) {
             let count = 0, targetR = -1, targetC = -1;
             let peerElimAssertions = 0;
-            for (let dr = 0; dr < 3; dr++) {
-              for (let dc = 0; dc < 3; dc++) {
-                const r = boxR + dr, c = boxC + dc;
+            for (let dr = 0; dr < boxR; dr++) {
+              for (let dc = 0; dc < boxC; dc++) {
+                const r = startR + dr, c = startC + dc;
                 if (b[r][c] === 0) {
-                  const cellCands = cands ? cands[r][c] : SudokuEngine.getCandidates(b, r, c);
+                  const cellCands = cands ? cands[r][c] : SudokuEngine.getCandidates(b, r, c, boxR, boxC);
                   if (cellCands.includes(num)) {
                     count++;
                     targetR = r;
                     targetC = c;
                   } else {
-                    for (let i = 0; i < 9; i++) {
+                    for (let i = 0; i < N; i++) {
                       if (b[r][i] === num) peerElimAssertions++;
                       if (b[i][c] === num) peerElimAssertions++;
                     }
@@ -328,13 +451,14 @@
               }
             }
             if (count === 1) {
-              const reasons = SudokuEngine.analyzeEliminations(b, targetR, targetC);
+              const reasons = SudokuEngine.analyzeEliminations(b, targetR, targetC, boxR, boxC);
               const assertions = Math.max(10, Math.min(24, Math.round(8 + peerElimAssertions * 0.4 + reasons.total * 0.3)));
               const score = 1.40 + (assertions / 24.0) * 0.45;
-              const boxIdx = (boxR / 3) * 3 + (boxC / 3) + 1;
-              const desc = `Hidden Single in Box ${boxIdx} at (${targetR + 1},${targetC + 1}): ${num} is unique in box [assertions: ${assertions}, cross-h: ${reasons.cross_horizontal}, cross-v: ${reasons.cross_vertical}, 3x3-sq: ${reasons.box_3x3}]`;
+              const boxIdx = band * boxR + stack + 1;
+              const sym = SudokuEngine.symbolForVal(num, N);
+              const desc = `Hidden Single in Box ${boxIdx} at (${targetR + 1},${targetC + 1}): ${sym} is unique in box [assertions: ${assertions}, cross-h: ${reasons.cross_horizontal}, cross-v: ${reasons.cross_vertical}, box: ${reasons.box_3x3}]`;
               return {
-                type: 'placement',
+                type: "placement",
                 row: targetR,
                 col: targetC,
                 val: num,
@@ -351,26 +475,29 @@
       return null;
     }
 
-    // 3. Hidden Single (Line - Row & Col)
-    static findHiddenSingleLine(b, cands) {
-      // Rows
-      for (let r = 0; r < 9; r++) {
-        for (let num = 1; num <= 9; num++) {
+    static findHiddenSingleLine(b, cands = null, Br = null, Bc = null) {
+      const topo = SudokuEngine.resolveTopology(b, Br, Bc);
+      const N = topo.N;
+      const boxR = topo.Br;
+      const boxC = topo.Bc;
+
+      for (let r = 0; r < N; r++) {
+        for (let num = 1; num <= N; num++) {
           let count = 0, targetC = -1;
           let peerElimAssertions = 0;
-          for (let c = 0; c < 9; c++) {
+          for (let c = 0; c < N; c++) {
             if (b[r][c] === 0) {
-              const cellCands = cands ? cands[r][c] : SudokuEngine.getCandidates(b, r, c);
+              const cellCands = cands ? cands[r][c] : SudokuEngine.getCandidates(b, r, c, boxR, boxC);
               if (cellCands.includes(num)) {
                 count++;
                 targetC = c;
               } else {
-                for (let i = 0; i < 9; i++) {
+                for (let i = 0; i < N; i++) {
                   if (b[i][c] === num) peerElimAssertions++;
                 }
-                const startR = Math.floor(r / 3) * 3, startC = Math.floor(c / 3) * 3;
-                for (let br = startR; br < startR + 3; br++) {
-                  for (let bc = startC; bc < startC + 3; bc++) {
+                const startR = Math.floor(r / boxR) * boxR, startC = Math.floor(c / boxC) * boxC;
+                for (let br = startR; br < startR + boxR; br++) {
+                  for (let bc = startC; bc < startC + boxC; bc++) {
                     if (b[br][bc] === num) peerElimAssertions++;
                   }
                 }
@@ -378,12 +505,13 @@
             }
           }
           if (count === 1) {
-            const reasons = SudokuEngine.analyzeEliminations(b, r, targetC);
+            const reasons = SudokuEngine.analyzeEliminations(b, r, targetC, boxR, boxC);
             const assertions = Math.max(15, Math.min(32, Math.round(12 + peerElimAssertions * 0.45 + reasons.total * 0.35)));
             const score = 1.75 + (assertions / 32.0) * 0.50;
-            const desc = `Hidden Single in Row ${r + 1} at (${r + 1},${targetC + 1}): ${num} is unique in row [assertions: ${assertions}, cross-h: ${reasons.cross_horizontal}, cross-v: ${reasons.cross_vertical}, 3x3-sq: ${reasons.box_3x3}]`;
+            const sym = SudokuEngine.symbolForVal(num, N);
+            const desc = `Hidden Single in Row ${r + 1} at (${r + 1},${targetC + 1}): ${sym} is unique in row [assertions: ${assertions}, cross-h: ${reasons.cross_horizontal}, cross-v: ${reasons.cross_vertical}, box: ${reasons.box_3x3}]`;
             return {
-              type: 'placement',
+              type: "placement",
               row: r,
               col: targetC,
               val: num,
@@ -397,24 +525,23 @@
         }
       }
 
-      // Columns
-      for (let c = 0; c < 9; c++) {
-        for (let num = 1; num <= 9; num++) {
+      for (let c = 0; c < N; c++) {
+        for (let num = 1; num <= N; num++) {
           let count = 0, targetR = -1;
           let peerElimAssertions = 0;
-          for (let r = 0; r < 9; r++) {
+          for (let r = 0; r < N; r++) {
             if (b[r][c] === 0) {
-              const cellCands = cands ? cands[r][c] : SudokuEngine.getCandidates(b, r, c);
+              const cellCands = cands ? cands[r][c] : SudokuEngine.getCandidates(b, r, c, boxR, boxC);
               if (cellCands.includes(num)) {
                 count++;
                 targetR = r;
               } else {
-                for (let i = 0; i < 9; i++) {
+                for (let i = 0; i < N; i++) {
                   if (b[r][i] === num) peerElimAssertions++;
                 }
-                const startR = Math.floor(r / 3) * 3, startC = Math.floor(c / 3) * 3;
-                for (let br = startR; br < startR + 3; br++) {
-                  for (let bc = startC; bc < startC + 3; bc++) {
+                const startR = Math.floor(r / boxR) * boxR, startC = Math.floor(c / boxC) * boxC;
+                for (let br = startR; br < startR + boxR; br++) {
+                  for (let bc = startC; bc < startC + boxC; bc++) {
                     if (b[br][bc] === num) peerElimAssertions++;
                   }
                 }
@@ -422,12 +549,13 @@
             }
           }
           if (count === 1) {
-            const reasons = SudokuEngine.analyzeEliminations(b, targetR, c);
+            const reasons = SudokuEngine.analyzeEliminations(b, targetR, c, boxR, boxC);
             const assertions = Math.max(15, Math.min(32, Math.round(12 + peerElimAssertions * 0.45 + reasons.total * 0.35)));
             const score = 1.75 + (assertions / 32.0) * 0.50;
-            const desc = `Hidden Single in Col ${c + 1} at (${targetR + 1},${c + 1}): ${num} is unique in col [assertions: ${assertions}, cross-h: ${reasons.cross_horizontal}, cross-v: ${reasons.cross_vertical}, 3x3-sq: ${reasons.box_3x3}]`;
+            const sym = SudokuEngine.symbolForVal(num, N);
+            const desc = `Hidden Single in Col ${c + 1} at (${targetR + 1},${c + 1}): ${sym} is unique in col [assertions: ${assertions}, cross-h: ${reasons.cross_horizontal}, cross-v: ${reasons.cross_vertical}, box: ${reasons.box_3x3}]`;
             return {
-              type: 'placement',
+              type: "placement",
               row: targetR,
               col: c,
               val: num,
@@ -443,43 +571,49 @@
       return null;
     }
 
-    // 4. Locked Candidates (Pointing & Claiming)
-    static findLockedCandidates(b, cands) {
-      // A. Pointing: Box -> Line
-      for (let bIdx = 0; bIdx < 9; bIdx++) {
-        const br = Math.floor(bIdx / 3) * 3;
-        const bc = (bIdx % 3) * 3;
-        for (let num = 1; num <= 9; num++) {
+    static findLockedCandidates(b, cands = null, Br = null, Bc = null) {
+      const topo = SudokuEngine.resolveTopology(b, Br, Bc);
+      const N = topo.N;
+      const boxR = topo.Br;
+      const boxC = topo.Bc;
+
+      for (let bIdx = 0; bIdx < N; bIdx++) {
+        const band = Math.floor(bIdx / boxR);
+        const stack = bIdx % boxR;
+        const br = band * boxR;
+        const bc = stack * boxC;
+        for (let num = 1; num <= N; num++) {
           const boxCellsWithNum = [];
-          for (let dr = 0; dr < 3; dr++) {
-            for (let dc = 0; dc < 3; dc++) {
+          for (let dr = 0; dr < boxR; dr++) {
+            for (let dc = 0; dc < boxC; dc++) {
               const r = br + dr, c = bc + dc;
               if (b[r][c] === 0 && cands[r][c].includes(num)) {
                 boxCellsWithNum.push({ r, c });
               }
             }
           }
-          if (boxCellsWithNum.length >= 2 && boxCellsWithNum.length <= 3) {
+          if (boxCellsWithNum.length >= 2 && boxCellsWithNum.length <= Math.max(boxR, boxC)) {
             const firstR = boxCellsWithNum[0].r;
             if (boxCellsWithNum.every(cell => cell.r === firstR)) {
               const eliminations = [];
-              for (let c = 0; c < 9; c++) {
-                if (c < bc || c >= bc + 3) {
+              for (let c = 0; c < N; c++) {
+                if (c < bc || c >= bc + boxC) {
                   if (b[firstR][c] === 0 && cands[firstR][c].includes(num)) {
                     eliminations.push({ r: firstR, c, val: num });
                   }
                 }
               }
               if (eliminations.length > 0) {
-                const assertions = Math.max(18, Math.min(36, Math.round(14 + 1.2 * eliminations.length + 0.5 * (81 - boxCellsWithNum.length))));
+                const sym = SudokuEngine.symbolForVal(num, N);
+                const assertions = Math.max(18, Math.min(36, Math.round(14 + 1.2 * eliminations.length + 0.5 * (N*N - boxCellsWithNum.length))));
                 const score = 2.40 + (assertions / 36.0) * 0.60;
                 return {
-                  type: 'reduction',
-                  technique: 'Locked Candidates Pointing',
+                  type: "reduction",
+                  technique: "Locked Candidates Pointing",
                   eliminations,
                   assertions,
                   step_score: score,
-                  description: `Pointing in Box ${bIdx + 1}: ${num} locks to row ${firstR + 1}, eliminating ${eliminations.length} candidates`
+                  description: `Pointing in Box ${bIdx + 1}: ${sym} locks to row ${firstR + 1}, eliminating ${eliminations.length} candidates`
                 };
               }
             }
@@ -487,23 +621,24 @@
             const firstC = boxCellsWithNum[0].c;
             if (boxCellsWithNum.every(cell => cell.c === firstC)) {
               const eliminations = [];
-              for (let r = 0; r < 9; r++) {
-                if (r < br || r >= br + 3) {
+              for (let r = 0; r < N; r++) {
+                if (r < br || r >= br + boxR) {
                   if (b[r][firstC] === 0 && cands[r][firstC].includes(num)) {
                     eliminations.push({ r, c: firstC, val: num });
                   }
                 }
               }
               if (eliminations.length > 0) {
-                const assertions = Math.max(18, Math.min(36, Math.round(14 + 1.2 * eliminations.length + 0.5 * (81 - boxCellsWithNum.length))));
+                const sym = SudokuEngine.symbolForVal(num, N);
+                const assertions = Math.max(18, Math.min(36, Math.round(14 + 1.2 * eliminations.length + 0.5 * (N*N - boxCellsWithNum.length))));
                 const score = 2.40 + (assertions / 36.0) * 0.60;
                 return {
-                  type: 'reduction',
-                  technique: 'Locked Candidates Pointing',
+                  type: "reduction",
+                  technique: "Locked Candidates Pointing",
                   eliminations,
                   assertions,
                   step_score: score,
-                  description: `Pointing in Box ${bIdx + 1}: ${num} locks to col ${firstC + 1}, eliminating ${eliminations.length} candidates`
+                  description: `Pointing in Box ${bIdx + 1}: ${sym} locks to col ${firstC + 1}, eliminating ${eliminations.length} candidates`
                 };
               }
             }
@@ -511,23 +646,23 @@
         }
       }
 
-      // B. Claiming: Line -> Box
-      // Rows
-      for (let r = 0; r < 9; r++) {
-        for (let num = 1; num <= 9; num++) {
+      for (let r = 0; r < N; r++) {
+        for (let num = 1; num <= N; num++) {
           const rowCells = [];
-          for (let c = 0; c < 9; c++) {
+          for (let c = 0; c < N; c++) {
             if (b[r][c] === 0 && cands[r][c].includes(num)) {
               rowCells.push({ r, c });
             }
           }
-          if (rowCells.length >= 2 && rowCells.length <= 3) {
-            const firstBox = Math.floor(r / 3) * 3 + Math.floor(rowCells[0].c / 3);
-            if (rowCells.every(cell => (Math.floor(r / 3) * 3 + Math.floor(cell.c / 3)) === firstBox)) {
-              const br = Math.floor(r / 3) * 3, bc = Math.floor(rowCells[0].c / 3) * 3;
+          if (rowCells.length >= 2 && rowCells.length <= boxC) {
+            const firstBox = Math.floor(r / boxR) * boxR + Math.floor(rowCells[0].c / boxC);
+            if (rowCells.every(cell => (Math.floor(r / boxR) * boxR + Math.floor(cell.c / boxC)) === firstBox)) {
+              const band = Math.floor(firstBox / boxR);
+              const stack = firstBox % boxR;
+              const br = band * boxR, bc = stack * boxC;
               const eliminations = [];
-              for (let dr = 0; dr < 3; dr++) {
-                for (let dc = 0; dc < 3; dc++) {
+              for (let dr = 0; dr < boxR; dr++) {
+                for (let dc = 0; dc < boxC; dc++) {
                   const cr = br + dr, cc = bc + dc;
                   if (cr !== r && b[cr][cc] === 0 && cands[cr][cc].includes(num)) {
                     eliminations.push({ r: cr, c: cc, val: num });
@@ -535,15 +670,16 @@
                 }
               }
               if (eliminations.length > 0) {
-                const assertions = Math.max(18, Math.min(36, Math.round(14 + 1.2 * eliminations.length + 0.5 * (81 - rowCells.length))));
+                const sym = SudokuEngine.symbolForVal(num, N);
+                const assertions = Math.max(18, Math.min(36, Math.round(14 + 1.2 * eliminations.length + 0.5 * (N*N - rowCells.length))));
                 const score = 2.40 + (assertions / 36.0) * 0.60;
                 return {
-                  type: 'reduction',
-                  technique: 'Locked Candidates Claiming',
+                  type: "reduction",
+                  technique: "Locked Candidates Claiming",
                   eliminations,
                   assertions,
                   step_score: score,
-                  description: `Claiming in Row ${r + 1}: ${num} locks to box ${firstBox + 1}, eliminating ${eliminations.length} candidates`
+                  description: `Claiming in Row ${r + 1}: ${sym} locks to box ${firstBox + 1}, eliminating ${eliminations.length} candidates`
                 };
               }
             }
@@ -551,22 +687,23 @@
         }
       }
 
-      // Columns
-      for (let c = 0; c < 9; c++) {
-        for (let num = 1; num <= 9; num++) {
+      for (let c = 0; c < N; c++) {
+        for (let num = 1; num <= N; num++) {
           const colCells = [];
-          for (let r = 0; r < 9; r++) {
+          for (let r = 0; r < N; r++) {
             if (b[r][c] === 0 && cands[r][c].includes(num)) {
               colCells.push({ r, c });
             }
           }
-          if (colCells.length >= 2 && colCells.length <= 3) {
-            const firstBox = Math.floor(colCells[0].r / 3) * 3 + Math.floor(c / 3);
-            if (colCells.every(cell => (Math.floor(cell.r / 3) * 3 + Math.floor(c / 3)) === firstBox)) {
-              const br = Math.floor(colCells[0].r / 3) * 3, bc = Math.floor(c / 3) * 3;
+          if (colCells.length >= 2 && colCells.length <= boxR) {
+            const firstBox = Math.floor(colCells[0].r / boxR) * boxR + Math.floor(c / boxC);
+            if (colCells.every(cell => (Math.floor(cell.r / boxR) * boxR + Math.floor(c / boxC)) === firstBox)) {
+              const band = Math.floor(firstBox / boxR);
+              const stack = firstBox % boxR;
+              const br = band * boxR, bc = stack * boxC;
               const eliminations = [];
-              for (let dr = 0; dr < 3; dr++) {
-                for (let dc = 0; dc < 3; dc++) {
+              for (let dr = 0; dr < boxR; dr++) {
+                for (let dc = 0; dc < boxC; dc++) {
                   const cr = br + dr, cc = bc + dc;
                   if (cc !== c && b[cr][cc] === 0 && cands[cr][cc].includes(num)) {
                     eliminations.push({ r: cr, c: cc, val: num });
@@ -574,15 +711,16 @@
                 }
               }
               if (eliminations.length > 0) {
-                const assertions = Math.max(18, Math.min(36, Math.round(14 + 1.2 * eliminations.length + 0.5 * (81 - colCells.length))));
+                const sym = SudokuEngine.symbolForVal(num, N);
+                const assertions = Math.max(18, Math.min(36, Math.round(14 + 1.2 * eliminations.length + 0.5 * (N*N - colCells.length))));
                 const score = 2.40 + (assertions / 36.0) * 0.60;
                 return {
-                  type: 'reduction',
-                  technique: 'Locked Candidates Claiming',
+                  type: "reduction",
+                  technique: "Locked Candidates Claiming",
                   eliminations,
                   assertions,
                   step_score: score,
-                  description: `Claiming in Col ${c + 1}: ${num} locks to box ${firstBox + 1}, eliminating ${eliminations.length} candidates`
+                  description: `Claiming in Col ${c + 1}: ${sym} locks to box ${firstBox + 1}, eliminating ${eliminations.length} candidates`
                 };
               }
             }
@@ -592,9 +730,9 @@
       return null;
     }
 
-    // 5. Naked Subsets (Pairs & Triples, k in {2, 3})
-    static findNakedSubsets(b, cands, k) {
-      const units = SudokuEngine.getUnitDefinitions();
+    static findNakedSubsets(b, cands, k, Br = null, Bc = null) {
+      const topo = SudokuEngine.resolveTopology(b, Br, Bc);
+      const units = SudokuEngine.getUnitDefinitions(topo.Br, topo.Bc);
       for (const unit of units) {
         const openCells = unit.cells.filter(cell => b[cell.r][cell.c] === 0);
         if (openCells.length <= k) continue;
@@ -620,16 +758,17 @@
               }
             }
             if (eliminations.length > 0) {
-              const techName = k === 2 ? 'Naked Pair' : 'Naked Triple';
+              const techName = k === 2 ? "Naked Pair" : "Naked Triple";
               const assertions = Math.round(16 * k + 2.5 * eliminations.length + 0.8 * openCells.length);
               const score = 2.80 + 0.50 * (k - 1) + (assertions / 48.0) * 0.70;
+              const syms = unionDigits.map(d => SudokuEngine.symbolForVal(d, topo.N)).join(",");
               return {
-                type: 'reduction',
+                type: "reduction",
                 technique: techName,
                 eliminations,
                 assertions,
                 step_score: score,
-                description: `${techName} in ${unit.name}: [${unionDigits.join(',')}] eliminates ${eliminations.length} candidates`
+                description: `${techName} in ${unit.name}: [${syms}] eliminates ${eliminations.length} candidates`
               };
             }
           }
@@ -638,9 +777,9 @@
       return null;
     }
 
-    // 6. Hidden Subsets (Pairs & Triples, k in {2, 3})
-    static findHiddenSubsets(b, cands, k) {
-      const units = SudokuEngine.getUnitDefinitions();
+    static findHiddenSubsets(b, cands, k, Br = null, Bc = null) {
+      const topo = SudokuEngine.resolveTopology(b, Br, Bc);
+      const units = SudokuEngine.getUnitDefinitions(topo.Br, topo.Bc);
       for (const unit of units) {
         const openCells = unit.cells.filter(cell => b[cell.r][cell.c] === 0);
         if (openCells.length <= k) continue;
@@ -671,16 +810,17 @@
             }
 
             if (eliminations.length > 0) {
-              const techName = k === 2 ? 'Hidden Pair' : 'Hidden Triple';
+              const techName = k === 2 ? "Hidden Pair" : "Hidden Triple";
               const assertions = Math.round(22 * k + 3.0 * eliminations.length + 1.0 * openCells.length);
               const score = 3.50 + 0.60 * (k - 1) + (assertions / 56.0) * 0.80;
+              const syms = dCombo.map(d => SudokuEngine.symbolForVal(d, topo.N)).join(",");
               return {
-                type: 'reduction',
+                type: "reduction",
                 technique: techName,
                 eliminations,
                 assertions,
                 step_score: score,
-                description: `${techName} in ${unit.name}: [${dCombo.join(',')}] eliminates ${eliminations.length} extraneous candidates`
+                description: `${techName} in ${unit.name}: [${syms}] eliminates ${eliminations.length} extraneous candidates`
               };
             }
           }
@@ -689,85 +829,130 @@
       return null;
     }
 
-    static findNextDeduction(b, cands = null) {
-      // Initialize candidate grid if not passed
+    static findNextDeduction(b, cands = null, Br = null, Bc = null) {
+      const topo = SudokuEngine.resolveTopology(b, Br, Bc);
+      const N = topo.N;
+      const boxR = topo.Br;
+      const boxC = topo.Bc;
+
       if (!cands) {
         cands = [];
-        for (let r = 0; r < 9; r++) {
+        for (let r = 0; r < N; r++) {
           cands[r] = [];
-          for (let c = 0; c < 9; c++) {
-            cands[r][c] = b[r][c] === 0 ? SudokuEngine.getCandidates(b, r, c) : [];
+          for (let c = 0; c < N; c++) {
+            cands[r][c] = b[r][c] === 0 ? SudokuEngine.getCandidates(b, r, c, boxR, boxC) : [];
           }
         }
       }
 
-      // Evaluate in strict human-solving priority order:
-      // 1. Naked Singles
-      const nakedSingle = SudokuEngine.findNakedSingle(b, cands);
+      const nakedSingle = SudokuEngine.findNakedSingle(b, cands, boxR, boxC);
       if (nakedSingle) return nakedSingle;
 
-      // 2. Hidden Singles (Box)
-      const hiddenSingleBox = SudokuEngine.findHiddenSingleBox(b, cands);
+      const hiddenSingleBox = SudokuEngine.findHiddenSingleBox(b, cands, boxR, boxC);
       if (hiddenSingleBox) return hiddenSingleBox;
 
-      // 3. Hidden Singles (Line)
-      const hiddenSingleLine = SudokuEngine.findHiddenSingleLine(b, cands);
+      const hiddenSingleLine = SudokuEngine.findHiddenSingleLine(b, cands, boxR, boxC);
       if (hiddenSingleLine) return hiddenSingleLine;
 
-      // 4. Locked Candidates (Pointing & Claiming)
-      const locked = SudokuEngine.findLockedCandidates(b, cands);
+      const locked = SudokuEngine.findLockedCandidates(b, cands, boxR, boxC);
       if (locked) return locked;
 
-      // 5. Naked Pairs
-      const nakedPair = SudokuEngine.findNakedSubsets(b, cands, 2);
+      const nakedPair = SudokuEngine.findNakedSubsets(b, cands, 2, boxR, boxC);
       if (nakedPair) return nakedPair;
 
-      // 6. Hidden Pairs
-      const hiddenPair = SudokuEngine.findHiddenSubsets(b, cands, 2);
+      const hiddenPair = SudokuEngine.findHiddenSubsets(b, cands, 2, boxR, boxC);
       if (hiddenPair) return hiddenPair;
 
-      // 7. Naked Triples
-      const nakedTriple = SudokuEngine.findNakedSubsets(b, cands, 3);
+      const nakedTriple = SudokuEngine.findNakedSubsets(b, cands, 3, boxR, boxC);
       if (nakedTriple) return nakedTriple;
 
-      // 8. Hidden Triples
-      const hiddenTriple = SudokuEngine.findHiddenSubsets(b, cands, 3);
+      const hiddenTriple = SudokuEngine.findHiddenSubsets(b, cands, 3, boxR, boxC);
       if (hiddenTriple) return hiddenTriple;
 
       return null;
     }
 
-    static solveAndAssess(puzzle) {
+    static countSolutions(grid, limit = 2, Br = null, Bc = null) {
+      const topo = SudokuEngine.resolveTopology(grid, Br, Bc);
+      const work = SudokuEngine.cloneBoard(grid);
+      const N = topo.N;
+      const boxR = topo.Br;
+      const boxC = topo.Bc;
+      let count = 0;
+
+      function backtrack() {
+        let bestR = -1, bestC = -1, minCands = N + 1, bestCands = null;
+        for (let r = 0; r < N; r++) {
+          for (let c = 0; c < N; c++) {
+            if (work[r][c] === 0) {
+              const cands = SudokuEngine.getCandidates(work, r, c, boxR, boxC);
+              if (cands.length === 0) return;
+              if (cands.length < minCands) {
+                minCands = cands.length;
+                bestR = r;
+                bestC = c;
+                bestCands = cands;
+                if (minCands === 1) break;
+              }
+            }
+          }
+          if (minCands === 1) break;
+        }
+
+        if (bestR === -1) {
+          count++;
+          return;
+        }
+
+        for (const val of bestCands) {
+          work[bestR][bestC] = val;
+          backtrack();
+          work[bestR][bestC] = 0;
+          if (count >= limit) return;
+        }
+      }
+
+      backtrack();
+      return count;
+    }
+
+    static solveAndAssess(puzzle, Br = null, Bc = null) {
+      const topo = SudokuEngine.resolveTopology(puzzle, Br, Bc);
+      const N = topo.N;
+      const boxR = topo.Br;
+      const boxC = topo.Bc;
+
       const work = SudokuEngine.cloneBoard(puzzle);
       const stepDeductions = [];
       const techniqueCounts = {};
       const reasonCounts = { cross_horizontal: 0, cross_vertical: 0, box_3x3: 0 };
       let totalScore = 0;
 
-      // Initialize persistent candidate grid
       const cands = [];
-      for (let r = 0; r < 9; r++) {
+      for (let r = 0; r < N; r++) {
         cands[r] = [];
-        for (let c = 0; c < 9; c++) {
-          cands[r][c] = work[r][c] === 0 ? SudokuEngine.getCandidates(work, r, c) : [];
+        for (let c = 0; c < N; c++) {
+          cands[r][c] = work[r][c] === 0 ? SudokuEngine.getCandidates(work, r, c, boxR, boxC) : [];
         }
       }
 
       while (true) {
         let filled = true;
-        for (let r = 0; r < 9; r++) {
-          for (let c = 0; c < 9; c++) {
+        for (let r = 0; r < N; r++) {
+          for (let c = 0; c < N; c++) {
             if (work[r][c] === 0) { filled = false; break; }
           }
           if (!filled) break;
         }
         if (filled) break;
 
-        const deduction = SudokuEngine.findNextDeduction(work, cands);
+        const deduction = SudokuEngine.findNextDeduction(work, cands, boxR, boxC);
         if (!deduction) {
           return {
             solved: false,
+            topology: topo,
             total_score: totalScore,
+            composite_score: 0,
             rating: "Unsolvable by logical strategies",
             granular_tier: "Unsolvable",
             reason_counts: reasonCounts,
@@ -778,25 +963,22 @@
           };
         }
 
-        if (deduction.type === 'reduction') {
-          // Candidate reduction: eliminate candidate values from targeted cells
+        if (deduction.type === "reduction") {
           for (const elim of deduction.eliminations) {
             cands[elim.r][elim.c] = cands[elim.r][elim.c].filter(v => v !== elim.val);
           }
         } else {
-          // Cell placement
           work[deduction.row][deduction.col] = deduction.val;
           cands[deduction.row][deduction.col] = [];
 
-          // Remove placed digit from row, col, and box peers
           const r = deduction.row, c = deduction.col, val = deduction.val;
-          for (let i = 0; i < 9; i++) {
+          for (let i = 0; i < N; i++) {
             cands[r][i] = cands[r][i].filter(v => v !== val);
             cands[i][c] = cands[i][c].filter(v => v !== val);
           }
-          const startR = Math.floor(r / 3) * 3, startC = Math.floor(c / 3) * 3;
-          for (let dr = 0; dr < 3; dr++) {
-            for (let dc = 0; dc < 3; dc++) {
+          const startR = Math.floor(r / boxR) * boxR, startC = Math.floor(c / boxC) * boxC;
+          for (let dr = 0; dr < boxR; dr++) {
+            for (let dc = 0; dc < boxC; dc++) {
               cands[startR + dr][startC + dc] = cands[startR + dr][startC + dc].filter(v => v !== val);
             }
           }
@@ -820,29 +1002,31 @@
       }
 
       let clueCount = 0;
-      for (let r = 0; r < 9; r++) {
-        for (let c = 0; c < 9; c++) {
+      for (let r = 0; r < N; r++) {
+        for (let c = 0; c < N; c++) {
           if (puzzle[r][c] !== 0) clueCount++;
         }
       }
 
+      const totalCells = N * N;
+      const clueRatio = clueCount / totalCells;
       let rating = "Easy";
-      if (totalScore >= 74 || clueCount <= 23) rating = "Expert";
-      else if (totalScore >= 62 || clueCount <= 28) rating = "Hard";
-      else if (totalScore >= 50 || clueCount <= 34) rating = "Medium";
+      if (clueRatio <= 0.28 || totalScore >= (totalCells * 0.9)) rating = "Expert";
+      else if (clueRatio <= 0.35 || totalScore >= (totalCells * 0.75)) rating = "Hard";
+      else if (clueRatio <= 0.44 || totalScore >= (totalCells * 0.60)) rating = "Medium";
       else rating = "Easy";
 
-      let granularTier = "Easy (Tier 1 - Casual)";
-      if (totalScore >= 80 || (clueCount <= 21 && maxStepAssertions >= 20)) granularTier = "Expert (Tier 2 - Extreme)";
-      else if (totalScore >= 74 || clueCount <= 23) granularTier = "Expert (Tier 1 - Grandmaster)";
-      else if (totalScore >= 68 || clueCount <= 26) granularTier = "Hard (Tier 2 - Master)";
-      else if (totalScore >= 62 || clueCount <= 28) granularTier = "Hard (Tier 1 - Advanced)";
-      else if (totalScore >= 56 || clueCount <= 32) granularTier = "Medium (Tier 2 - Intermediate)";
-      else if (totalScore >= 50 || clueCount <= 34) granularTier = "Medium (Tier 1 - Moderate)";
-      else if (totalScore >= 44 || clueCount <= 39) granularTier = "Easy (Tier 2 - Novice)";
+      let granularTier = `${rating} (Tier 1)`;
+      if (rating === "Expert" && maxStepAssertions >= 20) granularTier = "Expert (Tier 2 - Extreme)";
+      else if (rating === "Expert") granularTier = "Expert (Tier 1 - Grandmaster)";
+      else if (rating === "Hard" && maxStepAssertions >= 16) granularTier = "Hard (Tier 2 - Master)";
+      else if (rating === "Hard") granularTier = "Hard (Tier 1 - Advanced)";
+      else if (rating === "Medium") granularTier = "Medium (Tier 1 - Moderate)";
+      else granularTier = "Easy (Tier 1 - Casual)";
 
       const report = {
         solved: true,
+        topology: topo,
         total_score: totalScore,
         composite_score: 0,
         rating,
@@ -854,14 +1038,20 @@
         metrics_list: []
       };
 
-      SudokuEngine.calculateMetricsWithBoard(report, puzzle);
+      SudokuEngine.calculateMetricsWithBoard(report, puzzle, boxR, boxC);
       return report;
     }
 
-    static calculateMetricsWithBoard(report, puzzle = null) {
+    static calculateMetricsWithBoard(report, puzzle = null, Br = null, Bc = null) {
       const deductions = report.step_deductions;
       const n = deductions.length;
       if (n === 0) return;
+
+      const topo = SudokuEngine.resolveTopology(puzzle || 9, Br, Bc);
+      const N = topo.N;
+      const boxR = topo.Br;
+      const boxC = topo.Bc;
+      const totalCells = N * N;
 
       const scores = deductions.map(d => d.step_score);
       let sum = 0;
@@ -948,9 +1138,9 @@
         }
       }
 
-      const techKeys = Object.keys(report.technique_counts).sort();
-      let mostFreqTech = '';
-      let leastFreqTech = '';
+      const techKeys = Object.keys(report.technique_counts || {}).sort();
+      let mostFreqTech = "";
+      let leastFreqTech = "";
       let mostCount = -1;
       let leastCount = Infinity;
       let entropy = 0;
@@ -967,7 +1157,7 @@
         techniqueDiversity = Math.min(1.0, entropy / Math.log(6.0));
       }
 
-      let clueCount = 81 - n;
+      let clueCount = totalCells - n;
       let blanksCount = n;
       let clueSymmetry = 0.0;
       let clueVar = 0.0;
@@ -977,36 +1167,37 @@
       if (puzzle) {
         clueCount = 0;
         blanksCount = 0;
-        const rowClues = new Array(9).fill(0);
-        const colClues = new Array(9).fill(0);
-        const boxClues = new Array(9).fill(0);
+        const rowClues = new Array(N).fill(0);
+        const colClues = new Array(N).fill(0);
+        const boxClues = new Array(N).fill(0);
 
         let sym180 = 0, symHoriz = 0, symVert = 0, symDiag = 0;
 
-        for (let r = 0; r < 9; r++) {
-          for (let c = 0; c < 9; c++) {
+        for (let r = 0; r < N; r++) {
+          for (let c = 0; c < N; c++) {
             const isGiven = puzzle[r][c] !== 0;
             if (isGiven) {
               clueCount++;
               rowClues[r]++;
               colClues[c]++;
-              boxClues[Math.floor(r / 3) * 3 + Math.floor(c / 3)]++;
+              const bIdx = Math.floor(r / boxR) * boxR + Math.floor(c / boxC);
+              if (bIdx >= 0 && bIdx < N) boxClues[bIdx]++;
             } else {
               blanksCount++;
             }
 
-            if (isGiven === (puzzle[8 - r][8 - c] !== 0)) sym180++;
-            if (isGiven === (puzzle[r][8 - c] !== 0)) symHoriz++;
-            if (isGiven === (puzzle[8 - r][c] !== 0)) symVert++;
+            if (isGiven === (puzzle[N - 1 - r][N - 1 - c] !== 0)) sym180++;
+            if (isGiven === (puzzle[r][N - 1 - c] !== 0)) symHoriz++;
+            if (isGiven === (puzzle[N - 1 - r][c] !== 0)) symVert++;
             if (isGiven === (puzzle[c][r] !== 0)) symDiag++;
           }
         }
 
-        clueSymmetry = Math.max(sym180, symHoriz, symVert, symDiag) / 81.0;
+        clueSymmetry = Math.max(sym180, symHoriz, symVert, symDiag) / totalCells;
 
-        const meanRowClues = clueCount / 9.0;
+        const meanRowClues = clueCount / N;
         let rVar = 0, cVar = 0, bVar = 0;
-        for (let i = 0; i < 9; i++) {
+        for (let i = 0; i < N; i++) {
           const rd = rowClues[i] - meanRowClues;
           const cd = colClues[i] - meanRowClues;
           const bd = boxClues[i] - meanRowClues;
@@ -1015,23 +1206,21 @@
           bVar += bd * bd;
           if (boxClues[i] > boxCongestionMax) boxCongestionMax = boxClues[i];
         }
-        clueVar = (rVar + cVar + bVar) / 27.0;
+        clueVar = (rVar + cVar + bVar) / (3.0 * N);
 
-        for (let b = 0; b < 3; b++) {
-          const hBand = rowClues[b * 3] + rowClues[b * 3 + 1] + rowClues[b * 3 + 2];
-          const vStack = colClues[b * 3] + colClues[b * 3 + 1] + colClues[b * 3 + 2];
+        const numBands = boxC;
+        for (let b = 0; b < numBands; b++) {
+          let hBand = 0;
+          for (let r = 0; r < boxR; r++) hBand += rowClues[b * boxR + r] || 0;
           if (hBand > bandCongestionMax) bandCongestionMax = hBand;
-          if (vStack > bandCongestionMax) bandCongestionMax = vStack;
         }
       }
 
       const assertionDensity = totalAssertions / (blanksCount || 1);
       const complexityRating = (totalAssertions * 0.4) + (avgAssertions * 3.5) + (maxStepAssertions * 0.8);
-      const avgCandidates = 2.5 + (blanksCount / 81.0) * 2.0;
-      let peakAmbiguity = 6;
-      if (blanksCount > 45) peakAmbiguity = 8;
-      else if (blanksCount > 35) peakAmbiguity = 7;
-      const constrainedness = 1.0 - (clueCount / 81.0);
+      const avgCandidates = 2.5 + (blanksCount / totalCells) * 2.0;
+      let peakAmbiguity = Math.min(N, Math.max(2, Math.floor(N * 0.75)));
+      const constrainedness = 1.0 - (clueCount / totalCells);
 
       const compositeScore = (report.total_score * 0.6) + (totalAssertions * 0.08) + (avgAssertions * 1.5) + (variance * 2.0);
 
@@ -1050,8 +1239,8 @@
         score_divergence: mad,
         suddenness: maxSuddenness,
         bottleneck_step: bottleneckStep,
-        difficulty_pacing: difficultyPacing,
         pacing_slope: pacingSlope,
+        difficulty_pacing: difficultyPacing,
         avg_candidates: avgCandidates,
         peak_ambiguity: peakAmbiguity,
         constrainedness,
@@ -1229,7 +1418,7 @@
           name: "Difficulty Pacing Slope",
           category: "Statistical Trajectory",
           value: m.pacing_slope,
-          formatted: `${m.pacing_slope >= 0 ? '+' : ''}${m.pacing_slope.toFixed(4)} /step`,
+          formatted: `${m.pacing_slope >= 0 ? "+" : ""}${m.pacing_slope.toFixed(4)} /step`,
           unit: "/step",
           description: "Linear regression slope of step difficulty over time (>0: escalating, <0: easing)."
         },
@@ -1299,16 +1488,16 @@
           category: "Board Geometry & Topology",
           value: m.clue_distribution_variance,
           formatted: m.clue_distribution_variance.toFixed(3),
-          description: "Variance of clue concentration across rows, columns, and 3x3 boxes."
+          description: "Variance of clue concentration across rows, columns, and subgrid boxes."
         },
         {
           key: "topology_box_congestion",
-          name: "Max 3x3 Box Congestion",
+          name: "Max Box Congestion",
           category: "Board Geometry & Topology",
           value: m.box_congestion_max,
           formatted: `${m.box_congestion_max} clues / box`,
           unit: "clues",
-          description: "Maximum number of given clues situated in any single 3x3 subgrid."
+          description: "Maximum number of given clues situated in any single subgrid box."
         },
         {
           key: "topology_band_congestion",
@@ -1317,7 +1506,7 @@
           value: m.band_congestion_max,
           formatted: `${m.band_congestion_max} clues / band`,
           unit: "clues",
-          description: "Maximum number of given clues situated in any 3-line band or stack."
+          description: "Maximum number of given clues situated in any subgrid band or stack."
         },
         {
           key: "tech_naked_singles",
@@ -1333,7 +1522,7 @@
           category: "Technique Composition",
           value: m.hidden_single_box_count,
           formatted: m.hidden_single_box_count.toString(),
-          description: "Total deductions where candidate digit fit uniquely in a 3x3 box."
+          description: "Total deductions where candidate digit fit uniquely in a subgrid box."
         },
         {
           key: "tech_hidden_singles_row_col",
@@ -1395,12 +1584,12 @@
         },
         {
           key: "constraint_box_3x3",
-          name: "3x3 Box Reasons",
+          name: "Box Reasons",
           category: "Constraint Analysis",
           value: reasons.box_3x3,
           formatted: `${reasons.box_3x3} checks`,
           unit: "checks",
-          description: "Total 3x3 square constraint conflicts evaluated during candidate elimination."
+          description: "Total subgrid box constraint conflicts evaluated during candidate elimination."
         },
         {
           key: "constraint_total_reasons",
@@ -1417,78 +1606,89 @@
           category: "Constraint Analysis",
           value: boxToCrossRatio,
           formatted: boxToCrossRatio.toFixed(2),
-          description: "Ratio of 3x3 box eliminations relative to cross-line (row + column) eliminations."
+          description: "Ratio of subgrid box eliminations relative to cross-line (row + column) eliminations."
         }
       ];
     }
 
-    static applyRuleBasedMutations(puzzle, solution = null, rng = new FastRand()) {
-      const perm = rng.perm(9);
-      const mapping = {};
-      for (let i = 0; i < 9; i++) mapping[i + 1] = perm[i] + 1;
+    static applyRuleBasedMutations(puzzle, solution = null, rng = new FastRand(), Br = null, Bc = null) {
+      const topo = SudokuEngine.resolveTopology(puzzle, Br, Bc);
+      const N = topo.N;
+      const boxR = topo.Br;
+      const boxC = topo.Bc;
 
-      for (let r = 0; r < 9; r++) {
-        for (let c = 0; c < 9; c++) {
+      const perm = rng.perm(N);
+      const mapping = {};
+      for (let i = 0; i < N; i++) mapping[i + 1] = perm[i] + 1;
+
+      for (let r = 0; r < N; r++) {
+        for (let c = 0; c < N; c++) {
           if (puzzle[r][c] !== 0) puzzle[r][c] = mapping[puzzle[r][c]];
           if (solution && solution[r][c] !== 0) solution[r][c] = mapping[solution[r][c]];
         }
       }
 
-      for (let band = 0; band < 3; band++) {
-        const p = rng.perm(3);
+      const numBands = boxC;
+      for (let band = 0; band < numBands; band++) {
+        const p = rng.perm(boxR);
         const tempP = SudokuEngine.cloneBoard(puzzle);
         const tempS = solution ? SudokuEngine.cloneBoard(solution) : null;
-        for (let i = 0; i < 3; i++) {
-          const fromR = band * 3 + p[i];
-          const toR = band * 3 + i;
+        for (let i = 0; i < boxR; i++) {
+          const fromR = band * boxR + p[i];
+          const toR = band * boxR + i;
           puzzle[toR] = [...tempP[fromR]];
           if (solution) solution[toR] = [...tempS[fromR]];
         }
       }
 
-      for (let stack = 0; stack < 3; stack++) {
-        const p = rng.perm(3);
+      const numStacks = boxR;
+      for (let stack = 0; stack < numStacks; stack++) {
+        const p = rng.perm(boxC);
         const tempP = SudokuEngine.cloneBoard(puzzle);
         const tempS = solution ? SudokuEngine.cloneBoard(solution) : null;
-        for (let r = 0; r < 9; r++) {
-          for (let i = 0; i < 3; i++) {
-            const fromC = stack * 3 + p[i];
-            const toC = stack * 3 + i;
+        for (let r = 0; r < N; r++) {
+          for (let i = 0; i < boxC; i++) {
+            const fromC = stack * boxC + p[i];
+            const toC = stack * boxC + i;
             puzzle[r][toC] = tempP[r][fromC];
             if (solution) solution[r][toC] = tempS[r][fromC];
           }
         }
       }
 
-      const bandPerm = rng.perm(3);
-      let tempP = SudokuEngine.cloneBoard(puzzle);
-      let tempS = solution ? SudokuEngine.cloneBoard(solution) : null;
-      for (let b = 0; b < 3; b++) {
-        const fromBand = bandPerm[b];
-        for (let r = 0; r < 3; r++) {
-          puzzle[b * 3 + r] = [...tempP[fromBand * 3 + r]];
-          if (solution) solution[b * 3 + r] = [...tempS[fromBand * 3 + r]];
-        }
-      }
-
-      const stackPerm = rng.perm(3);
-      tempP = SudokuEngine.cloneBoard(puzzle);
-      tempS = solution ? SudokuEngine.cloneBoard(solution) : null;
-      for (let r = 0; r < 9; r++) {
-        for (let sIdx = 0; sIdx < 3; sIdx++) {
-          const fromStack = stackPerm[sIdx];
-          for (let c = 0; c < 3; c++) {
-            puzzle[r][sIdx * 3 + c] = tempP[r][fromStack * 3 + c];
-            if (solution) solution[r][sIdx * 3 + c] = tempS[r][fromStack * 3 + c];
+      if (numBands > 1) {
+        const bandPerm = rng.perm(numBands);
+        const tempP = SudokuEngine.cloneBoard(puzzle);
+        const tempS = solution ? SudokuEngine.cloneBoard(solution) : null;
+        for (let b = 0; b < numBands; b++) {
+          const fromBand = bandPerm[b];
+          for (let r = 0; r < boxR; r++) {
+            puzzle[b * boxR + r] = [...tempP[fromBand * boxR + r]];
+            if (solution) solution[b * boxR + r] = [...tempS[fromBand * boxR + r]];
           }
         }
       }
 
-      if (rng.intn(2) === 1) {
-        tempP = SudokuEngine.cloneBoard(puzzle);
-        tempS = solution ? SudokuEngine.cloneBoard(solution) : null;
-        for (let r = 0; r < 9; r++) {
-          for (let c = 0; c < 9; c++) {
+      if (numStacks > 1) {
+        const stackPerm = rng.perm(numStacks);
+        const tempP = SudokuEngine.cloneBoard(puzzle);
+        const tempS = solution ? SudokuEngine.cloneBoard(solution) : null;
+        for (let r = 0; r < N; r++) {
+          for (let sIdx = 0; sIdx < numStacks; sIdx++) {
+            const fromStack = stackPerm[sIdx];
+            for (let c = 0; c < boxC; c++) {
+              puzzle[r][sIdx * boxC + c] = tempP[r][fromStack * boxC + c];
+              if (solution) solution[r][sIdx * boxC + c] = tempS[r][fromStack * boxC + c];
+            }
+          }
+        }
+      }
+
+      if (boxR === boxC && rng.intn(2) === 1) {
+        const tempP = SudokuEngine.cloneBoard(puzzle);
+        const tempS = solution ? SudokuEngine.cloneBoard(solution) : null;
+        for (let r = 0; r < N; r++) {
+          for (let c = 0; c < N; c++) {
             puzzle[r][c] = tempP[c][r];
             if (solution) solution[r][c] = tempS[c][r];
           }
@@ -1496,42 +1696,46 @@
       }
     }
 
-    static mutate(puzzle, solution = null, rng = new FastRand()) {
+    static mutate(puzzle, solution = null, rng = new FastRand(), Br = null, Bc = null) {
       const p = SudokuEngine.cloneBoard(puzzle);
       const s = solution ? SudokuEngine.cloneBoard(solution) : null;
-      SudokuEngine.applyRuleBasedMutations(p, s, rng);
+      SudokuEngine.applyRuleBasedMutations(p, s, rng, Br, Bc);
       return { puzzle: p, solution: s };
     }
 
-    static carveWithTargetDifficulty(fullBoard, targetDifficulty = "hard", targetBlanks = 0, rng = new FastRand()) {
+    static carveWithTargetDifficulty(fullBoard, targetDifficulty = "hard", targetBlanks = 0, rng = new FastRand(), Br = null, Bc = null) {
+      const topo = SudokuEngine.resolveTopology(fullBoard, Br, Bc);
+      const N = topo.N;
+      const totalCells = N * N;
       targetDifficulty = (targetDifficulty || "hard").toLowerCase();
 
-      let minBlanks = 53, maxBlanks = 57;
+      let minRatio = 0.65, maxRatio = 0.70;
       if (targetDifficulty === "easy") {
-        minBlanks = 40; maxBlanks = 45;
+        minRatio = 0.48; maxRatio = 0.54;
       } else if (targetDifficulty === "medium") {
-        minBlanks = 47; maxBlanks = 52;
+        minRatio = 0.57; maxRatio = 0.63;
       } else if (targetDifficulty === "hard") {
-        minBlanks = 53; maxBlanks = 57;
+        minRatio = 0.65; maxRatio = 0.70;
       } else if (targetDifficulty === "extreme") {
-        minBlanks = 58; maxBlanks = 60;
-      } else if (targetDifficulty === "impossible") {
-        minBlanks = 61; maxBlanks = 64;
-      } else if (targetDifficulty === "expert") {
-        minBlanks = 58; maxBlanks = 64;
+        minRatio = 0.71; maxRatio = 0.74;
+      } else if (targetDifficulty === "impossible" || targetDifficulty === "expert") {
+        minRatio = 0.74; maxRatio = 0.78;
       }
+
+      let minBlanks = Math.floor(totalCells * minRatio);
+      let maxBlanks = Math.floor(totalCells * maxRatio);
 
       if (targetBlanks > 0) {
         minBlanks = targetBlanks;
         maxBlanks = targetBlanks;
       }
 
-      const desiredBlanks = minBlanks + rng.intn(maxBlanks - minBlanks + 1);
+      const desiredBlanks = minBlanks + rng.intn(Math.max(1, maxBlanks - minBlanks + 1));
 
       const puzzle = SudokuEngine.cloneBoard(fullBoard);
       const positions = [];
-      for (let r = 0; r < 9; r++) {
-        for (let c = 0; c < 9; c++) {
+      for (let r = 0; r < N; r++) {
+        for (let c = 0; c < N; c++) {
           positions.push({ r, c });
         }
       }
@@ -1543,38 +1747,48 @@
         const orig = puzzle[pos.r][pos.c];
         puzzle[pos.r][pos.c] = 0;
 
-        const assessment = SudokuEngine.solveAndAssess(puzzle);
-        if (assessment.solved) {
+        if (SudokuEngine.countSolutions(puzzle, 2, topo.Br, topo.Bc) === 1) {
           carved++;
         } else {
           puzzle[pos.r][pos.c] = orig;
         }
       }
 
-      const report = SudokuEngine.solveAndAssess(puzzle);
+      const report = SudokuEngine.solveAndAssess(puzzle, topo.Br, topo.Bc);
       return { puzzle, report };
     }
 
-    static generateAndAssessPuzzle(targetDifficulty = "hard", targetBlanks = 0, rng = new FastRand()) {
-      const fullGrid = SudokuEngine.generateSeedBoard(rng);
-      SudokuEngine.applyRuleBasedMutations(fullGrid, null, rng);
+    static generateAndAssessPuzzle(targetDifficulty = "hard", targetBlanks = 0, configKey = "classic_9x9", rng = new FastRand()) {
+      if (configKey instanceof FastRand) {
+        rng = configKey;
+        configKey = "classic_9x9";
+      }
+      const topo = SudokuEngine.resolveTopology(configKey);
+      const fullGrid = SudokuEngine.generateSeedBoard(rng, topo.Br, topo.Bc);
+      SudokuEngine.applyRuleBasedMutations(fullGrid, null, rng, topo.Br, topo.Bc);
 
-      const { puzzle: puzzleGrid } = SudokuEngine.carveWithTargetDifficulty(fullGrid, targetDifficulty, targetBlanks, rng);
-      SudokuEngine.applyRuleBasedMutations(puzzleGrid, fullGrid, rng);
+      const { puzzle: puzzleGrid } = SudokuEngine.carveWithTargetDifficulty(fullGrid, targetDifficulty, targetBlanks, rng, topo.Br, topo.Bc);
+      SudokuEngine.applyRuleBasedMutations(puzzleGrid, fullGrid, rng, topo.Br, topo.Bc);
 
-      const report = SudokuEngine.solveAndAssess(puzzleGrid);
+      const report = SudokuEngine.solveAndAssess(puzzleGrid, topo.Br, topo.Bc);
       return {
         solution: fullGrid,
         puzzle: puzzleGrid,
+        topology: topo,
         report
       };
     }
 
-    static generateAndCarve(targetDiff = "hard", rng = new FastRand()) {
-      const res = SudokuEngine.generateAndAssessPuzzle(targetDiff, 0, rng);
+    static generateAndCarve(targetDiff = "hard", configKey = "classic_9x9", rng = new FastRand()) {
+      if (configKey instanceof FastRand) {
+        rng = configKey;
+        configKey = "classic_9x9";
+      }
+      const res = SudokuEngine.generateAndAssessPuzzle(targetDiff, 0, configKey, rng);
       return {
         puzzle: res.puzzle,
         solution: res.solution,
+        topology: res.topology,
         deductions: res.report.step_deductions,
         rating: res.report.rating,
         totalScore: res.report.total_score,
@@ -1587,6 +1801,7 @@
 
   return {
     FastRand,
-    SudokuEngine
+    SudokuEngine,
+    SUPPORTED_CONFIGURATIONS
   };
 }));

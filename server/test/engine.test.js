@@ -182,5 +182,46 @@ describe('SudokuEngine Mathematical & Analytical Engine', () => {
     assert.ok(reduction.assertions > 0);
     assert.ok(reduction.step_score >= 3.50);
   });
+
+  it('should support generalized rectangular subgrid topologies (4x4, 6x6, 8x8, 12x12, 16x16)', () => {
+    const topologies = ['mini_4x4', 'wide_6x6', 'wide_8x8', 'wide_10x10', 'duo_12x12', 'ultra_12x12', 'hexa_16x16'];
+    const rng = new FastRand(12345n);
+
+    for (const key of topologies) {
+      const topo = SudokuEngine.resolveTopology(key);
+      assert.strictEqual(topo.Br * topo.Bc, topo.N, `Topology ${key} has valid dimensions`);
+
+      const full = SudokuEngine.generateSeedBoard(rng, topo.Br, topo.Bc);
+      assert.strictEqual(full.length, topo.N, `Board row count matches ${topo.N}`);
+      assert.strictEqual(full[0].length, topo.N, `Board col count matches ${topo.N}`);
+
+      // Verify row, col, and rectangular box constraints for every cell
+      for (let r = 0; r < topo.N; r++) {
+        for (let c = 0; c < topo.N; c++) {
+          const val = full[r][c];
+          assert.ok(val >= 1 && val <= topo.N, `Cell value in valid range 1..${topo.N}`);
+          full[r][c] = 0;
+          assert.ok(SudokuEngine.isValid(full, r, c, val, topo.Br, topo.Bc), `Subgrid constraint valid for ${key} at (${r},${c})`);
+          full[r][c] = val;
+        }
+      }
+
+      // String serialization round-trip
+      const str = SudokuEngine.boardToString(full);
+      assert.strictEqual(str.length, topo.N * topo.N, `String serialization length matches ${topo.N * topo.N}`);
+      const parsed = SudokuEngine.stringToBoard(str, key);
+      assert.deepStrictEqual(parsed, full, `String parsing round-trip matches for ${key}`);
+    }
+  });
+
+  it('should generate and solve non-square rectangular subgrid puzzles (e.g. 6x6 with 2x3 box)', () => {
+    const res = SudokuEngine.generateAndCarve('medium', 'wide_6x6', new FastRand(888n));
+    assert.strictEqual(res.puzzle.length, 6);
+    assert.strictEqual(res.solution.length, 6);
+    assert.ok(res.deductions.length > 0, 'Should have step deductions');
+    assert.strictEqual(res.topology.Br, 2);
+    assert.strictEqual(res.topology.Bc, 3);
+    assert.strictEqual(res.topology.N, 6);
+  });
 });
 
