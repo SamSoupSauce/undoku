@@ -5286,6 +5286,10 @@
           banner.style.display = "none";
         }
       }
+      // In versus mode, notify opponent when local player places a valid digit
+      if (isVersusMode && digit !== 0 && versusMatch.activeTurn === versusMatch.localPlayer && !versusMatch.isFinished) {
+        onVersusMovePlaced(r, c, digit);
+      }
       updateDigitCounters();
       recalculateLiveSolver();
     }
@@ -7057,6 +7061,7 @@
     };
 
     let versusTurnTimer = null;
+    let versusPingInterval = null;
 
     function showVersusToast(icon, text, durationMs = 2400) {
       const toast = document.getElementById("versusToastNotification");
@@ -7141,8 +7146,93 @@
       } catch (e) {}
     }
 
+    // --- Ping helpers ---
+    function startVersusPing() {
+      if (versusPingInterval) clearInterval(versusPingInterval);
+      versusPingInterval = setInterval(() => {
+        if (isVersusMode && !versusMatch.isFinished) {
+          sendVersusMessage({ type: "PING", timestamp: Date.now() });
+        }
+      }, 1000);
+    }
+
+    function stopVersusPing() {
+      if (versusPingInterval) clearInterval(versusPingInterval);
+      versusPingInterval = null;
+    }
+
+    // Stop local timer and signal opponent to stop theirs too
+    function stopBothTimers() {
+      stopVersusThinkingClock();
+      sendVersusMessage({ type: "STOP_TIMER" });
+    }
+
+    // --- Move handler: called when local player places a digit ---
+    function onVersusMovePlaced(r, c, val) {
+      if (!isVersusMode) return;
+      // Stop local clock and notify opponent simultaneously
+      const elapsed = stopVersusThinkingClock();
+      sendVersusMessage({ type: "STOP_TIMER" });
+
+      // Score the move by technique difficulty
+      const { totalPoints, technique } = calculateMoveDifficultyScore(r, c, val, elapsed);
+      if (versusMatch.activeTurn === 1) {
+        versusMatch.p1Score += totalPoints;
+      } else {
+        versusMatch.p2Score += totalPoints;
+      }
+
+      // Check for game completion
+      const spacesRemaining = countOpenCells();
+      if (spacesRemaining === 0) {
+        versusMatch.isFinished = true;
+        stopVersusPing();
+        const winner = (versusMatch.p1Score >= versusMatch.p2Score) ? versusMatch.p1Nick : versusMatch.p2Nick;
+        showVersusToast("🏆", `MATCH COMPLETE! Winner: ${winner} (${Math.max(versusMatch.p1Score, versusMatch.p2Score)} pts)`, 6000);
+      }
+
+      // Switch turn to opponent
+      versusMatch.activeTurn = (versusMatch.activeTurn === 1) ? 2 : 1;
+      updateVersusHUD();
+
+      // Broadcast move diff over dual P2P pipeline
+      sendVersusMessage({
+        type: "MOVE_PLACED",
+        r, c, val,
+        points: totalPoints,
+        technique,
+        match: {
+          p1Score: versusMatch.p1Score,
+          p2Score: versusMatch.p2Score,
+          p1TimeMs: versusMatch.p1TimeMs,
+          p2TimeMs: versusMatch.p2TimeMs,
+          activeTurn: versusMatch.activeTurn
+        }
+      });
+
+      if (!versusMatch.isFinished) {
+        const nextNick = (versusMatch.activeTurn === 1 ? versusMatch.p1Nick : versusMatch.p2Nick);
+        showVersusToast("⚡", `${technique} (+${totalPoints} pts)! Turn passed to ${nextNick}.`, 2000);
+      }
+    }
+
+    // --- Unified incoming P2P message handler ---
     function handleVersusIncomingMessage(msg) {
-      if (!msg || !msg.type || msg.senderId === LOCAL_PEER_ID || msg.roomId !== versusMatch.roomId) return;
+      if (!msg || !msg.type) return;
+      // Reject own messages and messages from other rooms
+      if (msg.senderId === LOCAL_PEER_ID) return;
+      if (msg.roomId && msg.roomId !== versusMatch.roomId) return;
+
+      if (msg.type === "STOP_TIMER") {
+        // Opponent finished their turn; ensure our local clock is stopped
+        stopVersusThinkingClock();
+        return;
+      }
+
+      if (msg.type === "PING") {
+        // Keep-alive — no action needed
+        return;
+      }
 
       if (msg.type === "PEER_JOIN") {
         if (versusMatch.isHost) {
@@ -7156,7 +7246,7 @@
             roomBadge.innerText = "🟢 CHALLENGER READY";
             roomBadge.className = "hud-mode-pill paper";
           }
-
+          showVersusToast("👤", `${versusMatch.p2Nick} joined the room!`, 2500);
           // Acknowledge challenger with host state
           sendVersusMessage({
             type: "HOST_READY",
@@ -7166,7 +7256,10 @@
             difficulty: versusMatch.difficulty
           });
         }
-      } else if (msg.type === "HOST_READY") {
+        return;
+      }
+
+      if (msg.type === "HOST_READY") {
         if (!versusMatch.isHost) {
           versusMatch.p1Nick = msg.hostNick || "Host";
           const hLabel = document.getElementById("vsHostNickLabel");
@@ -7179,10 +7272,11 @@
           const gStatus = document.getElementById("vsGuestStatusLabel");
           if (gStatus) gStatus.innerText = "⏳ Waiting for Host to start match...";
         }
-      } else if (msg.type === "MATCH_START") {
-        if (versusMatch.hasStarted) return; // Prevent double-trigger
+        return;
+      }
 
-        // Host triggered start -> launch challenger synchronously
+      if (msg.type === "MATCH_START") {
+        if (versusMatch.hasStarted) return; // Prevent double-trigger
         if (versusLobbyPollInterval) clearInterval(versusLobbyPollInterval);
         const roomModal = document.getElementById("versusRoomModal");
         if (roomModal) roomModal.classList.remove("active");
@@ -7192,9 +7286,9 @@
         versusMatch.p1Nick = msg.p1Nick || versusMatch.p1Nick;
         versusMatch.p2Nick = msg.p2Nick || versusMatch.p2Nick;
         versusMatch.activeTurn = 1;
-        versusMatch.localPlayer = 2; // Challenger is P2
+        versusMatch.localPlayer = 2; // Challenger is P2; host already set localPlayer=1
 
-        // Hydrate exact board
+        // Hydrate board from payload or seed
         if (msg.payload) {
           ShareManager.loadFromInput(msg.payload);
         } else {
@@ -7203,9 +7297,15 @@
 
         navigateToScreen("GAME_PLAY");
         updateVersusHUD();
+        // Start 1s keep-alive ping for the challenger side
+        startVersusPing();
+        // Challenger does NOT start the clock — P1/host goes first
         showVersusToast("⚔️", `Match Started! ${versusMatch.p1Nick} has first turn.`, 3000);
-      } else if (msg.type === "MOVE_PLACED") {
-        // Opponent placed move -> immediately update board & start local turn
+        return;
+      }
+
+      if (msg.type === "MOVE_PLACED") {
+        // Opponent placed a digit → update our board view and start our clock
         if (msg.r !== undefined && msg.c !== undefined && msg.val !== undefined) {
           if (userGrid[msg.r] && initialGrid[msg.r][msg.c] === 0) {
             userGrid[msg.r][msg.c] = msg.val;
@@ -7213,21 +7313,25 @@
             updateDigitCounters();
           }
         }
-        versusMatch.p1Score = msg.match.p1Score || 0;
-        versusMatch.p2Score = msg.match.p2Score || 0;
-        versusMatch.p1TimeMs = msg.match.p1TimeMs || 0;
-        versusMatch.p2TimeMs = msg.match.p2TimeMs || 0;
-        versusMatch.activeTurn = msg.match.activeTurn || 1;
-
+        // Sync authoritative match state from sender
+        if (msg.match) {
+          versusMatch.p1Score = msg.match.p1Score ?? versusMatch.p1Score;
+          versusMatch.p2Score = msg.match.p2Score ?? versusMatch.p2Score;
+          versusMatch.p1TimeMs = msg.match.p1TimeMs ?? versusMatch.p1TimeMs;
+          versusMatch.p2TimeMs = msg.match.p2TimeMs ?? versusMatch.p2TimeMs;
+          versusMatch.activeTurn = msg.match.activeTurn ?? versusMatch.activeTurn;
+        }
         updateVersusHUD();
         const opponentNick = (versusMatch.localPlayer === 1 ? versusMatch.p2Nick : versusMatch.p1Nick);
         showVersusToast("🎯", `${opponentNick} placed ${msg.val} (+${msg.points} pts). YOUR TURN!`, 2500);
-
+        // Start local thinking clock only if it's our turn
         if (versusMatch.activeTurn === versusMatch.localPlayer) {
           startVersusThinkingClock();
         }
+        return;
       }
     }
+
 
     function setupVersusP2PChannel(roomCode) {
       if (versusBroadcastChannel) {
@@ -7369,49 +7473,7 @@
       document.getElementById("cardPlayer2").style.opacity = (versusMatch.activeTurn === 2) ? "1" : "0.55";
     }
 
-    function onVersusMovePlaced(r, c, val) {
-      if (!isVersusMode) return;
-      const turnSec = stopVersusThinkingClock();
 
-      // Score move by technique difficulty
-      const { totalPoints, technique } = calculateMoveDifficultyScore(r, c, val, turnSec);
-      if (versusMatch.activeTurn === 1) {
-        versusMatch.p1Score += totalPoints;
-      } else {
-        versusMatch.p2Score += totalPoints;
-      }
-
-      const spacesRemaining = countOpenCells();
-      if (spacesRemaining === 0) {
-        versusMatch.isFinished = true;
-        const winner = (versusMatch.p1Score >= versusMatch.p2Score) ? versusMatch.p1Nick : versusMatch.p2Nick;
-        showVersusToast("🏆", `MATCH COMPLETE! Winner: ${winner} (${Math.max(versusMatch.p1Score, versusMatch.p2Score)} pts)`, 6000);
-      }
-
-      // Switch active turn immediately to opponent
-      versusMatch.activeTurn = (versusMatch.activeTurn === 1) ? 2 : 1;
-      updateVersusHUD();
-
-      // Transmit move diff immediately over dual P2P pipeline
-      sendVersusMessage({
-        type: "MOVE_PLACED",
-        r, c, val,
-        points: totalPoints,
-        technique,
-        match: {
-          p1Score: versusMatch.p1Score,
-          p2Score: versusMatch.p2Score,
-          p1TimeMs: versusMatch.p1TimeMs,
-          p2TimeMs: versusMatch.p2TimeMs,
-          activeTurn: versusMatch.activeTurn
-        }
-      });
-
-      const nextNick = (versusMatch.activeTurn === 1 ? versusMatch.p1Nick : versusMatch.p2Nick);
-      if (!versusMatch.isFinished) {
-        showVersusToast("⚡", `${technique} (+${totalPoints} pts)! Turn passed to ${nextNick}.`, 2000);
-      }
-    }
 
     function openVersusRoomDialog(game, isHost = true) {
       if (!game) game = activeSession || gameState;
@@ -7514,6 +7576,7 @@
           loadGameFromRecord(game);
           updateVersusHUD();
           startVersusThinkingClock();
+          startVersusPing();
           const b1 = document.getElementById("appModeBadge"); if (b1) b1.innerText = "⚔️ Versus Mode";
           showVersusToast("⚔️", "Match Started! You have first turn.", 2500);
         };
