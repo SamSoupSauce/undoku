@@ -7146,13 +7146,18 @@
       p2Score: 0,
       p1TimeMs: 0,
       p2TimeMs: 0,
-      activeTurn: 1, // 1 for P1, 2 for P2
-      localPlayer: 1, // 1 if host/P1, 2 if guest/P2
+      activeTurn: 1,       // 1 for P1, 2 for P2
+      localPlayer: 1,      // 1 if host/P1, 2 if guest/P2
       isHost: true,
       hasStarted: false,
       turnStartTime: 0,
       turnActive: false,
-      isFinished: false
+      isFinished: false,
+      // Peer-validated anti-cheat counters (tracked by the RECEIVING player)
+      p1Strikes: 0,        // suspicious moves counted against P1 by P2's device
+      p2Strikes: 0,        // suspicious moves counted against P2 by P1's device
+      p1DroppedPts: 0,     // penalty points deducted from P1 (10 strikes = 1 pt)
+      p2DroppedPts: 0,     // penalty points deducted from P2
     };
 
     let versusTurnTimer = null;
@@ -7193,7 +7198,11 @@
         hasStarted: false,
         turnStartTime: 0,
         turnActive: false,
-        isFinished: false
+        isFinished: false,
+        p1Strikes: 0,
+        p2Strikes: 0,
+        p1DroppedPts: 0,
+        p2DroppedPts: 0,
       };
     }
 
@@ -7414,7 +7423,7 @@
       }
 
       if (msg.type === "MOVE_PLACED") {
-        // Opponent placed a digit → update our board view and start our clock
+        // Opponent placed a digit → update our board view
         if (msg.r !== undefined && msg.c !== undefined && msg.val !== undefined) {
           if (userGrid[msg.r] && initialGrid[msg.r][msg.c] === 0) {
             userGrid[msg.r][msg.c] = msg.val;
@@ -7422,6 +7431,61 @@
             updateDigitCounters();
           }
         }
+
+        // ---- PEER-VALIDATED ANTI-CHEAT ----------------------------------------
+        // We (the receiving device) are ground truth for the sender's entropy.
+        // Compare their reported entropy against our own live session baseline.
+        const myEntropy = inputEntropy.score();
+        const theirEntropy = typeof msg.entropyScore === "number" ? msg.entropyScore : 1;
+        const opponentPlayer = (versusMatch.localPlayer === 1) ? 2 : 1; // which player the sender is
+        const opponentStrikesKey = `p${opponentPlayer}Strikes`;
+        const opponentDroppedKey = `p${opponentPlayer}DroppedPts`;
+        const opponentNick = (versusMatch.localPlayer === 1 ? versusMatch.p2Nick : versusMatch.p1Nick);
+
+        // Flag if: they self-reported suspicious, OR their entropy is < 0.12,
+        // OR their entropy is less than 15% of our own (relative baseline).
+        const relativelyLow = myEntropy > 0.05 && theirEntropy < myEntropy * 0.15;
+        const peerFlagged = msg.suspicious || theirEntropy < 0.12 || relativelyLow;
+
+        if (peerFlagged) {
+          versusMatch[opponentStrikesKey] = (versusMatch[opponentStrikesKey] || 0) + 1;
+          console.warn(`[PeerAntiCheat] ${opponentNick} strike ${versusMatch[opponentStrikesKey]} — entropy: ${theirEntropy.toFixed(3)} (local baseline: ${myEntropy.toFixed(3)})`);
+
+          if (versusMatch[opponentStrikesKey] % 10 === 0) {
+            // Every 10 strikes → issue 1 penalty point deduction
+            versusMatch[opponentDroppedKey] = (versusMatch[opponentDroppedKey] || 0) + 1;
+            const droppedTotal = versusMatch[opponentDroppedKey];
+
+            // Deduct a point from their score (minimum 0)
+            if (opponentPlayer === 1) {
+              versusMatch.p1Score = Math.max(0, versusMatch.p1Score - 1);
+            } else {
+              versusMatch.p2Score = Math.max(0, versusMatch.p2Score - 1);
+            }
+            updateVersusHUD();
+
+            // Broadcast the penalty so both screens agree
+            sendVersusMessage({
+              type: "CHEAT_PENALTY",
+              penalisedPlayer: opponentPlayer,
+              droppedTotal,
+              p1Score: versusMatch.p1Score,
+              p2Score: versusMatch.p2Score,
+            });
+
+            showVersusToast("⚠️", `${opponentNick} penalty −1 pt (${droppedTotal}/10). Strikes: ${versusMatch[opponentStrikesKey]}`, 3500);
+
+            if (droppedTotal >= 10) {
+              // 10 penalty points → force reconnect
+              sendVersusMessage({ type: "FORCE_RECONNECT", reason: "Repeated suspicious input detected by peer." });
+              showVersusToast("🚫", `${opponentNick} removed for suspicious input. Reconnect required.`, 6000);
+              versusMatch.isFinished = true;
+              stopVersusPing();
+            }
+          }
+        }
+        // -----------------------------------------------------------------------
+
         // Sync authoritative match state from sender
         if (msg.match) {
           versusMatch.p1Score = msg.match.p1Score ?? versusMatch.p1Score;
@@ -7431,14 +7495,39 @@
           versusMatch.activeTurn = msg.match.activeTurn ?? versusMatch.activeTurn;
         }
         updateVersusHUD();
-        const opponentNick = (versusMatch.localPlayer === 1 ? versusMatch.p2Nick : versusMatch.p1Nick);
-        const opponentFlag = msg.suspicious ? " ⚠️ (flagged)" : "";
+        const opponentFlag = peerFlagged ? ` ⚠️ (flagged ${versusMatch[opponentStrikesKey]}x)` : "";
         showVersusToast("🎯", `${opponentNick} placed ${msg.val} (+${msg.points} pts).${opponentFlag} YOUR TURN!`, 2500);
         // Start local thinking clock and fresh entropy window for our turn
         if (versusMatch.activeTurn === versusMatch.localPlayer) {
           inputEntropy.reset();
           startVersusThinkingClock();
         }
+        return;
+      }
+
+      if (msg.type === "CHEAT_PENALTY") {
+        // Opponent's device issued a penalty against us — apply it locally so both
+        // screens stay in agreement. We don't dispute it; entropy is ground truth.
+        if (msg.p1Score !== undefined) versusMatch.p1Score = msg.p1Score;
+        if (msg.p2Score !== undefined) versusMatch.p2Score = msg.p2Score;
+        updateVersusHUD();
+        const penalisedNick = (msg.penalisedPlayer === 1 ? versusMatch.p1Nick : versusMatch.p2Nick);
+        const isUs = (msg.penalisedPlayer === versusMatch.localPlayer);
+        if (isUs) {
+          showVersusToast("🚫", `Your input was flagged by opponent. Penalty −1 pt (${msg.droppedTotal}/10).`, 4000);
+        } else {
+          showVersusToast("⚠️", `${penalisedNick} penalised. −1 pt (${msg.droppedTotal}/10).`, 3000);
+        }
+        return;
+      }
+
+      if (msg.type === "FORCE_RECONNECT") {
+        // Issued when 10 penalty points accumulate — session integrity failed.
+        versusMatch.isFinished = true;
+        stopVersusPing();
+        stopVersusThinkingClock();
+        showVersusToast("🚫", `Session ended: ${msg.reason || "Repeated suspicious input detected."} Reconnect to start a new match.`, 8000);
+        console.warn("[PeerAntiCheat] FORCE_RECONNECT received:", msg.reason);
         return;
       }
     }
