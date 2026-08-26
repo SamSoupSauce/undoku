@@ -296,6 +296,57 @@
 
     
     
+    
+    /* ==========================================================================
+       Theme: Deep Oceanic Abyss (Midnight Trench & Bioluminescent Cyan Glow)
+       ========================================================================== */
+    [data-theme="oceanic"] {
+      --bg-gradient: linear-gradient(145deg, #041019 0%, #01060a 100%);
+      --surface-card: #081a27;
+      --surface-subtle: #05131d;
+      --surface-elevated: #0d2538;
+      --border-subtle: #133a57;
+      --border-strong: #06b6d4;
+      
+      --text-main: #ffffff;
+      --text-secondary: #e0f2fe;
+      --text-muted: #38bdf8;
+      
+      --primary: #06b6d4;
+      --primary-hover: #0891b2;
+      --primary-light: rgba(6, 182, 212, 0.22);
+      --primary-glow: rgba(6, 182, 212, 0.50);
+      
+      --accent: #22d3ee;
+      --accent-light: rgba(34, 211, 238, 0.22);
+      --accent-glow: rgba(34, 211, 238, 0.45);
+      
+      --success: #2dd4bf;
+      --success-light: rgba(45, 212, 191, 0.22);
+      --warning: #facc15;
+      --danger: #f43f5e;
+      --danger-light: rgba(244, 63, 94, 0.22);
+      --danger-glow: rgba(244, 63, 94, 0.45);
+      
+      --board-bg: #030c14;
+      --cell-bg-alt: #061521;
+      --cell-hover: rgba(6, 182, 212, 0.25);
+      --cell-selected: rgba(6, 182, 212, 0.45);
+      --cell-match: rgba(6, 182, 212, 0.15);
+      --cell-conflict: rgba(244, 63, 94, 0.45);
+      
+      --grid-line: #0d283c;
+      --box-line: #06b6d4;
+      
+      --digit-given: #ffffff;
+      --digit-user: #22d3ee;
+      --digit-note: #38bdf8;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.8);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.95);
+    }
+
     /* ==========================================================================
        Theme: Sakura Blossom (Blush Obsidian & Spring Flora Glow)
        ========================================================================== */
@@ -1663,6 +1714,7 @@
           <option value="synthwave">🌌 Synthwave Neon</option>
           <option value="aurora">🔮 Aurora Borealis</option>
           <option value="sakura">🌸 Sakura Blossom</option>
+          <option value="oceanic">🌊 Deep Oceanic</option>
         </select>
       </div>
 
@@ -2101,26 +2153,7 @@
 
       <!-- Playthrough Option for Catch Mistakes: Allow Hints Toggle & Hint Count Number Box -->
       
-      <!-- Grid Topology / Subgrid Box Selector -->
-      <div id="rowGridTopology" class="hints-toggle-row" style="margin-top: 0.85rem; padding: 0.75rem 1rem; background: var(--surface-subtle); border: 1px solid var(--border-subtle); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
-        <label for="selectGridTopology" style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; user-select: none; flex: 1;">
-          <span style="font-size: 1.15rem;">📐</span>
-          <div>
-            <div style="font-size: 0.88rem; font-weight: 800; color: var(--text-main);">Grid Topology &amp; Size</div>
-            <div style="font-size: 0.72rem; color: var(--text-muted);">Select grid matrix size &amp; subgrid rectangular box dimensions</div>
-          </div>
-        </label>
-        <select id="selectGridTopology" class="theme-select" style="padding: 0.35rem 0.6rem; font-size: 0.82rem; font-weight: 700; border-radius: 8px; background: var(--surface-card); color: var(--text-main); border: 1px solid var(--border-subtle);">
-          <option value="mini_4x4">4×4 Mini (2×2 Box)</option>
-          <option value="wide_6x6">6×6 Wide (2×3 Box)</option>
-          <option value="wide_8x8">8×8 Wide (2×4 Box)</option>
-          <option value="classic_9x9" selected>9×9 Classic (3×3 Box)</option>
-          <option value="wide_10x10">10×10 Decimal (2×5 Box)</option>
-          <option value="duo_12x12">12×12 Duodecimal (3×4 Box)</option>
-          <option value="ultra_12x12">12×12 Wide-Band (2×6 Box)</option>
-          <option value="hexa_16x16">16×16 Hexadoku (4×4 Box)</option>
-        </select>
-      </div>
+
 
       <div id="rowAllowHints" class="hints-toggle-row" style="margin-top: 0.9rem; padding: 0.75rem 1rem; background: var(--surface-subtle); border: 1px solid var(--border-subtle); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
         <label for="toggleAllowHints" style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; user-select: none; flex: 1;">
