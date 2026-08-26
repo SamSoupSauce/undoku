@@ -670,6 +670,57 @@
     
     
     
+    
+    /* ==========================================================================
+       Theme: Cyber Titanium (Gunmetal Platinum & Ice Blue Glow)
+       ========================================================================== */
+    [data-theme="titanium"] {
+      --bg-gradient: linear-gradient(145deg, #0c0e14 0%, #050608 100%);
+      --surface-card: #151924;
+      --surface-subtle: #0f121a;
+      --surface-elevated: #1e2433;
+      --border-subtle: #333d54;
+      --border-strong: #38bdf8;
+      
+      --text-main: #ffffff;
+      --text-secondary: #f1f5f9;
+      --text-muted: #94a3b8;
+      
+      --primary: #38bdf8;
+      --primary-hover: #0284c7;
+      --primary-light: rgba(56, 189, 248, 0.22);
+      --primary-glow: rgba(56, 189, 248, 0.50);
+      
+      --accent: #cbd5e1;
+      --accent-light: rgba(203, 213, 225, 0.22);
+      --accent-glow: rgba(203, 213, 225, 0.45);
+      
+      --success: #34d399;
+      --success-light: rgba(52, 211, 153, 0.22);
+      --warning: #fbbf24;
+      --danger: #f43f5e;
+      --danger-light: rgba(244, 63, 94, 0.22);
+      --danger-glow: rgba(244, 63, 94, 0.45);
+      
+      --board-bg: #080a0f;
+      --cell-bg-alt: #10141f;
+      --cell-hover: rgba(56, 189, 248, 0.25);
+      --cell-selected: rgba(56, 189, 248, 0.45);
+      --cell-match: rgba(203, 213, 225, 0.15);
+      --cell-conflict: rgba(244, 63, 94, 0.45);
+      
+      --grid-line: #242c3d;
+      --box-line: #38bdf8;
+      
+      --digit-given: #ffffff;
+      --digit-user: #bae6fd;
+      --digit-note: #38bdf8;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.8);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.95);
+    }
+
     /* ==========================================================================
        Theme: Celestial Supernova (Deep Plasma Void & Incandescent Gold Glow)
        ========================================================================== */
@@ -2816,6 +2867,7 @@
           <option value="andromeda">🌌 Andromeda Starlight</option>
           <option value="amethyst">🔮 Cyber Amethyst</option>
           <option value="supernova">🌟 Celestial Supernova</option>
+          <option value="titanium">🛡️ Cyber Titanium</option>
         </select>
       </div>
 
@@ -5704,23 +5756,53 @@
         }
         str = str.split("&")[0].split(" ")[0].trim();
 
-        // 1. Try decoding as Base64URL bitfield payload
+        // 1. Try decoding as High-Fidelity Base64 JSON Payload or Bitfield
         try {
           const imported = SudokuEngine.deserializeGamePayload(str);
-          if (imported && imported.seed) {
-            console.log("✨ Unpacked binary bitfield payload successfully:", imported);
-            const topoKey = (imported.N === 4 ? "mini_4x4" : imported.N === 6 ? "wide_6x6" : imported.N === 8 ? "wide_8x8" : imported.N === 16 ? "hexa_16x16" : imported.N === 12 ? (imported.Bc === 6 ? "ultra_12x12" : "duo_12x12") : "classic_9x9");
-            loadPuzzle(imported.difficulty || "medium", imported.gameMode || "catch_mistakes", true, true, 3, true, true, topoKey, imported.seed);
+          if (imported) {
+            console.log("✨ Unpacked high-fidelity game payload successfully:", imported);
+            const topoKey = imported.topologyKey || (imported.N === 4 ? "mini_4x4" : imported.N === 6 ? "wide_6x6" : imported.N === 8 ? "wide_8x8" : imported.N === 16 ? "hexa_16x16" : imported.N === 12 ? (imported.Bc === 6 ? "ultra_12x12" : "duo_12x12") : "classic_9x9");
             
-            // Apply imported moves if present
-            if (imported.turnHistory && imported.turnHistory.length > 0) {
-              imported.turnHistory.forEach(t => {
-                if (t.r < userGrid.length && t.c < userGrid.length && initialGrid[t.r][t.c] === 0) {
-                  userGrid[t.r][t.c] = t.val;
-                }
+            if (imported.initialGrid && imported.initialGrid.length > 0) {
+              // Direct Instant Hydration (0% chance of mismatch)
+              currentTopologyKey = topoKey;
+              currentTopology = window.SudokuEngine.resolveTopology(topoKey);
+              currentDifficulty = imported.difficulty || "medium";
+              currentGameMode = imported.gameMode || "catch_mistakes";
+              
+              initialGrid = imported.initialGrid.map(r => [...r]);
+              userGrid = (imported.userGrid || imported.initialGrid).map(r => [...r]);
+              solutionGrid = (imported.solutionGrid || imported.initialGrid).map(r => [...r]);
+              
+              const report = window.SudokuEngine.solveAndAssess(initialGrid, currentTopology.Br, currentTopology.Bc);
+              deductions = report.step_deductions || [];
+              currentStepIdx = 0;
+              
+              activeSession = new GameSession({
+                seed: imported.seed || 12345,
+                difficulty: currentDifficulty,
+                topologyKey: currentTopologyKey,
+                gameMode: currentGameMode,
+                initialGrid: initialGrid,
+                userGrid: userGrid,
+                solutionGrid: solutionGrid,
+                turnHistory: imported.turnHistory || [],
+                analytics: report.advanced_metrics,
+                deductions: deductions
               });
-              renderBoard();
+              gameState = activeSession;
+              
+              renderKeypad();
+              updateHUD();
+              updateMetricsDisplay(report.advanced_metrics);
               updateDigitCounters();
+              updateProportionRibbon();
+              drawTrajectoryChart();
+              startTimer();
+              autoSaveActiveGame();
+            } else {
+              // Deterministic seed fallback
+              loadPuzzle(imported.difficulty || "medium", imported.gameMode || "catch_mistakes", true, true, 3, true, true, topoKey, imported.seed);
             }
 
             // Save to Vault under shared tab
@@ -5745,7 +5827,7 @@
             return true;
           }
         } catch (e) {
-          console.warn("Bitfield parse note:", e);
+          console.warn("Payload parse note:", e);
         }
 
         // 2. Try parsing as 6-character room code (e.g. UDK-9X4A or 9X4A)

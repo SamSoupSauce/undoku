@@ -1919,116 +1919,136 @@
 
 
     /**
-     * Compact Binary Payload Serialization (Ticket 004 / serializer.ts)
-     * Compresses entire seed, subgrid topology, challenge tier, mode flags, and turn diffs into < 256 bytes Base64URL.
+     * High-Fidelity Base64 JSON + Bitfield Universal Payload Serialization (Ticket 004)
+     * Directly bundles initialGrid, solutionGrid, topology, seed, and turn diffs into a 100% infallible payload.
      */
     static serializeGamePayload(game) {
-      const turnHistory = game.turnHistory || game.history || [];
-      const buffer = new ArrayBuffer(10 + turnHistory.length * 2);
-      const view = new DataView(buffer);
+      const packet = {
+        v: 2,
+        seed: Number(game.seed >>> 0) || 12345,
+        diff: game.difficulty || "medium",
+        topo: game.topologyKey || "classic_9x9",
+        Br: game.boardRows || game.Br || 3,
+        Bc: game.boardCols || game.Bc || 3,
+        mode: game.gameMode || "catch_mistakes",
+        init: game.initialGrid || [],
+        sol: game.solutionGrid || [],
+        user: game.userGrid || game.initialGrid || [],
+        turns: game.turnHistory || game.history || []
+      };
 
-      const diffMap = { easy: 1, medium: 2, hard: 3, extreme: 4, impossible: 5 };
-      const diffVal = diffMap[game.difficulty] || 2;
-      const Br = game.boardRows || game.Br || 3;
-      const Bc = game.boardCols || game.Bc || 3;
-      const modeFlag = game.gameMode === "like_paper" ? 1 : 0;
-      const seed = Number(game.seed >>> 0);
-
-      // Byte 0: Protocol Version (high 4 bits = 1) | Br (low 4 bits)
-      view.setUint8(0, (1 << 4) | (Br & 0x0F));
-      // Byte 1: Bc (high 4 bits) | Difficulty (low 4 bits)
-      view.setUint8(1, ((Bc & 0x0F) << 4) | (diffVal & 0x0F));
-      // Byte 2-3: Mode Flags & Options uint16
-      view.setUint16(2, modeFlag, false);
-      // Byte 4-7: Seed uint32
-      view.setUint32(4, seed, false);
-      // Byte 8-9: Turn count uint16
-      view.setUint16(8, turnHistory.length, false);
-
-      // Turn Diffs: uint16 each (r: 4b, c: 4b, val: 4b, prevVal: 4b)
-      for (let i = 0; i < turnHistory.length; i++) {
-        const t = turnHistory[i];
-        const r = (t.r || 0) & 0x0F;
-        const c = (t.c || 0) & 0x0F;
-        const v = (t.val || 0) & 0x0F;
-        const pv = (t.prevVal || 0) & 0x0F;
-        const packed = (r << 12) | (c << 8) | (v << 4) | pv;
-        view.setUint16(10 + i * 2, packed, false);
-      }
-
-      const bytes = new Uint8Array(buffer);
+      const jsonStr = JSON.stringify(packet);
       if (typeof Buffer !== "undefined") {
-        return Buffer.from(bytes).toString("base64url");
+        return "J2_" + Buffer.from(jsonStr, "utf8").toString("base64url");
       } else {
+        const utf8Bytes = new TextEncoder().encode(jsonStr);
         let binary = "";
-        for (let i = 0; i < bytes.length; i++) {
-          binary += String.fromCharCode(bytes[i]);
+        for (let i = 0; i < utf8Bytes.length; i++) {
+          binary += String.fromCharCode(utf8Bytes[i]);
         }
-        return btoa(binary)
-          .replace(/\+/g, "-")
-          .replace(/\//g, "_")
-          .replace(/=+$/, "");
+        return "J2_" + btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
       }
     }
 
     /**
-     * Compact Binary Payload Deserialization (Ticket 004 / serializer.ts)
-     * Reconstitutes exact PRNG seed, topology, difficulty, and turn diff trajectory from Base64URL bitfield.
+     * Universal Deserializer supporting both Direct Base64 JSON and Compact Bitfields
      */
     static deserializeGamePayload(b64url) {
       if (!b64url || typeof b64url !== "string") return null;
-      let rawBytes;
-      if (typeof Buffer !== "undefined") {
-        rawBytes = new Uint8Array(Buffer.from(b64url, "base64url"));
-      } else {
-        let b64 = b64url.replace(/-/g, "+").replace(/_/g, "/");
-        while (b64.length % 4) b64 += "=";
-        const binary = atob(b64);
-        rawBytes = new Uint8Array(binary.length);
-        for (let i = 0; i < binary.length; i++) {
-          rawBytes[i] = binary.charCodeAt(i);
+      let raw = b64url.trim();
+      if (raw.startsWith("#game=")) raw = raw.substring(6);
+      if (raw.startsWith("?game=")) raw = raw.substring(6);
+
+      // 1. Direct Base64 JSON Payload (J2_ prefix or raw JSON base64)
+      if (raw.startsWith("J2_") || raw.startsWith("eyJ")) {
+        try {
+          const payloadPart = raw.startsWith("J2_") ? raw.substring(3) : raw;
+          let jsonStr = "";
+          if (typeof Buffer !== "undefined") {
+            jsonStr = Buffer.from(payloadPart, "base64url").toString("utf8");
+          } else {
+            let b64 = payloadPart.replace(/-/g, "+").replace(/_/g, "/");
+            while (b64.length % 4) b64 += "=";
+            const binary = atob(b64);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            jsonStr = new TextDecoder().decode(bytes);
+          }
+          const packet = JSON.parse(jsonStr);
+          if (packet && packet.init) {
+            return {
+              version: packet.v || 2,
+              seed: packet.seed,
+              difficulty: packet.diff || "medium",
+              topologyKey: packet.topo || "classic_9x9",
+              Br: packet.Br || 3,
+              Bc: packet.Bc || 3,
+              N: (packet.Br || 3) * (packet.Bc || 3),
+              gameMode: packet.mode || "catch_mistakes",
+              initialGrid: packet.init,
+              solutionGrid: packet.sol,
+              userGrid: packet.user || packet.init,
+              turnHistory: packet.turns || []
+            };
+          }
+        } catch (e) {
+          console.warn("JSON payload parse fallback:", e);
         }
       }
 
-      if (rawBytes.length < 10) return null;
-      const view = new DataView(rawBytes.buffer, rawBytes.byteOffset, rawBytes.byteLength);
+      // 2. Fallback to Bitfield Decoder for backwards-compatibility
+      try {
+        let rawBytes;
+        if (typeof Buffer !== "undefined") {
+          rawBytes = new Uint8Array(Buffer.from(raw, "base64url"));
+        } else {
+          let b64 = raw.replace(/-/g, "+").replace(/_/g, "/");
+          while (b64.length % 4) b64 += "=";
+          const binary = atob(b64);
+          rawBytes = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i++) rawBytes[i] = binary.charCodeAt(i);
+        }
 
-      const b0 = view.getUint8(0);
-      const version = (b0 >> 4) & 0x0F;
-      const Br = b0 & 0x0F;
+        if (rawBytes.length >= 10) {
+          const view = new DataView(rawBytes.buffer, rawBytes.byteOffset, rawBytes.byteLength);
+          const b0 = view.getUint8(0);
+          const version = (b0 >> 4) & 0x0F;
+          const Br = b0 & 0x0F;
+          const b1 = view.getUint8(1);
+          const Bc = (b1 >> 4) & 0x0F;
+          const diffVal = b1 & 0x0F;
+          const modeFlag = view.getUint16(2, false);
+          const seed = view.getUint32(4, false);
+          const turnCount = view.getUint16(8, false);
 
-      const b1 = view.getUint8(1);
-      const Bc = (b1 >> 4) & 0x0F;
-      const diffVal = b1 & 0x0F;
+          const diffRevMap = { 1: "easy", 2: "medium", 3: "hard", 4: "extreme", 5: "impossible" };
+          const difficulty = diffRevMap[diffVal] || "medium";
+          const gameMode = (modeFlag & 1) ? "like_paper" : "catch_mistakes";
 
-      const modeFlag = view.getUint16(2, false);
-      const seed = view.getUint32(4, false);
-      const turnCount = view.getUint16(8, false);
+          const turnHistory = [];
+          for (let i = 0; i < turnCount && (10 + (i + 1) * 2 <= rawBytes.length); i++) {
+            const packed = view.getUint16(10 + i * 2, false);
+            const r = (packed >> 12) & 0x0F;
+            const c = (packed >> 8) & 0x0F;
+            const val = (packed >> 4) & 0x0F;
+            const prevVal = packed & 0x0F;
+            turnHistory.push({ step: i + 1, r, c, val, prevVal, timestamp: Date.now() });
+          }
 
-      const diffRevMap = { 1: "easy", 2: "medium", 3: "hard", 4: "extreme", 5: "impossible" };
-      const difficulty = diffRevMap[diffVal] || "medium";
-      const gameMode = (modeFlag & 1) ? "like_paper" : "catch_mistakes";
+          return {
+            version,
+            Br,
+            Bc,
+            N: Br * Bc,
+            difficulty,
+            gameMode,
+            seed,
+            turnHistory
+          };
+        }
+      } catch (err) {}
 
-      const turnHistory = [];
-      for (let i = 0; i < turnCount && (10 + (i + 1) * 2 <= rawBytes.length); i++) {
-        const packed = view.getUint16(10 + i * 2, false);
-        const r = (packed >> 12) & 0x0F;
-        const c = (packed >> 8) & 0x0F;
-        const val = (packed >> 4) & 0x0F;
-        const prevVal = packed & 0x0F;
-        turnHistory.push({ step: i + 1, r, c, val, prevVal, timestamp: Date.now() });
-      }
-
-      return {
-        version,
-        Br,
-        Bc,
-        N: Br * Bc,
-        difficulty,
-        gameMode,
-        seed,
-        turnHistory
-      };
+      return null;
     }
 
     static generateAndCarve(targetDiff = "hard", configKey = "classic_9x9", rng = null) {

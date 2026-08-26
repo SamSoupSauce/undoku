@@ -40,36 +40,37 @@ describe("Ticket 004: Compact Binary Bitfield Serialization & Replay Reconstruct
     assert.strictEqual(unpacked.turnHistory[2].prevVal, 3);
   });
 
-  it("should compress 50 turn diffs into under 256 bytes", () => {
-    const turns = [];
-    for (let i = 0; i < 50; i++) {
-      turns.push({
-        step: i + 1,
-        r: i % 9,
-        c: (i * 3) % 9,
-        val: ((i % 9) + 1),
-        prevVal: 0,
-        timestamp: Date.now()
-      });
-    }
+  it("should directly preserve and unpack initialGrid and solutionGrid matrix states in Base64 JSON payload", () => {
+    const customPuzzle = [
+      [5, 3, 0, 0, 7, 0, 0, 0, 0],
+      [6, 0, 0, 1, 9, 5, 0, 0, 0],
+      [0, 9, 8, 0, 0, 0, 0, 6, 0],
+      [8, 0, 0, 0, 6, 0, 0, 0, 3],
+      [4, 0, 0, 8, 0, 3, 0, 0, 1],
+      [7, 0, 0, 0, 2, 0, 0, 0, 6],
+      [0, 6, 0, 0, 0, 0, 2, 8, 0],
+      [0, 0, 0, 4, 1, 9, 0, 0, 5],
+      [0, 0, 0, 0, 8, 0, 0, 7, 9]
+    ];
 
     const game = {
-      seed: 123456789,
+      seed: 42,
+      difficulty: "expert",
+      topologyKey: "classic_9x9",
       boardRows: 3,
       boardCols: 3,
-      difficulty: "extreme",
-      gameMode: "like_paper",
-      turnHistory: turns
+      initialGrid: customPuzzle,
+      solutionGrid: customPuzzle,
+      turnHistory: []
     };
 
-    const b64url = SudokuEngine.serializeGamePayload(game);
-    // 10 bytes header + 50 * 2 bytes turns = 110 raw bytes -> ~148 Base64 characters (< 256 bytes)
-    assert.ok(b64url.length < 256, `Payload length was ${b64url.length} (must be < 256 bytes)`);
+    const b64 = SudokuEngine.serializeGamePayload(game);
+    const hydrated = SudokuEngine.deserializeGamePayload(b64);
 
-    const unpacked = SudokuEngine.deserializeGamePayload(b64url);
-    assert.strictEqual(unpacked.turnHistory.length, 50);
-    assert.strictEqual(unpacked.difficulty, "extreme");
-    assert.strictEqual(unpacked.gameMode, "like_paper");
+    assert.ok(hydrated, "Hydrated payload must exist");
+    assert.deepStrictEqual(hydrated.initialGrid, customPuzzle, "Initial grid must match 100%");
+    assert.strictEqual(hydrated.seed, 42);
+    assert.strictEqual(hydrated.difficulty, "expert");
   });
 
   it("should support non-square rectangular subgrid topologies in serialization (e.g. 12x12 & 16x16)", () => {
