@@ -18,6 +18,243 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <style>
+    
+    /* ==========================================================================
+       Screen State Machine & Navigation Router (Ticket 003_5)
+       ========================================================================== */
+    .app-nav-tabs {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border-subtle);
+      padding: 0.25rem;
+      border-radius: 12px;
+    }
+
+    .nav-tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.75rem;
+      border-radius: 9px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+    }
+
+    .nav-tab-btn:hover {
+      color: var(--text-main);
+      background: var(--surface-card);
+    }
+
+    .nav-tab-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 2px 8px var(--primary-glow);
+    }
+
+    .app-screen-view {
+      display: none;
+      width: 100%;
+      animation: fadeInView 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .app-screen-view.active {
+      display: block;
+    }
+
+    @keyframes fadeInView {
+      0% { opacity: 0; transform: translateY(6px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Home Dashboard Layout */
+    .dashboard-container {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      padding-bottom: 3rem;
+    }
+
+    .resume-hero-card {
+      background: var(--surface-card);
+      border: 2px solid var(--primary);
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .resume-hero-left {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .resume-icon-badge {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--primary);
+    }
+
+    .resume-info-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 0.25rem;
+    }
+
+    .resume-info-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .dashboard-launchers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    .dash-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 1.35rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .dash-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .dash-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .dash-card-icon {
+      font-size: 1.75rem;
+    }
+
+    .dash-card-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .dash-card-desc {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      margin-bottom: 1.25rem;
+    }
+
+    .topology-chips-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
+    }
+
+    .topo-chip-btn {
+      background: var(--surface-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 0.35rem 0.6rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .topo-chip-btn:hover {
+      border-color: var(--primary);
+      background: var(--surface-elevated);
+      color: var(--primary);
+    }
+
+    /* Vault Library Shelf Styling */
+    .vault-tabs-bar {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .vault-tab {
+      background: transparent;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.4rem 0.85rem;
+      border-radius: 8px;
+      transition: all 0.15s ease;
+    }
+
+    .vault-tab.active {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .vault-records-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .vault-record-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 1.15rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .vault-record-card:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
     /* ==========================================================================
        THEMES & COLOR PALETTES
        ========================================================================== */
@@ -309,6 +546,57 @@
     
     
     
+    
+    /* ==========================================================================
+       Theme: Emerald Forest (Woodland Obsidian & Sun-Dappled Canopy)
+       ========================================================================== */
+    [data-theme="forest"] {
+      --bg-gradient: linear-gradient(145deg, #07140e 0%, #030a07 100%);
+      --surface-card: #0f261c;
+      --surface-subtle: #091a13;
+      --surface-elevated: #163628;
+      --border-subtle: #1c4d37;
+      --border-strong: #10b981;
+      
+      --text-main: #ffffff;
+      --text-secondary: #ecfdf5;
+      --text-muted: #6ee7b7;
+      
+      --primary: #10b981;
+      --primary-hover: #059669;
+      --primary-light: rgba(16, 185, 129, 0.22);
+      --primary-glow: rgba(16, 185, 129, 0.50);
+      
+      --accent: #f59e0b;
+      --accent-light: rgba(245, 158, 11, 0.22);
+      --accent-glow: rgba(245, 158, 11, 0.45);
+      
+      --success: #10b981;
+      --success-light: rgba(16, 185, 129, 0.22);
+      --warning: #f59e0b;
+      --danger: #f43f5e;
+      --danger-light: rgba(244, 63, 94, 0.22);
+      --danger-glow: rgba(244, 63, 94, 0.45);
+      
+      --board-bg: #06120d;
+      --cell-bg-alt: #0a1f16;
+      --cell-hover: rgba(16, 185, 129, 0.25);
+      --cell-selected: rgba(16, 185, 129, 0.45);
+      --cell-match: rgba(245, 158, 11, 0.15);
+      --cell-conflict: rgba(244, 63, 94, 0.45);
+      
+      --grid-line: #133827;
+      --box-line: #10b981;
+      
+      --digit-given: #ffffff;
+      --digit-user: #6ee7b7;
+      --digit-note: #10b981;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.8);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.95);
+    }
+
     /* ==========================================================================
        Theme: Solar Flare (Thermonuclear Gold & Fiery Corona Glow)
        ========================================================================== */
@@ -1803,13 +2091,26 @@
 <body>
   <canvas id="confettiCanvas"></canvas>
 
-  <!-- Top Header Bar -->
+  <!-- Top Header Bar with Navigation Router (Ticket 003_5) -->
   <header class="app-header">
     <div class="brand-group">
-      <div class="brand-logo">
+      <div class="brand-logo" id="brandLogoBtn" style="cursor: pointer;" title="Return to Dashboard Hub">
         🧩 Undoku<span class="accent-dot">.</span>
       </div>
-      <span class="brand-badge" id="appModeBadge">Play Mode</span>
+      <div class="app-nav-tabs">
+        <button class="nav-tab-btn active" id="navBtnHome">
+          <span>🏠</span> Hub
+        </button>
+        <button class="nav-tab-btn" id="navBtnGame">
+          <span>🧩</span> Play
+        </button>
+        <button class="nav-tab-btn" id="navBtnVault">
+          <span>📚</span> Vault
+        </button>
+        <button class="nav-tab-btn" id="navBtnShare">
+          <span>📡</span> P2P Share
+        </button>
+      </div>
     </div>
 
     <div class="header-actions">
@@ -1829,6 +2130,7 @@
           <option value="oceanic">🌊 Deep Oceanic</option>
           <option value="electric">⚡ Electric Violet</option>
           <option value="solar">🔥 Solar Flare</option>
+          <option value="forest">🌿 Emerald Forest</option>
         </select>
       </div>
 
@@ -1841,7 +2143,111 @@
     </div>
   </header>
 
-  <!-- Main Game Arena -->
+
+  <!-- Screen 1: Home Dashboard Hub (Ticket 003_5) -->
+  <div class="app-screen-view active" id="screenHome">
+    <div class="dashboard-container">
+      <!-- Resume Hero Card (Dynamically displayed if in-progress session exists) -->
+      <div class="resume-hero-card" id="homeResumeCard" style="display: none;">
+        <div class="resume-hero-left">
+          <div class="resume-icon-badge" id="resumeIconBadge">🧩</div>
+          <div>
+            <div class="resume-info-title" id="resumeTitle">Resume In-Progress Game</div>
+            <div class="resume-info-meta">
+              <span id="resumeDiffBadge">HARD</span> • 
+              <span id="resumeTopologyBadge">9×9 Classic</span> • 
+              <span id="resumeTimeBadge">⏱️ 02:45</span> • 
+              <span id="resumeProgressBadge" style="color: var(--primary);">42% Complete</span>
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 0.6rem; align-items: center;">
+          <button class="btn-action primary" id="btnResumeGame" style="padding: 0.75rem 1.4rem; font-weight: 800; font-size: 0.95rem;">
+            ▶ Resume Game
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Launch & New Game Cards -->
+      <div class="dashboard-launchers-grid">
+        <div class="dash-card">
+          <div>
+            <div class="dash-card-header">
+              <span class="dash-card-icon">⚡</span>
+              <span class="dash-card-title">Quick Play</span>
+            </div>
+            <p class="dash-card-desc">
+              Jump straight into a classic 9×9 tournament grid at standard medium difficulty with instant cognitive analysis.
+            </p>
+          </div>
+          <button class="btn-action primary" id="btnQuickPlay" style="width: 100%; justify-content: center; padding: 0.75rem; font-weight: 800;">
+            ▶ Start Classic 9×9
+          </button>
+        </div>
+
+        <div class="dash-card">
+          <div>
+            <div class="dash-card-header">
+              <span class="dash-card-icon">🎲</span>
+              <span class="dash-card-title">Custom Puzzle</span>
+            </div>
+            <p class="dash-card-desc">
+              Configure rectangular subgrid geometry (4×4 up to 16×16 Hexadoku), cognitive challenge tiers, and gameplay modes.
+            </p>
+          </div>
+          <button class="btn-action" id="btnDashNewGame" style="width: 100%; justify-content: center; padding: 0.75rem; font-weight: 800; border-color: var(--primary); color: var(--primary);">
+            🎲 New Custom Game...
+          </button>
+        </div>
+
+        <div class="dash-card">
+          <div>
+            <div class="dash-card-header">
+              <span class="dash-card-icon">📐</span>
+              <span class="dash-card-title">Topologies</span>
+            </div>
+            <p class="dash-card-desc">
+              Instant launch presets for non-square and wide rectangular subgrid geometries:
+            </p>
+            <div class="topology-chips-row">
+              <button class="topo-chip-btn" data-topo="mini_4x4">4×4 Mini</button>
+              <button class="topo-chip-btn" data-topo="wide_6x6">6×6 Wide</button>
+              <button class="topo-chip-btn" data-topo="wide_8x8">8×8 Wide</button>
+              <button class="topo-chip-btn" data-topo="classic_9x9">9×9 Classic</button>
+              <button class="topo-chip-btn" data-topo="wide_10x10">10×10 Decimal</button>
+              <button class="topo-chip-btn" data-topo="duo_12x12">12×12 Duo</button>
+              <button class="topo-chip-btn" data-topo="hexa_16x16">16×16 Hexadoku</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Core Engine Highlights -->
+      <div class="dash-card" style="margin-top: 0.5rem; background: var(--surface-subtle);">
+        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: space-around; text-align: center;">
+          <div>
+            <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary); font-family: 'JetBrains Mono', monospace;">100%</div>
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Offline &amp; Private</div>
+          </div>
+          <div>
+            <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary); font-family: 'JetBrains Mono', monospace;">28+</div>
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Cognitive Metrics</div>
+          </div>
+          <div>
+            <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary); font-family: 'JetBrains Mono', monospace;">8 Topologies</div>
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">4×4 to 16×16 Matrix</div>
+          </div>
+          <div>
+            <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary); font-family: 'JetBrains Mono', monospace;">0 ms</div>
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Network Latency</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 2: Main Game Arena -->
+  <div class="app-screen-view" id="screenGame">
   <main class="game-arena">
     <!-- Left Column: Board & Controls -->
     <div class="game-card">
@@ -2060,6 +2466,76 @@
       </div>
     </div>
   </main>
+  </div>
+
+  <!-- Screen 3: My Puzzle Library & Replay Vault (Ticket 003_5) -->
+  <div class="app-screen-view" id="screenVault">
+    <div class="dashboard-container">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div>
+          <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.2rem;">📚 Puzzle Library &amp; Vault</h1>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">Browse saved solves, step-by-step logic proofs, and replay trajectories.</p>
+        </div>
+        <button class="btn-action" id="btnClearVaultHistory" style="font-size: 0.8rem; padding: 0.45rem 0.75rem;">
+          🗑️ Clear Vault
+        </button>
+      </div>
+
+      <div class="vault-tabs-bar">
+        <button class="vault-tab active" id="tabVaultCompleted" data-tab="completed">🏆 Completed Solves (<span id="vaultCountCompleted">0</span>)</button>
+        <button class="vault-tab" id="tabVaultDrafts" data-tab="drafts">📂 In-Progress Drafts (<span id="vaultCountDrafts">0</span>)</button>
+        <button class="vault-tab" id="tabVaultShared" data-tab="shared">📥 Shared Puzzles (<span id="vaultCountShared">0</span>)</button>
+      </div>
+
+      <div class="vault-records-grid" id="vaultRecordsGrid">
+        <!-- Dynamically rendered local vault cards -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 4: Serverless P2P Sharing Hub (Pre-wired for Ticket 004) -->
+  <div class="app-screen-view" id="screenShare">
+    <div class="dashboard-container">
+      <div style="text-align: center; max-width: 600px; margin: 0 auto 1.5rem;">
+        <div style="font-size: 3rem; margin-bottom: 0.5rem;">📡</div>
+        <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.35rem;">Serverless P2P Game Exchange</h1>
+        <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+          Share exact puzzle seeds, turns, and trajectories using ephemeral 6-character room codes or offline bitfield payloads without a centralized server.
+        </p>
+      </div>
+
+      <div class="dashboard-launchers-grid">
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <span class="dash-card-icon">📤</span>
+            <span class="dash-card-title">Share Active Game</span>
+          </div>
+          <p class="dash-card-desc">
+            Generate an ephemeral 6-character room code or copy a compact binary payload string (&lt; 256 bytes) to share with friends.
+          </p>
+          <button class="btn-action primary" id="btnGenerateShareCode" style="width: 100%; justify-content: center; padding: 0.75rem; font-weight: 800;">
+            🔗 Generate Share Code
+          </button>
+        </div>
+
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <span class="dash-card-icon">📥</span>
+            <span class="dash-card-title">Join by Code / Payload</span>
+          </div>
+          <p class="dash-card-desc">
+            Paste a 6-character room code (e.g. <b>UDK-9X4A</b>) or Base64URL bitfield payload to load an exact identical match.
+          </p>
+          <div style="display: flex; gap: 0.5rem; margin-top: auto;">
+            <input type="text" id="inputJoinRoomCode" placeholder="Enter code (e.g. UDK-9X4A)" style="flex: 1; padding: 0.65rem 0.8rem; border-radius: 10px; border: 1px solid var(--border-subtle); background: var(--surface-subtle); color: var(--text-main); font-family: 'JetBrains Mono', monospace; font-weight: 700; text-transform: uppercase;">
+            <button class="btn-action primary" id="btnJoinRoomCode" style="padding: 0.65rem 1.1rem; font-weight: 800;">
+              Join
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Victory Celebration Modal -->
   <div class="modal-backdrop" id="victoryModal">
@@ -4124,6 +4600,200 @@
           console.log("ServiceWorker registration note:", err);
         });
       });
+    }
+
+
+    // ==========================================================================
+    // SCREEN STATE MACHINE & NAVIGATION ROUTER (Ticket 003_5)
+    // ==========================================================================
+    let currentScreen = "HOME_MENU"; // "HOME_MENU" | "GAME_PLAY" | "LIBRARY_VAULT" | "P2P_SHARE"
+    let isGameActive = false;
+
+    function navigateToScreen(targetScreen) {
+      currentScreen = targetScreen;
+
+      // Update Nav Buttons
+      document.getElementById("navBtnHome").classList.toggle("active", targetScreen === "HOME_MENU");
+      document.getElementById("navBtnGame").classList.toggle("active", targetScreen === "GAME_PLAY");
+      document.getElementById("navBtnVault").classList.toggle("active", targetScreen === "LIBRARY_VAULT");
+      document.getElementById("navBtnShare").classList.toggle("active", targetScreen === "P2P_SHARE");
+
+      // Update Screen Views
+      document.getElementById("screenHome").classList.toggle("active", targetScreen === "HOME_MENU");
+      document.getElementById("screenGame").classList.toggle("active", targetScreen === "GAME_PLAY");
+      document.getElementById("screenVault").classList.toggle("active", targetScreen === "LIBRARY_VAULT");
+      document.getElementById("screenShare").classList.toggle("active", targetScreen === "P2P_SHARE");
+
+      if (targetScreen === "HOME_MENU") {
+        updateHomeResumeCard();
+      } else if (targetScreen === "GAME_PLAY") {
+        if (gameState && !isGameActive) {
+          isGameActive = true;
+          startTimer();
+        }
+        // Resize canvas if needed
+        setTimeout(() => {
+          resizeCanvas();
+          renderBoard();
+        }, 30);
+      } else if (targetScreen === "LIBRARY_VAULT") {
+        renderVaultRecords("completed");
+      }
+    }
+
+    function updateHomeResumeCard() {
+      const resumeCard = document.getElementById("homeResumeCard");
+      if (!gameState || !gameState.initialGrid) {
+        resumeCard.style.display = "none";
+        return;
+      }
+
+      const N = gameState.N || 9;
+      let filled = 0;
+      const total = N * N;
+      for (let r = 0; r < N; r++) {
+        for (let c = 0; c < N; c++) {
+          if (gameState.userGrid[r][c] !== 0) filled++;
+        }
+      }
+
+      const pct = Math.round((filled / total) * 100);
+      document.getElementById("resumeTitle").textContent = "Resume In-Progress Game";
+      document.getElementById("resumeDiffBadge").textContent = (gameState.difficulty || "MEDIUM").toUpperCase();
+      document.getElementById("resumeTopologyBadge").textContent = (gameState.topologyKey || "9×9 Classic").replace("_", " ").toUpperCase();
+      document.getElementById("resumeTimeBadge").textContent = "⏱️ " + formatTime(gameState.secondsElapsed || 0);
+      document.getElementById("resumeProgressBadge").textContent = pct + "% Complete";
+      resumeCard.style.display = "flex";
+    }
+
+    // Vault Storage Helper (IndexedDB & localStorage sync)
+    function getVaultRecords() {
+      try {
+        const data = localStorage.getItem("undoku_vault_records_v1");
+        return data ? JSON.parse(data) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveVaultRecord(record) {
+      try {
+        const records = getVaultRecords();
+        records.unshift(record);
+        if (records.length > 50) records.pop(); // Keep 50 recent
+        localStorage.setItem("undoku_vault_records_v1", JSON.stringify(records));
+      } catch (e) {
+        console.warn("Vault save note:", e);
+      }
+    }
+
+    function renderVaultRecords(tab) {
+      const container = document.getElementById("vaultRecordsGrid");
+      const records = getVaultRecords();
+      
+      const completed = records.filter(r => r.isCompleted);
+      const drafts = records.filter(r => !r.isCompleted && !r.isShared);
+      const shared = records.filter(r => r.isShared);
+
+      document.getElementById("vaultCountCompleted").textContent = completed.length;
+      document.getElementById("vaultCountDrafts").textContent = drafts.length;
+      document.getElementById("vaultCountShared").textContent = shared.length;
+
+      let list = completed;
+      if (tab === "drafts") list = drafts;
+      if (tab === "shared") list = shared;
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📂</div>
+            <div style="font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.25rem;">No Records in this Vault Tab</div>
+            <div style="font-size: 0.85rem;">Play and complete games to populate your analytical proof library!</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = list.map((rec, idx) => `
+        <div class="vault-record-card">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+              <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+                ${new Date(rec.timestamp).toLocaleDateString()} • ${new Date(rec.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </div>
+              <div style="font-size: 1.05rem; font-weight: 800; color: var(--text-main); margin-top: 0.2rem;">
+                ${rec.topologyName || "9×9 Classic"}
+              </div>
+            </div>
+            <span class="diff-select-badge ${rec.difficulty}" style="font-size: 0.7rem; padding: 0.2rem 0.5rem; min-width: auto;">
+              ${(rec.difficulty || "MEDIUM").toUpperCase()}
+            </span>
+          </div>
+
+          <div style="display: flex; gap: 0.8rem; font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); background: var(--surface-subtle); padding: 0.5rem 0.75rem; border-radius: 8px;">
+            <span>⏱️ ${formatTime(rec.durationSeconds || 0)}</span>
+            <span>❌ ${rec.mistakes || 0} Mistakes</span>
+            <span>💡 ${rec.hintsUsed || 0} Hints</span>
+          </div>
+
+          <div style="display: flex; gap: 0.4rem; margin-top: 0.25rem;">
+            <button class="btn-action primary btn-vault-play" data-idx="${idx}" style="flex: 1; font-size: 0.78rem; padding: 0.45rem; justify-content: center;">
+              ${rec.isCompleted ? "🎬 Replay" : "▶ Resume"}
+            </button>
+            <button class="btn-action btn-vault-svg" data-idx="${idx}" style="font-size: 0.78rem; padding: 0.45rem 0.65rem;" title="Export Static SVG">
+              ⬇ SVG
+            </button>
+          </div>
+        </div>
+      `).join("");
+
+      // Bind actions
+      container.querySelectorAll(".btn-vault-play").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const idx = parseInt(btn.getAttribute("data-idx"), 10);
+          const rec = list[idx];
+          if (rec) {
+            loadGameFromRecord(rec);
+          }
+        });
+      });
+    }
+
+    function loadGameFromRecord(rec) {
+      currentTopologyKey = rec.topologyKey || "classic_9x9";
+      activeTopology = SudokuEngine.TOPOLOGIES[currentTopologyKey] || SudokuEngine.TOPOLOGIES["classic_9x9"];
+      selectedDifficulty = rec.difficulty || "medium";
+      gameMode = rec.gameMode || "catch_mistakes";
+      
+      gameState = {
+        seed: rec.seed,
+        difficulty: rec.difficulty,
+        topologyKey: currentTopologyKey,
+        N: activeTopology.N,
+        Br: activeTopology.Br,
+        Bc: activeTopology.Bc,
+        initialGrid: rec.initialGrid,
+        userGrid: rec.userGrid || rec.initialGrid,
+        solutionGrid: rec.solutionGrid,
+        notes: rec.notes || Array.from({ length: activeTopology.N }, () => Array.from({ length: activeTopology.N }, () => new Set())),
+        history: rec.history || [],
+        redoStack: [],
+        mistakes: rec.mistakes || 0,
+        maxMistakes: rec.maxMistakes || 3,
+        secondsElapsed: rec.durationSeconds || 0,
+        isCompleted: rec.isCompleted || false,
+        allowHints: true,
+        hintsLeft: 3,
+        analytics: rec.analytics || null,
+        playthroughReport: rec.playthroughReport || null
+      };
+
+      isGameActive = true;
+      navigateToScreen("GAME_PLAY");
+      updateHUD();
+      renderBoard();
+      updateDigitCounters();
+      if (gameState.analytics) renderAnalytics(gameState.analytics);
     }
 
     // --- Application Bootloader ---
