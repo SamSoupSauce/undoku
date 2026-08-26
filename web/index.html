@@ -677,6 +677,57 @@
     
     
     
+    
+    /* ==========================================================================
+       Theme: Cyber Diamond Holo (Diamond Obsidian Void & Iridescent Cyan Glow)
+       ========================================================================== */
+    [data-theme="diamond"] {
+      --bg-gradient: linear-gradient(145deg, #070914 0%, #020308 100%);
+      --surface-card: #10162b;
+      --surface-subtle: #0a0e1c;
+      --surface-elevated: #192242;
+      --border-subtle: #293869;
+      --border-strong: #38bdf8;
+      
+      --text-main: #ffffff;
+      --text-secondary: #f0f9ff;
+      --text-muted: #7dd3fc;
+      
+      --primary: #38bdf8;
+      --primary-hover: #0284c7;
+      --primary-light: rgba(56, 189, 248, 0.22);
+      --primary-glow: rgba(56, 189, 248, 0.50);
+      
+      --accent: #f472b6;
+      --accent-light: rgba(244, 114, 182, 0.22);
+      --accent-glow: rgba(244, 114, 182, 0.45);
+      
+      --success: #34d399;
+      --success-light: rgba(52, 211, 153, 0.22);
+      --warning: #fbbf24;
+      --danger: #f43f5e;
+      --danger-light: rgba(244, 63, 94, 0.22);
+      --danger-glow: rgba(244, 63, 94, 0.45);
+      
+      --board-bg: #050711;
+      --cell-bg-alt: #0d1222;
+      --cell-hover: rgba(56, 189, 248, 0.25);
+      --cell-selected: rgba(56, 189, 248, 0.45);
+      --cell-match: rgba(244, 114, 182, 0.15);
+      --cell-conflict: rgba(244, 63, 94, 0.45);
+      
+      --grid-line: #1c2647;
+      --box-line: #38bdf8;
+      
+      --digit-given: #ffffff;
+      --digit-user: #bae6fd;
+      --digit-note: #f472b6;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.8);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.95);
+    }
+
     /* ==========================================================================
        Theme: Cyber Plasma Magenta (Deep Obsidian Void & Neon Magenta Plasma Glow)
        ========================================================================== */
@@ -3183,6 +3234,7 @@
           <option value="thunder">⚡ Cyber Thunder</option>
           <option value="viper">🐍 Cyber Viper</option>
           <option value="plasma">⚡ Neon Plasma</option>
+          <option value="diamond">💎 Cyber Diamond</option>
         </select>
       </div>
 
@@ -6923,9 +6975,11 @@
 
 
 
+
     // ==========================================================================
-    // MULTIPLAYER FUNCTION 2: SYNCHRONIZED HOST LOBBY & IMMEDIATE TURN PASSING
+    // MULTIPLAYER FUNCTION 2: PEER IDENTITY, DUAL BROADCAST/STORAGE P2P PIPE
     // ==========================================================================
+    const LOCAL_PEER_ID = "peer_" + Math.random().toString(36).substring(2, 9) + "_" + Date.now().toString(36);
     let isVersusMode = false;
     let versusBroadcastChannel = null;
     let versusMatch = {
@@ -6973,8 +7027,8 @@
         seed: seed || Math.floor(Math.random() * 1e9),
         topologyKey: topologyKey || "classic_9x9",
         difficulty: diff || "medium",
-        p1Nick: p1 || getSavedNickname(),
-        p2Nick: p2 || "Challenger",
+        p1Nick: p1 || (isHost ? getSavedNickname() : "Host"),
+        p2Nick: p2 || (isHost ? "Waiting..." : getSavedNickname()),
         p1Score: 0,
         p2Score: 0,
         p1TimeMs: 0,
@@ -7012,6 +7066,109 @@
       return { totalPoints, basePoints, technique };
     }
 
+    // --- Dual P2P Message Dispatcher (BroadcastChannel + LocalStorage Event Pipe) ---
+    function sendVersusMessage(msg) {
+      msg.senderId = LOCAL_PEER_ID;
+      msg.timestamp = Date.now();
+
+      // 1. BroadcastChannel (Modern same-origin tabs)
+      if (versusBroadcastChannel) {
+        try { versusBroadcastChannel.postMessage(msg); } catch (e) {}
+      }
+
+      // 2. LocalStorage Event (Universal fallback across all tabs and windows)
+      try {
+        const key = "undoku_p2p_channel_" + versusMatch.roomId;
+        localStorage.setItem(key, JSON.stringify(msg));
+      } catch (e) {}
+    }
+
+    function handleVersusIncomingMessage(msg) {
+      if (!msg || !msg.type || msg.senderId === LOCAL_PEER_ID) return;
+
+      if (msg.type === "PEER_JOIN") {
+        if (versusMatch.isHost) {
+          versusMatch.p2Nick = msg.nick || "Challenger";
+          const gLabel = document.getElementById("vsGuestNickLabel");
+          if (gLabel) gLabel.innerText = versusMatch.p2Nick;
+          const gStatus = document.getElementById("vsGuestStatusLabel");
+          if (gStatus) gStatus.innerText = "🟢 Connected & Ready!";
+          const roomBadge = document.getElementById("vsRoomStatusBadge");
+          if (roomBadge) {
+            roomBadge.innerText = "🟢 CHALLENGER READY";
+            roomBadge.className = "hud-mode-pill paper";
+          }
+          showVersusToast("👤", `${versusMatch.p2Nick} joined the room!`, 2500);
+
+          // Acknowledge challenger with host state
+          sendVersusMessage({
+            type: "HOST_READY",
+            hostNick: versusMatch.p1Nick,
+            seed: versusMatch.seed,
+            topologyKey: versusMatch.topologyKey,
+            difficulty: versusMatch.difficulty
+          });
+        }
+      } else if (msg.type === "HOST_READY") {
+        if (!versusMatch.isHost) {
+          versusMatch.p1Nick = msg.hostNick || "Host";
+          const hLabel = document.getElementById("vsHostNickLabel");
+          if (hLabel) hLabel.innerText = versusMatch.p1Nick;
+          const rBadge = document.getElementById("vsRoomStatusBadge");
+          if (rBadge) {
+            rBadge.innerText = "🟢 CONNECTED TO HOST";
+            rBadge.className = "hud-mode-pill assisted";
+          }
+          const gStatus = document.getElementById("vsGuestStatusLabel");
+          if (gStatus) gStatus.innerText = "⏳ Waiting for Host to start match...";
+        }
+      } else if (msg.type === "MATCH_START") {
+        // Host triggered start -> launch challenger synchronously
+        const roomModal = document.getElementById("versusRoomModal");
+        if (roomModal) roomModal.classList.remove("active");
+
+        isVersusMode = true;
+        versusMatch.hasStarted = true;
+        versusMatch.p1Nick = msg.p1Nick || versusMatch.p1Nick;
+        versusMatch.p2Nick = msg.p2Nick || versusMatch.p2Nick;
+        versusMatch.activeTurn = 1;
+        versusMatch.localPlayer = 2; // Challenger is P2
+
+        // Hydrate exact board
+        if (msg.payload) {
+          ShareManager.loadFromInput(msg.payload);
+        } else {
+          loadPuzzle(msg.difficulty, "catch_mistakes", true, true, 3, true, true, msg.topologyKey, msg.seed);
+        }
+
+        navigateToScreen("GAME_PLAY");
+        updateVersusHUD();
+        showVersusToast("⚔️", `Match Started! ${versusMatch.p1Nick} has first turn.`, 3000);
+      } else if (msg.type === "MOVE_PLACED") {
+        // Opponent placed move -> immediately update board & start local turn
+        if (msg.r !== undefined && msg.c !== undefined && msg.val !== undefined) {
+          if (userGrid[msg.r] && initialGrid[msg.r][msg.c] === 0) {
+            userGrid[msg.r][msg.c] = msg.val;
+            renderBoard();
+            updateDigitCounters();
+          }
+        }
+        versusMatch.p1Score = msg.match.p1Score || 0;
+        versusMatch.p2Score = msg.match.p2Score || 0;
+        versusMatch.p1TimeMs = msg.match.p1TimeMs || 0;
+        versusMatch.p2TimeMs = msg.match.p2TimeMs || 0;
+        versusMatch.activeTurn = msg.match.activeTurn || 1;
+
+        updateVersusHUD();
+        const opponentNick = (versusMatch.localPlayer === 1 ? versusMatch.p2Nick : versusMatch.p1Nick);
+        showVersusToast("🎯", `${opponentNick} placed ${msg.val} (+${msg.points} pts). YOUR TURN!`, 2500);
+
+        if (versusMatch.activeTurn === versusMatch.localPlayer) {
+          startVersusThinkingClock();
+        }
+      }
+    }
+
     function setupVersusP2PChannel(roomCode) {
       if (versusBroadcastChannel) {
         try { versusBroadcastChannel.close(); } catch (e) {}
@@ -7019,92 +7176,23 @@
       try {
         versusBroadcastChannel = new BroadcastChannel("undoku_vs_" + roomCode);
         versusBroadcastChannel.onmessage = (event) => {
-          const msg = event.data;
-          if (!msg || !msg.type) return;
-
-          if (msg.type === "PEER_JOIN") {
-            if (versusMatch.isHost) {
-              versusMatch.p2Nick = msg.nick || "Challenger";
-              const gLabel = document.getElementById("vsGuestNickLabel");
-              if (gLabel) gLabel.innerText = versusMatch.p2Nick;
-              const gStatus = document.getElementById("vsGuestStatusLabel");
-              if (gStatus) gStatus.innerText = "🟢 Connected & Ready!";
-              const roomBadge = document.getElementById("vsRoomStatusBadge");
-              if (roomBadge) {
-                roomBadge.innerText = "🟢 CHALLENGER READY";
-                roomBadge.className = "hud-mode-pill paper";
-              }
-              // Send handshake confirmation back to guest
-              versusBroadcastChannel.postMessage({
-                type: "HOST_READY",
-                hostNick: versusMatch.p1Nick,
-                seed: versusMatch.seed,
-                topologyKey: versusMatch.topologyKey,
-                difficulty: versusMatch.difficulty
-              });
-            }
-          } else if (msg.type === "HOST_READY") {
-            if (!versusMatch.isHost) {
-              versusMatch.p1Nick = msg.hostNick || "Host";
-              const hLabel = document.getElementById("vsHostNickLabel");
-              if (hLabel) hLabel.innerText = versusMatch.p1Nick;
-              const rBadge = document.getElementById("vsRoomStatusBadge");
-              if (rBadge) {
-                rBadge.innerText = "🟢 CONNECTED TO HOST";
-                rBadge.className = "hud-mode-pill assisted";
-              }
-              const gStatus = document.getElementById("vsGuestStatusLabel");
-              if (gStatus) gStatus.innerText = "⏳ Waiting for Host to start match...";
-            }
-          } else if (msg.type === "MATCH_START") {
-            // Host triggered start -> launch challenger synchronously
-            const roomModal = document.getElementById("versusRoomModal");
-            if (roomModal) roomModal.classList.remove("active");
-
-            isVersusMode = true;
-            versusMatch.hasStarted = true;
-            versusMatch.p1Nick = msg.p1Nick || versusMatch.p1Nick;
-            versusMatch.p2Nick = msg.p2Nick || versusMatch.p2Nick;
-            versusMatch.activeTurn = 1;
-            versusMatch.localPlayer = 2; // Challenger is P2
-
-            // Hydrate exact board
-            if (msg.payload) {
-              ShareManager.loadFromInput(msg.payload);
-            } else {
-              loadPuzzle(msg.difficulty, "catch_mistakes", true, true, 3, true, true, msg.topologyKey, msg.seed);
-            }
-
-            navigateToScreen("GAME_PLAY");
-            updateVersusHUD();
-            showVersusToast("⚔️", `Match Started! ${versusMatch.p1Nick} has first turn.`, 3000);
-          } else if (msg.type === "MOVE_PLACED") {
-            // Opponent placed move -> immediately update board & start local turn
-            if (msg.r !== undefined && msg.c !== undefined && msg.val !== undefined) {
-              if (userGrid[msg.r] && initialGrid[msg.r][msg.c] === 0) {
-                userGrid[msg.r][msg.c] = msg.val;
-                renderBoard();
-                updateDigitCounters();
-              }
-            }
-            versusMatch.p1Score = msg.match.p1Score || 0;
-            versusMatch.p2Score = msg.match.p2Score || 0;
-            versusMatch.p1TimeMs = msg.match.p1TimeMs || 0;
-            versusMatch.p2TimeMs = msg.match.p2TimeMs || 0;
-            versusMatch.activeTurn = msg.match.activeTurn || 1;
-
-            updateVersusHUD();
-            const opponentNick = (versusMatch.localPlayer === 1 ? versusMatch.p2Nick : versusMatch.p1Nick);
-            showVersusToast("🎯", `${opponentNick} placed ${msg.val} (+${msg.points} pts). YOUR TURN!`, 2500);
-
-            if (versusMatch.activeTurn === versusMatch.localPlayer) {
-              startVersusThinkingClock();
-            }
-          }
+          handleVersusIncomingMessage(event.data);
         };
       } catch (e) {
-        console.warn("P2P Channel error:", e);
+        console.warn("BroadcastChannel init:", e);
       }
+
+      // Storage event listener fallback
+      window.removeEventListener("storage", window._vsStorageListener);
+      window._vsStorageListener = (e) => {
+        if (e.key === "undoku_p2p_channel_" + roomCode && e.newValue) {
+          try {
+            const data = JSON.parse(e.newValue);
+            handleVersusIncomingMessage(data);
+          } catch (err) {}
+        }
+      };
+      window.addEventListener("storage", window._vsStorageListener);
     }
 
     function getSavedNickname() {
@@ -7194,7 +7282,6 @@
       document.getElementById("cardPlayer2").style.opacity = (versusMatch.activeTurn === 2) ? "1" : "0.55";
     }
 
-    // Called whenever a player inputs a move during versus mode: Passes immediately every time!
     function onVersusMovePlaced(r, c, val) {
       if (!isVersusMode) return;
       const turnSec = stopVersusThinkingClock();
@@ -7207,7 +7294,6 @@
         versusMatch.p2Score += totalPoints;
       }
 
-      // Check if spaces ran out (game complete)
       const spacesRemaining = countOpenCells();
       if (spacesRemaining === 0) {
         versusMatch.isFinished = true;
@@ -7219,24 +7305,21 @@
       versusMatch.activeTurn = (versusMatch.activeTurn === 1) ? 2 : 1;
       updateVersusHUD();
 
-      // Transmit move diff immediately over live broadcast channel
-      if (versusBroadcastChannel) {
-        versusBroadcastChannel.postMessage({
-          type: "MOVE_PLACED",
-          r, c, val,
-          points: totalPoints,
-          technique,
-          match: {
-            p1Score: versusMatch.p1Score,
-            p2Score: versusMatch.p2Score,
-            p1TimeMs: versusMatch.p1TimeMs,
-            p2TimeMs: versusMatch.p2TimeMs,
-            activeTurn: versusMatch.activeTurn
-          }
-        });
-      }
+      // Transmit move diff immediately over dual P2P pipeline
+      sendVersusMessage({
+        type: "MOVE_PLACED",
+        r, c, val,
+        points: totalPoints,
+        technique,
+        match: {
+          p1Score: versusMatch.p1Score,
+          p2Score: versusMatch.p2Score,
+          p1TimeMs: versusMatch.p1TimeMs,
+          p2TimeMs: versusMatch.p2TimeMs,
+          activeTurn: versusMatch.activeTurn
+        }
+      });
 
-      // Non-blocking immediate toast
       const nextNick = (versusMatch.activeTurn === 1 ? versusMatch.p1Nick : versusMatch.p2Nick);
       if (!versusMatch.isFinished) {
         showVersusToast("⚡", `${technique} (+${totalPoints} pts)! Turn passed to ${nextNick}.`, 2000);
@@ -7248,8 +7331,8 @@
       if (!game) return;
 
       const myNick = getSavedNickname();
-      const roomCode = "VS-" + ShareManager.generateRoomCode(game.seed).replace("UDK-", "");
-      initEmptyVersusRoundState(roomCode, game.seed, game.topologyKey, game.difficulty, myNick, "Challenger", isHost);
+      const roomCode = game.roomId || ("VS-" + ShareManager.generateRoomCode(game.seed).replace("UDK-", ""));
+      initEmptyVersusRoundState(roomCode, game.seed, game.topologyKey, game.difficulty, isHost ? myNick : "Host", isHost ? "Waiting..." : myNick, isHost);
 
       document.getElementById("displayVsRoomCode").textContent = roomCode;
       document.getElementById("vsHostNickLabel").textContent = isHost ? myNick : "Host";
@@ -7282,8 +7365,9 @@
 
       // Setup persistent P2P channel
       setupVersusP2PChannel(roomCode);
-      if (!isHost && versusBroadcastChannel) {
-        versusBroadcastChannel.postMessage({ type: "PEER_JOIN", nick: myNick });
+      if (!isHost) {
+        // Send join announce immediately
+        sendVersusMessage({ type: "PEER_JOIN", nick: myNick });
       }
 
       const btnCopy = document.getElementById("btnCopyVsRoomCode");
@@ -7323,17 +7407,15 @@
           const payload = ShareManager.generatePayload(game);
 
           // Broadcast MATCH_START to challenger
-          if (versusBroadcastChannel) {
-            versusBroadcastChannel.postMessage({
-              type: "MATCH_START",
-              p1Nick: versusMatch.p1Nick,
-              p2Nick: versusMatch.p2Nick,
-              payload: payload,
-              seed: versusMatch.seed,
-              topologyKey: versusMatch.topologyKey,
-              difficulty: versusMatch.difficulty
-            });
-          }
+          sendVersusMessage({
+            type: "MATCH_START",
+            p1Nick: versusMatch.p1Nick,
+            p2Nick: versusMatch.p2Nick,
+            payload: payload,
+            seed: versusMatch.seed,
+            topologyKey: versusMatch.topologyKey,
+            difficulty: versusMatch.difficulty
+          });
 
           loadGameFromRecord(game);
           updateVersusHUD();
@@ -7365,10 +7447,22 @@
           const vsObj = JSON.parse(atob(b64));
           if (vsObj && vsObj.payload) {
             const imported = SudokuEngine.deserializeGamePayload(vsObj.payload);
-            const myNick = getSavedNickname();
+            imported.roomId = vsObj.match ? vsObj.match.roomId : null;
             openVersusRoomDialog(imported, false);
             return true;
           }
+        } else if (str.startsWith("VS-") || str.length <= 8) {
+          // Room code direct join
+          const cleanCode = str.toUpperCase();
+          const seed = Math.abs(cleanCode.split("").reduce((acc, ch) => ((acc << 5) - acc) + ch.charCodeAt(0), 0));
+          const mockGame = {
+            roomId: cleanCode,
+            seed: seed,
+            topologyKey: "classic_9x9",
+            difficulty: "medium"
+          };
+          openVersusRoomDialog(mockGame, false);
+          return true;
         }
       } catch (e) {
         console.warn("Versus payload load note:", e);
