@@ -558,6 +558,57 @@
     
     
     
+    
+    /* ==========================================================================
+       Theme: Cyber Neon Pulse (Electric Lime & Matrix Void Glow)
+       ========================================================================== */
+    [data-theme="neonpulse"] {
+      --bg-gradient: linear-gradient(145deg, #060913 0%, #020409 100%);
+      --surface-card: #0d1326;
+      --surface-subtle: #080d1a;
+      --surface-elevated: #141d3b;
+      --border-subtle: #1e2c59;
+      --border-strong: #22c55e;
+      
+      --text-main: #ffffff;
+      --text-secondary: #dcfce7;
+      --text-muted: #86efac;
+      
+      --primary: #22c55e;
+      --primary-hover: #16a34a;
+      --primary-light: rgba(34, 197, 94, 0.22);
+      --primary-glow: rgba(34, 197, 94, 0.50);
+      
+      --accent: #06b6d4;
+      --accent-light: rgba(6, 182, 212, 0.22);
+      --accent-glow: rgba(6, 182, 212, 0.45);
+      
+      --success: #22c55e;
+      --success-light: rgba(34, 197, 94, 0.22);
+      --warning: #eab308;
+      --danger: #f43f5e;
+      --danger-light: rgba(244, 63, 94, 0.22);
+      --danger-glow: rgba(244, 63, 94, 0.45);
+      
+      --board-bg: #04070f;
+      --cell-bg-alt: #080f1f;
+      --cell-hover: rgba(34, 197, 94, 0.25);
+      --cell-selected: rgba(34, 197, 94, 0.45);
+      --cell-match: rgba(6, 182, 212, 0.15);
+      --cell-conflict: rgba(244, 63, 94, 0.45);
+      
+      --grid-line: #142347;
+      --box-line: #22c55e;
+      
+      --digit-given: #ffffff;
+      --digit-user: #86efac;
+      --digit-note: #06b6d4;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.8);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.95);
+    }
+
     /* ==========================================================================
        Theme: Volcanic Magma (Obsidian Basalt & Molten Lava Glow)
        ========================================================================== */
@@ -2296,6 +2347,7 @@
           <option value="cosmos">🪐 Starlight Cosmos</option>
           <option value="frost">❄️ Polar Frost</option>
           <option value="magma">🌋 Volcanic Magma</option>
+          <option value="neonpulse">⚡ Cyber Neon Pulse</option>
         </select>
       </div>
 
@@ -3687,7 +3739,7 @@
       updateParticles();
       for (const p of particles) {
         boardCtx.beginPath();
-        boardCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        boardCtx.arc(p.x, p.y, Math.max(0.1, p.radius), 0, Math.PI * 2);
         boardCtx.fillStyle = p.color;
         boardCtx.globalAlpha = p.alpha;
         boardCtx.fill();
@@ -3778,11 +3830,12 @@
 
     // --- Circular Polar Orbit Radar Chart ---
     function drawTrajectoryChart() {
+      if (!trajectoryCanvas) return;
       const rect = trajectoryCanvas.getBoundingClientRect();
       const w = rect.width;
       const h = rect.height;
       const n = deductions.length;
-      if (n === 0) return;
+      if (n === 0 || w < 20 || h < 20) return;
 
       chartCtx.clearRect(0, 0, w, h);
       chartCtx.save();
@@ -3810,7 +3863,7 @@
       for (const fraction of rings) {
         const r = minRadius + (maxRadius - minRadius) * fraction;
         chartCtx.beginPath();
-        chartCtx.arc(cx, cy, r, 0, Math.PI * 2);
+        chartCtx.arc(cx, cy, Math.max(0.1, r), 0, Math.PI * 2);
         chartCtx.strokeStyle = colorBorderSubtle;
         chartCtx.lineWidth = 1;
         chartCtx.setLineDash([3, 4]);
@@ -3900,7 +3953,7 @@
 
       // 7. Center Hub Badge
       chartCtx.beginPath();
-      chartCtx.arc(cx, cy, minRadius - 3, 0, Math.PI * 2);
+      chartCtx.arc(cx, cy, Math.max(0.1, minRadius - 3), 0, Math.PI * 2);
       chartCtx.fillStyle = style.getPropertyValue("--surface-card").trim() || "#ffffff";
       chartCtx.fill();
       chartCtx.strokeStyle = colorPrimary;
@@ -3925,12 +3978,12 @@
         const pulse = 5.5 + Math.sin(animPhase * 8) * 1.5;
 
         chartCtx.beginPath();
-        chartCtx.arc(activePt.x, activePt.y, pulse + 4, 0, Math.PI * 2);
+        chartCtx.arc(activePt.x, activePt.y, Math.max(0.1, pulse + 4), 0, Math.PI * 2);
         chartCtx.fillStyle = activePt.dynamicBg;
         chartCtx.fill();
 
         chartCtx.beginPath();
-        chartCtx.arc(activePt.x, activePt.y, pulse, 0, Math.PI * 2);
+        chartCtx.arc(activePt.x, activePt.y, Math.max(0.1, pulse), 0, Math.PI * 2);
         chartCtx.fillStyle = activePt.dynamicColor;
         chartCtx.fill();
 
@@ -4880,9 +4933,10 @@
       }
     }
 
-    function renderVaultRecords(tab) {
+    function renderVaultRecords(tab = "completed") {
       const container = document.getElementById("vaultRecordsGrid");
-      const records = getVaultRecords();
+      if (!container) return;
+      const records = Array.isArray(getVaultRecords()) ? getVaultRecords() : [];
       
       const completed = records.filter(r => r.isCompleted);
       const drafts = records.filter(r => !r.isCompleted && !r.isShared);
