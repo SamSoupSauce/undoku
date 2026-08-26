@@ -560,6 +560,57 @@
     
     
     
+    
+    /* ==========================================================================
+       Theme: Prism Spectra (Iridescent Crystal & Rainbow Neon Glow)
+       ========================================================================== */
+    [data-theme="prism"] {
+      --bg-gradient: linear-gradient(145deg, #0a0a1a 0%, #03030c 100%);
+      --surface-card: #141430;
+      --surface-subtle: #0d0d22;
+      --surface-elevated: #1e1e44;
+      --border-subtle: #313166;
+      --border-strong: #a855f7;
+      
+      --text-main: #ffffff;
+      --text-secondary: #f3e8ff;
+      --text-muted: #c084fc;
+      
+      --primary: #a855f7;
+      --primary-hover: #9333ea;
+      --primary-light: rgba(168, 85, 247, 0.22);
+      --primary-glow: rgba(168, 85, 247, 0.50);
+      
+      --accent: #06b6d4;
+      --accent-light: rgba(6, 182, 212, 0.22);
+      --accent-glow: rgba(6, 182, 212, 0.45);
+      
+      --success: #34d399;
+      --success-light: rgba(52, 211, 153, 0.22);
+      --warning: #fbbf24;
+      --danger: #f43f5e;
+      --danger-light: rgba(244, 63, 94, 0.22);
+      --danger-glow: rgba(244, 63, 94, 0.45);
+      
+      --board-bg: #080817;
+      --cell-bg-alt: #10102b;
+      --cell-hover: rgba(168, 85, 247, 0.25);
+      --cell-selected: rgba(168, 85, 247, 0.45);
+      --cell-match: rgba(6, 182, 212, 0.15);
+      --cell-conflict: rgba(244, 63, 94, 0.45);
+      
+      --grid-line: #222252;
+      --box-line: #a855f7;
+      
+      --digit-given: #ffffff;
+      --digit-user: #e9d5ff;
+      --digit-note: #06b6d4;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.8);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.95);
+    }
+
     /* ==========================================================================
        Theme: Twilight Nebula (Deep Space Indigo & Fuchsia Nebula Glow)
        ========================================================================== */
@@ -2400,6 +2451,7 @@
           <option value="magma">🌋 Volcanic Magma</option>
           <option value="neonpulse">⚡ Cyber Neon Pulse</option>
           <option value="nebula">🌌 Twilight Nebula</option>
+          <option value="prism">⚡ Prism Spectra</option>
         </select>
       </div>
 
@@ -5259,10 +5311,250 @@
       };
     }
 
+
+    // ==========================================================================
+    // COMPLETE UI BUTTON & INTERACTION INITIALIZER
+    // ==========================================================================
+    function initAllButtonListeners() {
+      // 1. Navigation Tabs
+      const bLogo = document.getElementById("brandLogoBtn");
+      if (bLogo) bLogo.onclick = () => navigateToScreen("HOME_MENU");
+
+      const nHome = document.getElementById("navBtnHome");
+      if (nHome) nHome.onclick = () => navigateToScreen("HOME_MENU");
+
+      const nGame = document.getElementById("navBtnGame");
+      if (nGame) nGame.onclick = () => navigateToScreen("GAME_PLAY");
+
+      const nVault = document.getElementById("navBtnVault");
+      if (nVault) nVault.onclick = () => navigateToScreen("LIBRARY_VAULT");
+
+      const nShare = document.getElementById("navBtnShare");
+      if (nShare) nShare.onclick = () => navigateToScreen("P2P_SHARE");
+
+      // 2. Home Screen Launchers
+      const bResume = document.getElementById("btnResumeGame");
+      if (bResume) bResume.onclick = () => navigateToScreen("GAME_PLAY");
+
+      const bQuick = document.getElementById("btnQuickPlay");
+      if (bQuick) bQuick.onclick = () => {
+        loadPuzzle("medium", "catch_mistakes", true, true, 3, true, true, "classic_9x9");
+        navigateToScreen("GAME_PLAY");
+      };
+
+      const bDashNew = document.getElementById("btnDashNewGame");
+      if (bDashNew) bDashNew.onclick = () => openSizeSelectionMenu();
+
+      document.querySelectorAll(".topo-chip-btn").forEach(chip => {
+        chip.onclick = () => {
+          const topoKey = chip.getAttribute("data-topo");
+          if (topoKey) {
+            pendingTopologyKey = topoKey;
+            openDifficultySelectionMenu(topoKey);
+          }
+        };
+      });
+
+      // 3. Vault Tabs
+      const tabComp = document.getElementById("tabVaultCompleted");
+      if (tabComp) tabComp.onclick = function() {
+        document.querySelectorAll(".vault-tab").forEach(t => t.classList.remove("active"));
+        this.classList.add("active");
+        renderVaultRecords("completed");
+      };
+
+      const tabDraft = document.getElementById("tabVaultDrafts");
+      if (tabDraft) tabDraft.onclick = function() {
+        document.querySelectorAll(".vault-tab").forEach(t => t.classList.remove("active"));
+        this.classList.add("active");
+        renderVaultRecords("drafts");
+      };
+
+      const tabShare = document.getElementById("tabVaultShared");
+      if (tabShare) tabShare.onclick = function() {
+        document.querySelectorAll(".vault-tab").forEach(t => t.classList.remove("active"));
+        this.classList.add("active");
+        renderVaultRecords("shared");
+      };
+
+      const bClearVault = document.getElementById("btnClearVaultHistory");
+      if (bClearVault) bClearVault.onclick = () => {
+        if (confirm("Are you sure you want to clear all saved games and proof replays from your local vault?")) {
+          localStorage.removeItem("undoku_vault_records_v1");
+          renderVaultRecords("completed");
+        }
+      };
+
+      // 4. P2P Share Screen
+      const bGenShare = document.getElementById("btnGenerateShareCode");
+      if (bGenShare) bGenShare.onclick = () => {
+        const game = {
+          seed: currentSeed || 12345,
+          boardRows: currentTopology.Br,
+          boardCols: currentTopology.Bc,
+          difficulty: currentDifficulty || "medium",
+          gameMode: currentGameMode || "catch_mistakes",
+          turnHistory: []
+        };
+        openShareModal(game);
+      };
+
+      const bJoinCode = document.getElementById("btnJoinRoomCode");
+      if (bJoinCode) bJoinCode.onclick = () => {
+        let rawVal = (document.getElementById("inputJoinRoomCode").value || "").trim();
+        if (!rawVal) {
+          alert("Please enter a valid 6-character room code or Base64 game payload!");
+          return;
+        }
+        if (rawVal.startsWith("#game=")) {
+          rawVal = rawVal.substring(6);
+        }
+        try {
+          const imported = SudokuEngine.deserializeGamePayload(rawVal);
+          if (imported) {
+            const topoKey = (imported.N === 4 ? "mini_4x4" : imported.N === 6 ? "wide_6x6" : imported.N === 8 ? "wide_8x8" : imported.N === 16 ? "hexa_16x16" : imported.N === 12 ? (imported.Bc === 6 ? "ultra_12x12" : "duo_12x12") : "classic_9x9");
+            loadPuzzle(imported.difficulty || "medium", imported.gameMode || "catch_mistakes", true, true, 3, true, true, topoKey, new FastRand(imported.seed));
+            navigateToScreen("GAME_PLAY");
+            return;
+          }
+        } catch (err) {}
+
+        let cleanCode = rawVal.replace(/^UDK-?/i, "").toUpperCase();
+        let seed = 0;
+        for (let i = 0; i < cleanCode.length; i++) {
+          seed = (seed * 36 + cleanCode.charCodeAt(i)) >>> 0;
+        }
+        loadPuzzle("hard", "catch_mistakes", true, true, 3, true, true, "classic_9x9", new FastRand(seed));
+        navigateToScreen("GAME_PLAY");
+      };
+
+      const bQrClose = document.getElementById("btnQrShareClose");
+      if (bQrClose) bQrClose.onclick = () => {
+        document.getElementById("qrShareModal").classList.remove("active");
+      };
+
+      // 5. Play Arena Controls
+      const bOpenMenu = document.getElementById("btnOpenNewGameMenu");
+      if (bOpenMenu) bOpenMenu.onclick = openSizeSelectionMenu;
+
+      const bUndo = document.getElementById("btnUndo");
+      if (bUndo) bUndo.onclick = () => {
+        if (historyStack.length > 0) {
+          const last = historyStack.pop();
+          userGrid[last.r][last.c] = last.prevVal;
+          if (selectedRow === last.r && selectedCol === last.c) {
+            closeRadialRing();
+          }
+          autoSaveActiveGame();
+        }
+      };
+
+      const bErase = document.getElementById("btnErase");
+      if (bErase) bErase.onclick = () => {
+        if (selectedRow >= 0 && selectedCol >= 0 && initialGrid[selectedRow][selectedCol] === 0) {
+          userGrid[selectedRow][selectedCol] = 0;
+          notes[selectedRow][selectedCol].clear();
+          closeRadialRing();
+          autoSaveActiveGame();
+        }
+      };
+
+      const bHint = document.getElementById("btnHint");
+      if (bHint) bHint.onclick = () => {
+        if (hintsRemaining <= 0 && currentHintCap > 0) return;
+        if (deductions.length > 0 && currentStepIdx < deductions.length) {
+          const step = deductions[currentStepIdx];
+          if (step && step.row !== undefined && step.col !== undefined) {
+            selectedRow = step.row;
+            selectedCol = step.col;
+            userGrid[step.row][step.col] = step.value;
+            currentStepIdx++;
+            if (currentHintCap > 0) {
+              hintsRemaining--;
+              document.getElementById("labelHintText").innerText = `Hint (${hintsRemaining} left)`;
+              if (hintsRemaining <= 0) {
+                document.getElementById("btnHint").classList.add("disabled");
+              }
+            }
+            autoSaveActiveGame();
+          }
+        }
+      };
+
+      // 6. Step Scrubber & Provenance Controls
+      const bPlayPause = document.getElementById("btnPlayPause");
+      if (bPlayPause) bPlayPause.onclick = () => {
+        isPlayingSolver = !isPlayingSolver;
+        bPlayPause.innerText = isPlayingSolver ? "⏸ Pause" : "▶ Play Solver";
+        const b4 = document.getElementById("appModeBadge"); if (b4) b4.innerText = isPlayingSolver ? "Solver Mode" : "Play Mode";
+      };
+
+      const bNextStep = document.getElementById("btnNextStep");
+      if (bNextStep) bNextStep.onclick = () => {
+        isPlayingSolver = false;
+        if (bPlayPause) bPlayPause.innerText = "▶ Play Solver";
+        if (currentStepIdx < deductions.length) {
+          const step = deductions[currentStepIdx];
+          userGrid[step.row][step.col] = step.value;
+          currentStepIdx++;
+        }
+      };
+
+      const bPrevStep = document.getElementById("btnPrevStep");
+      if (bPrevStep) bPrevStep.onclick = () => {
+        isPlayingSolver = false;
+        if (bPlayPause) bPlayPause.innerText = "▶ Play Solver";
+        if (currentStepIdx > 0) {
+          currentStepIdx--;
+          const step = deductions[currentStepIdx];
+          userGrid[step.row][step.col] = 0;
+        }
+      };
+
+      const bHeatmap = document.getElementById("btnToggleHeatmap");
+      if (bHeatmap) bHeatmap.onclick = (e) => {
+        showHeatmap = !showHeatmap;
+        bHeatmap.classList.toggle("active", showHeatmap);
+      };
+
+      const bSvgReplay = document.getElementById("btnDownloadReplay");
+      if (bSvgReplay) bSvgReplay.onclick = () => downloadSVGReplay();
+
+      const bAccToggle = document.getElementById("solverAccordionToggle");
+      if (bAccToggle) bAccToggle.onclick = () => {
+        const acc = document.getElementById("solverAccordion");
+        if (acc) {
+          acc.classList.toggle("open");
+          const chev = document.getElementById("solverAccordionChevron");
+          if (chev) chev.innerText = acc.classList.contains("open") ? "▲ Hide Solver" : "▼ Show Solver";
+        }
+      };
+
+      // 7. Victory Modal Controls
+      const bPlayAgain = document.getElementById("btnNextPuzzle");
+      if (bPlayAgain) bPlayAgain.onclick = () => {
+        document.getElementById("victoryModal").classList.remove("active");
+        loadPuzzle(currentDifficulty, currentGameMode, currentAllowHints, currentAllowHighlighter, currentHintCap, currentAllowDigitCounters, currentAllowRadialRing, currentTopologyKey);
+      };
+
+      const bWatchReplay = document.getElementById("btnWatchReplay");
+      if (bWatchReplay) bWatchReplay.onclick = () => {
+        document.getElementById("victoryModal").classList.remove("active");
+        closeRadialRing();
+        userGrid = initialGrid.map(r => [...r]);
+        currentStepIdx = 0;
+        isPlayingSolver = true;
+        if (bPlayPause) bPlayPause.innerText = "⏸ Pause";
+        const b4 = document.getElementById("appModeBadge"); if (b4) b4.innerText = "Replay Mode";
+      };
+    }
+
     // --- Application Bootloader ---
     window.addEventListener("DOMContentLoaded", () => {
       initCanvases();
+      initAllButtonListeners();
       loadPuzzle("hard", "catch_mistakes", true, true, 3, true, true, "classic_9x9");
+      navigateToScreen("HOME_MENU");
       requestAnimationFrame(mainLoop);
     });
   </script>
