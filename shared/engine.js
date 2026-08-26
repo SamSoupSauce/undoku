@@ -2,6 +2,7 @@
  * Undoku Universal Sudoku Mathematical & Generation Engine
  * Shared single source of truth for both Express Server (Node.js) & Web UI (Static Browser).
  * Supports Generalized Rectangular Subgrid Topologies (Br x Bc) for N x N boards.
+ * High-performance bitmask solver with MRV heuristics & branch lookahead.
  */
 (function (root, factory) {
   if (typeof module === "object" && typeof module.exports === "object") {
@@ -66,14 +67,14 @@
   }
 
   const SUPPORTED_CONFIGURATIONS = {
-    "mini_4x4":     { Br: 2, Bc: 2, N: 4,  label: "4x4 Mini (2x2 Box)", defaultClues: 6 },
-    "wide_6x6":     { Br: 2, Bc: 3, N: 6,  label: "6x6 Wide (2x3 Box)", defaultClues: 14 },
-    "wide_8x8":     { Br: 2, Bc: 4, N: 8,  label: "8x8 Wide (2x4 Box)", defaultClues: 26 },
-    "classic_9x9":  { Br: 3, Bc: 3, N: 9,  label: "9x9 Classic (3x3 Box)", defaultClues: 30 },
-    "wide_10x10":   { Br: 2, Bc: 5, N: 10, label: "10x10 Decimal (2x5 Box)", defaultClues: 40 },
-    "duo_12x12":    { Br: 3, Bc: 4, N: 12, label: "12x12 Duodecimal (3x4 Box)", defaultClues: 56 },
-    "ultra_12x12":  { Br: 2, Bc: 6, N: 12, label: "12x12 Wide-Band (2x6 Box)", defaultClues: 56 },
-    "hexa_16x16":   { Br: 4, Bc: 4, N: 16, label: "16x16 Hexadoku (4x4 Box)", defaultClues: 98 }
+    "mini_4x4":     { Br: 2, Bc: 2, N: 4,  label: "4×4 Mini (2×2 Box)", defaultClues: 6 },
+    "wide_6x6":     { Br: 2, Bc: 3, N: 6,  label: "6×6 Wide (2×3 Box)", defaultClues: 14 },
+    "wide_8x8":     { Br: 2, Bc: 4, N: 8,  label: "8×8 Wide (2×4 Box)", defaultClues: 26 },
+    "classic_9x9":  { Br: 3, Bc: 3, N: 9,  label: "9×9 Classic (3×3 Box)", defaultClues: 30 },
+    "wide_10x10":   { Br: 2, Bc: 5, N: 10, label: "10×10 Decimal (2×5 Box)", defaultClues: 40 },
+    "duo_12x12":    { Br: 3, Bc: 4, N: 12, label: "12×12 Duodecimal (3×4 Box)", defaultClues: 56 },
+    "ultra_12x12":  { Br: 2, Bc: 6, N: 12, label: "12×12 Wide-Band (2×6 Box)", defaultClues: 56 },
+    "hexa_16x16":   { Br: 4, Bc: 4, N: 16, label: "16×16 Hexadoku (4×4 Box)", defaultClues: 98 }
   };
 
   class SudokuEngine {
@@ -88,11 +89,11 @@
       }
       const N = Array.isArray(bOrNOrKey) ? bOrNOrKey.length : (typeof bOrNOrKey === "number" ? bOrNOrKey : 9);
       if (Br && Bc && Br * Bc === N) {
-        return { Br, Bc, N, key: `${N}x${N}_${Br}x${Bc}`, label: `${N}x${N} (${Br}x${Bc} Box)` };
+        return { Br, Bc, N, key: `${N}x${N}_${Br}x${Bc}`, label: `${N}×${N} (${Br}×${Bc} Box)` };
       }
       if (Br && !Bc && N % Br === 0) {
         const c = N / Br;
-        return { Br, Bc: c, N, key: `${N}x${N}_${Br}x${c}`, label: `${N}x${N} (${Br}x${c} Box)` };
+        return { Br, Bc: c, N, key: `${N}x${N}_${Br}x${c}`, label: `${N}×${N} (${Br}×${c} Box)` };
       }
       switch (N) {
         case 4:  return { ...SUPPORTED_CONFIGURATIONS["mini_4x4"], key: "mini_4x4" };
@@ -104,11 +105,11 @@
         case 16: return { ...SUPPORTED_CONFIGURATIONS["hexa_16x16"], key: "hexa_16x16" };
         default: {
           const sq = Math.floor(Math.sqrt(N));
-          if (sq * sq === N) return { Br: sq, Bc: sq, N, key: `sq_${N}x${N}`, label: `${N}x${N} (${sq}x${sq} Box)` };
+          if (sq * sq === N) return { Br: sq, Bc: sq, N, key: `sq_${N}x${N}`, label: `${N}×${N} (${sq}×${sq} Box)` };
           for (let r = Math.floor(Math.sqrt(N)); r >= 2; r--) {
-            if (N % r === 0) return { Br: r, Bc: N / r, N, key: `rect_${N}x${N}`, label: `${N}x${N} (${r}x${N/r} Box)` };
+            if (N % r === 0) return { Br: r, Bc: N / r, N, key: `rect_${N}x${N}`, label: `${N}×${N} (${r}×${N/r} Box)` };
           }
-          return { Br: 1, Bc: N, N, key: `linear_${N}x${N}`, label: `${N}x${N} (1x${N} Box)` };
+          return { Br: 1, Bc: N, N, key: `linear_${N}x${N}`, label: `${N}×${N} (1×${N} Box)` };
         }
       }
     }
@@ -196,33 +197,85 @@
       const boxR = topo.Br;
       const boxC = topo.Bc;
 
-      let bestR = -1, bestC = -1, minCands = N + 1, bestCands = null;
+      const rowMask = new Int32Array(N);
+      const colMask = new Int32Array(N);
+      const boxMask = new Int32Array(N);
+      const emptyCells = [];
+
       for (let r = 0; r < N; r++) {
         for (let c = 0; c < N; c++) {
-          if (b[r][c] === 0) {
-            const cands = SudokuEngine.getCandidates(b, r, c, boxR, boxC);
-            if (cands.length === 0) return false;
-            if (cands.length < minCands) {
-              minCands = cands.length;
-              bestR = r;
-              bestC = c;
-              bestCands = cands;
+          const v = b[r][c];
+          const bIdx = Math.floor(r / boxR) * boxR + Math.floor(c / boxC);
+          if (v > 0) {
+            const mask = 1 << (v - 1);
+            rowMask[r] |= mask;
+            colMask[c] |= mask;
+            boxMask[bIdx] |= mask;
+          } else {
+            emptyCells.push({ r, c, bIdx });
+          }
+        }
+      }
+
+      const allMask = (1 << N) - 1;
+
+      function backtrack() {
+        let bestIdx = -1;
+        let minCands = N + 1;
+        let bestMask = 0;
+
+        for (let i = 0; i < emptyCells.length; i++) {
+          const cell = emptyCells[i];
+          if (b[cell.r][cell.c] === 0) {
+            const used = rowMask[cell.r] | colMask[cell.c] | boxMask[cell.bIdx];
+            const avail = allMask & (~used);
+            if (avail === 0) return false;
+
+            let candsCount = 0;
+            let tmp = avail;
+            while (tmp > 0) { tmp &= tmp - 1; candsCount++; }
+
+            if (candsCount < minCands) {
+              minCands = candsCount;
+              bestIdx = i;
+              bestMask = avail;
               if (minCands === 1) break;
             }
           }
         }
-        if (minCands === 1) break;
+
+        if (bestIdx === -1) return true;
+
+        const cell = emptyCells[bestIdx];
+        const nums = [];
+        let m = bestMask;
+        while (m > 0) {
+          const bit = m & -m;
+          const num = 31 - Math.clz32(bit) + 1;
+          nums.push({ num, bit });
+          m &= m - 1;
+        }
+
+        rng.shuffle(nums);
+
+        for (const item of nums) {
+          b[cell.r][cell.c] = item.num;
+          rowMask[cell.r] |= item.bit;
+          colMask[cell.c] |= item.bit;
+          boxMask[cell.bIdx] |= item.bit;
+
+          if (backtrack()) return true;
+
+          b[cell.r][cell.c] = 0;
+          rowMask[cell.r] &= ~item.bit;
+          colMask[cell.c] &= ~item.bit;
+          boxMask[cell.bIdx] &= ~item.bit;
+        }
+
+        return false;
       }
 
-      if (bestR === -1) return true;
-
-      rng.shuffle(bestCands);
-      for (const num of bestCands) {
-        b[bestR][bestC] = num;
-        if (SudokuEngine.fillGrid(b, rng, boxR, boxC)) return true;
-        b[bestR][bestC] = 0;
-      }
-      return false;
+      return backtrack();
     }
 
     static generateSeedBoard(rng = new FastRand(), Br = 3, Bc = 3) {
@@ -735,7 +788,7 @@
       const units = SudokuEngine.getUnitDefinitions(topo.Br, topo.Bc);
       for (const unit of units) {
         const openCells = unit.cells.filter(cell => b[cell.r][cell.c] === 0);
-        if (openCells.length <= k) continue;
+        if (openCells.length <= k || openCells.length > 10) continue;
 
         const cellCombos = SudokuEngine.getCombinations(openCells, k);
         for (const combo of cellCombos) {
@@ -782,7 +835,7 @@
       const units = SudokuEngine.getUnitDefinitions(topo.Br, topo.Bc);
       for (const unit of units) {
         const openCells = unit.cells.filter(cell => b[cell.r][cell.c] === 0);
-        if (openCells.length <= k) continue;
+        if (openCells.length <= k || openCells.length > 10) continue;
 
         const digitSet = new Set();
         for (const cell of openCells) {
@@ -791,7 +844,7 @@
           }
         }
         const availDigits = Array.from(digitSet);
-        if (availDigits.length <= k) continue;
+        if (availDigits.length <= k || availDigits.length > 10) continue;
 
         const digitCombos = SudokuEngine.getCombinations(availDigits, k);
         for (const dCombo of digitCombos) {
@@ -863,51 +916,96 @@
       const hiddenPair = SudokuEngine.findHiddenSubsets(b, cands, 2, boxR, boxC);
       if (hiddenPair) return hiddenPair;
 
-      const nakedTriple = SudokuEngine.findNakedSubsets(b, cands, 3, boxR, boxC);
-      if (nakedTriple) return nakedTriple;
+      if (N <= 9) {
+        const nakedTriple = SudokuEngine.findNakedSubsets(b, cands, 3, boxR, boxC);
+        if (nakedTriple) return nakedTriple;
 
-      const hiddenTriple = SudokuEngine.findHiddenSubsets(b, cands, 3, boxR, boxC);
-      if (hiddenTriple) return hiddenTriple;
+        const hiddenTriple = SudokuEngine.findHiddenSubsets(b, cands, 3, boxR, boxC);
+        if (hiddenTriple) return hiddenTriple;
+      }
 
       return null;
     }
 
     static countSolutions(grid, limit = 2, Br = null, Bc = null) {
       const topo = SudokuEngine.resolveTopology(grid, Br, Bc);
-      const work = SudokuEngine.cloneBoard(grid);
       const N = topo.N;
       const boxR = topo.Br;
       const boxC = topo.Bc;
+
+      const rowMask = new Int32Array(N);
+      const colMask = new Int32Array(N);
+      const boxMask = new Int32Array(N);
+      const work = SudokuEngine.cloneBoard(grid);
+      const emptyCells = [];
+
+      for (let r = 0; r < N; r++) {
+        for (let c = 0; c < N; c++) {
+          const v = work[r][c];
+          const b = Math.floor(r / boxR) * boxR + Math.floor(c / boxC);
+          if (v > 0) {
+            const mask = 1 << (v - 1);
+            rowMask[r] |= mask;
+            colMask[c] |= mask;
+            boxMask[b] |= mask;
+          } else {
+            emptyCells.push({ r, c, b });
+          }
+        }
+      }
+
+      const allMask = (1 << N) - 1;
       let count = 0;
 
       function backtrack() {
-        let bestR = -1, bestC = -1, minCands = N + 1, bestCands = null;
-        for (let r = 0; r < N; r++) {
-          for (let c = 0; c < N; c++) {
-            if (work[r][c] === 0) {
-              const cands = SudokuEngine.getCandidates(work, r, c, boxR, boxC);
-              if (cands.length === 0) return;
-              if (cands.length < minCands) {
-                minCands = cands.length;
-                bestR = r;
-                bestC = c;
-                bestCands = cands;
-                if (minCands === 1) break;
-              }
+        let bestIdx = -1;
+        let minCands = N + 1;
+        let bestMask = 0;
+
+        for (let i = 0; i < emptyCells.length; i++) {
+          const cell = emptyCells[i];
+          if (work[cell.r][cell.c] === 0) {
+            const used = rowMask[cell.r] | colMask[cell.c] | boxMask[cell.b];
+            const avail = allMask & (~used);
+            if (avail === 0) return;
+
+            let candsCount = 0;
+            let tmp = avail;
+            while (tmp > 0) { tmp &= tmp - 1; candsCount++; }
+
+            if (candsCount < minCands) {
+              minCands = candsCount;
+              bestIdx = i;
+              bestMask = avail;
+              if (minCands === 1) break;
             }
           }
-          if (minCands === 1) break;
         }
 
-        if (bestR === -1) {
+        if (bestIdx === -1) {
           count++;
           return;
         }
 
-        for (const val of bestCands) {
-          work[bestR][bestC] = val;
+        const cell = emptyCells[bestIdx];
+        let m = bestMask;
+        while (m > 0) {
+          const bit = m & -m;
+          const num = 31 - Math.clz32(bit) + 1;
+          m &= m - 1;
+
+          work[cell.r][cell.c] = num;
+          rowMask[cell.r] |= bit;
+          colMask[cell.c] |= bit;
+          boxMask[cell.b] |= bit;
+
           backtrack();
-          work[bestR][bestC] = 0;
+
+          work[cell.r][cell.c] = 0;
+          rowMask[cell.r] &= ~bit;
+          colMask[cell.c] &= ~bit;
+          boxMask[cell.b] &= ~bit;
+
           if (count >= limit) return;
         }
       }
@@ -946,7 +1044,42 @@
         }
         if (filled) break;
 
-        const deduction = SudokuEngine.findNextDeduction(work, cands, boxR, boxC);
+        let deduction = SudokuEngine.findNextDeduction(work, cands, boxR, boxC);
+        if (!deduction) {
+          // Lookahead branching fallback for very large / sparse boards
+          let bestR = -1, bestC = -1, minLen = N + 1;
+          for (let r = 0; r < N; r++) {
+            for (let c = 0; c < N; c++) {
+              if (work[r][c] === 0 && cands[r][c].length > 0 && cands[r][c].length < minLen) {
+                minLen = cands[r][c].length;
+                bestR = r;
+                bestC = c;
+              }
+            }
+          }
+          if (bestR !== -1) {
+            for (const testVal of cands[bestR][bestC]) {
+              work[bestR][bestC] = testVal;
+              if (SudokuEngine.countSolutions(work, 2, boxR, boxC) === 1) {
+                const sym = SudokuEngine.symbolForVal(testVal, N);
+                deduction = {
+                  type: "placement",
+                  row: bestR,
+                  col: bestC,
+                  val: testVal,
+                  technique: "Trial & Error / Branch Lookahead",
+                  reasons: { cross_horizontal: 4, cross_vertical: 4, box_3x3: 4, total: 12 },
+                  assertions: 28,
+                  step_score: 4.20,
+                  description: `Branch Lookahead at (${bestR + 1},${bestC + 1}): value ${sym} uniquely leads to valid solution`
+                };
+                break;
+              }
+              work[bestR][bestC] = 0;
+            }
+          }
+        }
+
         if (!deduction) {
           return {
             solved: false,
@@ -1011,9 +1144,9 @@
       const totalCells = N * N;
       const clueRatio = clueCount / totalCells;
       let rating = "Easy";
-      if (clueRatio <= 0.28 || totalScore >= (totalCells * 0.9)) rating = "Expert";
-      else if (clueRatio <= 0.35 || totalScore >= (totalCells * 0.75)) rating = "Hard";
-      else if (clueRatio <= 0.44 || totalScore >= (totalCells * 0.60)) rating = "Medium";
+      if (clueRatio <= 0.40 || totalScore >= (totalCells * 0.9)) rating = "Expert";
+      else if (clueRatio <= 0.48 || totalScore >= (totalCells * 0.75)) rating = "Hard";
+      else if (clueRatio <= 0.56 || totalScore >= (totalCells * 0.60)) rating = "Medium";
       else rating = "Easy";
 
       let granularTier = `${rating} (Tier 1)`;
@@ -1709,17 +1842,18 @@
       const totalCells = N * N;
       targetDifficulty = (targetDifficulty || "hard").toLowerCase();
 
-      let minRatio = 0.65, maxRatio = 0.70;
-      if (targetDifficulty === "easy") {
-        minRatio = 0.48; maxRatio = 0.54;
-      } else if (targetDifficulty === "medium") {
-        minRatio = 0.57; maxRatio = 0.63;
-      } else if (targetDifficulty === "hard") {
-        minRatio = 0.65; maxRatio = 0.70;
-      } else if (targetDifficulty === "extreme") {
-        minRatio = 0.71; maxRatio = 0.74;
-      } else if (targetDifficulty === "impossible" || targetDifficulty === "expert") {
-        minRatio = 0.74; maxRatio = 0.78;
+      let minRatio = 0.55, maxRatio = 0.62;
+      if (N <= 4) {
+        minRatio = 0.35; maxRatio = 0.50;
+      } else if (N <= 8) {
+        minRatio = targetDifficulty === "easy" ? 0.40 : (targetDifficulty === "medium" ? 0.48 : (targetDifficulty === "hard" ? 0.54 : 0.60));
+        maxRatio = minRatio + 0.05;
+      } else if (N === 9) {
+        minRatio = targetDifficulty === "easy" ? 0.48 : (targetDifficulty === "medium" ? 0.57 : (targetDifficulty === "hard" ? 0.65 : (targetDifficulty === "extreme" ? 0.71 : 0.74)));
+        maxRatio = minRatio + 0.05;
+      } else {
+        minRatio = targetDifficulty === "easy" ? 0.38 : (targetDifficulty === "medium" ? 0.44 : (targetDifficulty === "hard" ? 0.48 : (targetDifficulty === "extreme" ? 0.52 : 0.55)));
+        maxRatio = minRatio + 0.03;
       }
 
       let minBlanks = Math.floor(totalCells * minRatio);
@@ -1731,7 +1865,6 @@
       }
 
       const desiredBlanks = minBlanks + rng.intn(Math.max(1, maxBlanks - minBlanks + 1));
-
       const puzzle = SudokuEngine.cloneBoard(fullBoard);
       const positions = [];
       for (let r = 0; r < N; r++) {
@@ -1742,15 +1875,19 @@
       rng.shuffle(positions);
 
       let carved = 0;
+      let consecutiveFails = 0;
+      const maxConsecutive = N >= 16 ? 16 : 30;
       for (const pos of positions) {
-        if (carved >= desiredBlanks) break;
+        if (carved >= desiredBlanks || consecutiveFails >= maxConsecutive) break;
         const orig = puzzle[pos.r][pos.c];
         puzzle[pos.r][pos.c] = 0;
 
         if (SudokuEngine.countSolutions(puzzle, 2, topo.Br, topo.Bc) === 1) {
           carved++;
+          consecutiveFails = 0;
         } else {
           puzzle[pos.r][pos.c] = orig;
+          consecutiveFails++;
         }
       }
 
