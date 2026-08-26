@@ -674,6 +674,57 @@
     
     
     
+    
+    /* ==========================================================================
+       Theme: Cyber Thunder Gold (Storm Void & Lightning Gold Glow)
+       ========================================================================== */
+    [data-theme="thunder"] {
+      --bg-gradient: linear-gradient(145deg, #090b14 0%, #030408 100%);
+      --surface-card: #141829;
+      --surface-subtle: #0d101c;
+      --surface-elevated: #1f253d;
+      --border-subtle: #333d61;
+      --border-strong: #facc15;
+      
+      --text-main: #ffffff;
+      --text-secondary: #fef9c3;
+      --text-muted: #fde047;
+      
+      --primary: #facc15;
+      --primary-hover: #eab308;
+      --primary-light: rgba(250, 204, 21, 0.22);
+      --primary-glow: rgba(250, 204, 21, 0.50);
+      
+      --accent: #38bdf8;
+      --accent-light: rgba(56, 189, 248, 0.22);
+      --accent-glow: rgba(56, 189, 248, 0.45);
+      
+      --success: #10b981;
+      --success-light: rgba(16, 185, 129, 0.22);
+      --warning: #facc15;
+      --danger: #f43f5e;
+      --danger-light: rgba(244, 63, 94, 0.22);
+      --danger-glow: rgba(244, 63, 94, 0.45);
+      
+      --board-bg: #06070e;
+      --cell-bg-alt: #101322;
+      --cell-hover: rgba(250, 204, 21, 0.25);
+      --cell-selected: rgba(250, 204, 21, 0.45);
+      --cell-match: rgba(56, 189, 248, 0.15);
+      --cell-conflict: rgba(244, 63, 94, 0.45);
+      
+      --grid-line: #212842;
+      --box-line: #facc15;
+      
+      --digit-given: #ffffff;
+      --digit-user: #fef08a;
+      --digit-note: #38bdf8;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.8);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.95);
+    }
+
     /* ==========================================================================
        Theme: Imperial Cyber Topaz (Deep Topaz Obsidian & Amber Crystal Glow)
        ========================================================================== */
@@ -2982,6 +3033,9 @@
         <button class="nav-tab-btn" id="navBtnGame">
           <span>🧩</span> Play
         </button>
+        <button class="nav-tab-btn" id="navBtnVersus">
+          <span>⚔️</span> Versus
+        </button>
         <button class="nav-tab-btn" id="navBtnVault">
           <span>📚</span> Vault
         </button>
@@ -3024,6 +3078,7 @@
           <option value="crimson">⚡ Neon Crimson</option>
           <option value="phoenix">🔥 Solar Phoenix</option>
           <option value="topaz">💎 Cyber Topaz</option>
+          <option value="thunder">⚡ Cyber Thunder</option>
         </select>
       </div>
 
@@ -6339,6 +6394,13 @@
       const nGame = document.getElementById("navBtnGame");
       if (nGame) nGame.onclick = () => navigateToScreen("GAME_PLAY");
 
+      const nVersus = document.getElementById("navBtnVersus");
+      if (nVersus) nVersus.onclick = () => {
+        const nickInp = document.getElementById("inputHubVersusNick");
+        if (nickInp) nickInp.value = getSavedNickname();
+        navigateToScreen("VERSUS_ARENA");
+      };
+
       const nVault = document.getElementById("navBtnVault");
       if (nVault) nVault.onclick = () => navigateToScreen("LIBRARY_VAULT");
 
@@ -6397,6 +6459,55 @@
           renderVaultRecords("completed");
         }
       };
+
+      
+      // Versus Screen Host & Join Handlers
+      let hubVersusTopo = "classic_9x9";
+      let hubVersusDiff = "medium";
+
+      document.querySelectorAll(".btn-vs-topo").forEach(btn => {
+        btn.onclick = () => {
+          document.querySelectorAll(".btn-vs-topo").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          hubVersusTopo = btn.getAttribute("data-topo") || "classic_9x9";
+        };
+      });
+
+      document.querySelectorAll(".btn-vs-diff").forEach(btn => {
+        btn.onclick = () => {
+          document.querySelectorAll(".btn-vs-diff").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          hubVersusDiff = btn.getAttribute("data-diff") || "medium";
+        };
+      });
+
+      const bHostVs = document.getElementById("btnHostVersusGame");
+      if (bHostVs) {
+        bHostVs.onclick = () => {
+          const nick = (document.getElementById("inputHubVersusNick").value || "Player 1").trim();
+          saveNickname(nick);
+          loadPuzzle(hubVersusDiff, "catch_mistakes", true, true, 3, true, true, hubVersusTopo);
+          openVersusModal(activeSession || gameState);
+        };
+      }
+
+      const bJoinVs = document.getElementById("btnJoinVersusHub");
+      if (bJoinVs) {
+        bJoinVs.onclick = () => {
+          const raw = (document.getElementById("inputVersusHubJoin").value || "").trim();
+          if (!raw) return alert("Please enter a room code or paste a turn payload!");
+          if (raw.startsWith("VS2_") || raw.includes("VS2_")) {
+            loadVersusTurnPayload(raw);
+          } else {
+            const success = ShareManager.loadFromInput(raw);
+            if (success) {
+              isVersusMode = true;
+              updateVersusHUD();
+              startVersusThinkingClock();
+            }
+          }
+        };
+      }
 
       // 4. P2P Share Screen
       const bGenShare = document.getElementById("btnGenerateShareCode");
