@@ -672,6 +672,57 @@
     
     
     
+    
+    /* ==========================================================================
+       Theme: Solar Phoenix (Obsidian Ember & Radiant Fire Glow)
+       ========================================================================== */
+    [data-theme="phoenix"] {
+      --bg-gradient: linear-gradient(145deg, #160602 0%, #080201 100%);
+      --surface-card: #280d06;
+      --surface-subtle: #1a0804;
+      --surface-elevated: #3a1309;
+      --border-subtle: #591e0e;
+      --border-strong: #f97316;
+      
+      --text-main: #ffffff;
+      --text-secondary: #ffedd5;
+      --text-muted: #fdba74;
+      
+      --primary: #f97316;
+      --primary-hover: #ea580c;
+      --primary-light: rgba(249, 115, 22, 0.22);
+      --primary-glow: rgba(249, 115, 22, 0.50);
+      
+      --accent: #fbbf24;
+      --accent-light: rgba(251, 191, 36, 0.22);
+      --accent-glow: rgba(251, 191, 36, 0.45);
+      
+      --success: #10b981;
+      --success-light: rgba(16, 185, 129, 0.22);
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --danger-light: rgba(239, 68, 68, 0.22);
+      --danger-glow: rgba(239, 68, 68, 0.45);
+      
+      --board-bg: #100402;
+      --cell-bg-alt: #1f0a05;
+      --cell-hover: rgba(249, 115, 22, 0.25);
+      --cell-selected: rgba(249, 115, 22, 0.45);
+      --cell-match: rgba(251, 191, 36, 0.15);
+      --cell-conflict: rgba(239, 68, 68, 0.45);
+      
+      --grid-line: #3d140a;
+      --box-line: #f97316;
+      
+      --digit-given: #ffffff;
+      --digit-user: #fed7aa;
+      --digit-note: #fbbf24;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.8);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.95);
+    }
+
     /* ==========================================================================
        Theme: Cyber Neon Crimson (Obsidian Void & Ruby Plasma Glow)
        ========================================================================== */
@@ -2920,6 +2971,7 @@
           <option value="supernova">🌟 Celestial Supernova</option>
           <option value="titanium">🛡️ Cyber Titanium</option>
           <option value="crimson">⚡ Neon Crimson</option>
+          <option value="phoenix">🔥 Solar Phoenix</option>
         </select>
       </div>
 
@@ -3042,6 +3094,35 @@
     <div class="game-card">
       <!-- Top HUD: Difficulty, Mode, Timer, Mistakes -->
       <div class="game-hud">
+
+      <!-- Versus Match Dual-Clock Scoreboard Banner -->
+      <div class="versus-hud-banner" id="versusHudBanner" style="display: none; width: 100%; margin-bottom: 0.75rem; background: var(--surface-subtle); border: 1.5px solid var(--border-strong); border-radius: 12px; padding: 0.65rem 1rem; justify-content: space-between; align-items: center;">
+        <!-- Player 1 Clock -->
+        <div class="versus-player-card" id="cardPlayer1" style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.2rem;">👤</span>
+          <div>
+            <div style="font-size: 0.8rem; font-weight: 800; color: var(--text-main);" id="labelP1Nick">Player 1</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 800; color: var(--primary);" id="timerP1">⏱️ 00:00</div>
+          </div>
+        </div>
+
+        <!-- Versus Badge & Turn Indicator -->
+        <div style="text-align: center;">
+          <span class="diff-select-badge hard" style="font-size: 0.72rem; padding: 0.2rem 0.6rem; letter-spacing: 1px;" id="badgeVersusTurn">
+            ⚔️ P1 TURN
+          </span>
+        </div>
+
+        <!-- Player 2 Clock -->
+        <div class="versus-player-card" id="cardPlayer2" style="display: flex; align-items: center; gap: 0.5rem; text-align: right;">
+          <div>
+            <div style="font-size: 0.8rem; font-weight: 800; color: var(--text-main);" id="labelP2Nick">Player 2</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 800; color: var(--text-muted);" id="timerP2">⏱️ 00:00</div>
+          </div>
+          <span style="font-size: 1.2rem;">👤</span>
+        </div>
+      </div>
+
         <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
           <div class="hud-diff-chip" id="chipDifficulty">
             <span class="icon">🎯</span>
@@ -5985,9 +6066,14 @@
         const hash = window.location.hash;
         if (hash && hash.startsWith("#game=")) {
           const payload = hash.substring(6);
-          const loaded = this.loadFromInput(payload);
-          if (loaded) {
-            console.log("🚀 Bootloader successfully hydrated shared game from URL hash!");
+          if (payload.startsWith("VS2_")) {
+            loadVersusTurnPayload(payload);
+            console.log("🚀 Bootloader successfully hydrated 1v1 Versus match from URL hash!");
+          } else {
+            const loaded = this.loadFromInput(payload);
+            if (loaded) {
+              console.log("🚀 Bootloader successfully hydrated shared game from URL hash!");
+            }
           }
         }
       }
@@ -6467,27 +6553,163 @@
     }
 
 
+
     // ==========================================================================
-    // MULTIPLAYER FUNCTION 2: 1v1 VERSUS ARENA CONTROLLER
+    // MULTIPLAYER FUNCTION 2: 1v1 VERSUS ARENA & PASS-BACK THINKING CLOCKS
     // ==========================================================================
-    let pendingVersusGame = null;
+    let isVersusMode = false;
+    let versusMatch = {
+      p1Nick: "Player 1",
+      p2Nick: "Player 2",
+      p1TimeMs: 0,
+      p2TimeMs: 0,
+      activeTurn: 1, // 1 for P1, 2 for P2
+      localPlayer: 1, // 1 if host/P1, 2 if guest/P2
+      turnStartTime: 0,
+      turnActive: false
+    };
+
+    let versusTurnTimer = null;
+
+    function getSavedNickname() {
+      try {
+        return localStorage.getItem("undoku_player_nick") || "Player 1";
+      } catch (e) {
+        return "Player 1";
+      }
+    }
+
+    function saveNickname(nick) {
+      try {
+        localStorage.setItem("undoku_player_nick", nick);
+      } catch (e) {}
+    }
+
+    function startVersusThinkingClock() {
+      if (versusTurnTimer) clearInterval(versusTurnTimer);
+      versusMatch.turnStartTime = performance.now();
+      versusMatch.turnActive = true;
+
+      versusTurnTimer = setInterval(() => {
+        if (!versusMatch.turnActive) return;
+        const elapsed = performance.now() - versusMatch.turnStartTime;
+        if (versusMatch.activeTurn === 1) {
+          const currentTotal = (versusMatch.p1TimeMs + elapsed) / 1000;
+          document.getElementById("timerP1").innerText = "⏱️ " + formatTime(currentTotal);
+        } else {
+          const currentTotal = (versusMatch.p2TimeMs + elapsed) / 1000;
+          document.getElementById("timerP2").innerText = "⏱️ " + formatTime(currentTotal);
+        }
+      }, 200);
+    }
+
+    function stopVersusThinkingClock() {
+      if (!versusMatch.turnActive) return;
+      const elapsed = performance.now() - versusMatch.turnStartTime;
+      if (versusMatch.activeTurn === 1) {
+        versusMatch.p1TimeMs += elapsed;
+      } else {
+        versusMatch.p2TimeMs += elapsed;
+      }
+      versusMatch.turnActive = false;
+      if (versusTurnTimer) clearInterval(versusTurnTimer);
+    }
+
+    function updateVersusHUD() {
+      const banner = document.getElementById("versusHudBanner");
+      if (!isVersusMode) {
+        if (banner) banner.style.display = "none";
+        return;
+      }
+      if (banner) banner.style.display = "flex";
+
+      document.getElementById("labelP1Nick").innerText = versusMatch.p1Nick;
+      document.getElementById("labelP2Nick").innerText = versusMatch.p2Nick;
+      document.getElementById("timerP1").innerText = "⏱️ " + formatTime(versusMatch.p1TimeMs / 1000);
+      document.getElementById("timerP2").innerText = "⏱️ " + formatTime(versusMatch.p2TimeMs / 1000);
+
+      const isMyTurn = (versusMatch.activeTurn === versusMatch.localPlayer);
+      const turnBadge = document.getElementById("badgeVersusTurn");
+      if (turnBadge) {
+        const activeName = (versusMatch.activeTurn === 1 ? versusMatch.p1Nick : versusMatch.p2Nick);
+        turnBadge.innerText = isMyTurn ? `⚔️ YOUR TURN (${activeName})` : `⏳ WAITING FOR ${activeName}`;
+        turnBadge.className = isMyTurn ? "diff-select-badge easy" : "diff-select-badge medium";
+      }
+
+      document.getElementById("cardPlayer1").style.opacity = (versusMatch.activeTurn === 1) ? "1" : "0.55";
+      document.getElementById("cardPlayer2").style.opacity = (versusMatch.activeTurn === 2) ? "1" : "0.55";
+    }
+
+    // Called whenever a player inputs a move during versus mode
+    function onVersusMovePlaced(r, c, val) {
+      if (!isVersusMode) return;
+      stopVersusThinkingClock();
+
+      // Switch active turn to other player
+      versusMatch.activeTurn = (versusMatch.activeTurn === 1) ? 2 : 1;
+      updateVersusHUD();
+
+      // Package turn payload
+      const payload = ShareManager.generatePayload(activeSession || gameState);
+      const vsData = {
+        payload,
+        match: {
+          p1Nick: versusMatch.p1Nick,
+          p2Nick: versusMatch.p2Nick,
+          p1TimeMs: versusMatch.p1TimeMs,
+          p2TimeMs: versusMatch.p2TimeMs,
+          activeTurn: versusMatch.activeTurn,
+          lastMove: { r, c, val, by: (versusMatch.localPlayer === 1 ? versusMatch.p1Nick : versusMatch.p2Nick) }
+        }
+      };
+
+      const vsPayloadStr = "VS2_" + btoa(JSON.stringify(vsData)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+      const shareUrl = ShareManager.getShareableUrl(vsPayloadStr);
+
+      // Prompt next player turn pass
+      const nextNick = (versusMatch.activeTurn === 1 ? versusMatch.p1Nick : versusMatch.p2Nick);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareUrl).catch(() => {});
+      }
+
+      alert(`🎯 Move Placed! Turn passed to ${nextNick}.\n\nTurn pass link copied to clipboard! Send it to ${nextNick} to continue the match.`);
+    }
 
     function openVersusModal(game) {
       if (!game) game = activeSession || gameState;
       if (!game) return;
-      pendingVersusGame = game;
+      
+      const modal = document.getElementById("versusModal");
+      const nickInput = document.getElementById("inputVersusNick");
+      if (nickInput) nickInput.value = getSavedNickname();
 
       const code = "VS-" + ShareManager.generateRoomCode(game.seed).replace("UDK-", "");
       document.getElementById("displayVersusCode").textContent = code;
-
-      const modal = document.getElementById("versusModal");
       if (modal) modal.classList.add("active");
 
       const btnCopyLink = document.getElementById("btnCopyVersusLink");
       if (btnCopyLink) {
         btnCopyLink.onclick = () => {
+          const myNick = (document.getElementById("inputVersusNick").value || "Player 1").trim();
+          saveNickname(myNick);
+          versusMatch.p1Nick = myNick;
+          versusMatch.localPlayer = 1;
+          versusMatch.activeTurn = 1;
+
           const payload = ShareManager.generatePayload(game);
-          const vsUrl = ShareManager.getShareableUrl(payload) + "&mode=versus";
+          const vsData = {
+            payload,
+            match: {
+              p1Nick: myNick,
+              p2Nick: "Player 2",
+              p1TimeMs: 0,
+              p2TimeMs: 0,
+              activeTurn: 1
+            }
+          };
+          const vsPayloadStr = "VS2_" + btoa(JSON.stringify(vsData)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+          const vsUrl = ShareManager.getShareableUrl(vsPayloadStr);
+          
           if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(vsUrl).then(() => {
               alert("⚔️ 1v1 Versus Match Link Copied!\n\n" + vsUrl);
@@ -6501,16 +6723,71 @@
       const btnLaunch = document.getElementById("btnLaunchVersusMatch");
       if (btnLaunch) {
         btnLaunch.onclick = () => {
+          const myNick = (document.getElementById("inputVersusNick").value || "Player 1").trim();
+          saveNickname(myNick);
+          versusMatch.p1Nick = myNick;
+          versusMatch.localPlayer = 1;
+          versusMatch.activeTurn = 1;
+          isVersusMode = true;
+
           modal.classList.remove("active");
           loadGameFromRecord(game);
+          updateVersusHUD();
+          startVersusThinkingClock();
           const b1 = document.getElementById("appModeBadge"); if (b1) b1.innerText = "⚔️ Versus Mode";
         };
       }
 
-      const btnClose = document.getElementById("btnVersusClose");
-      if (btnClose) {
-        btnClose.onclick = () => modal.classList.remove("active");
+      const btnImport = document.getElementById("btnImportVersusTurn");
+      if (btnImport) {
+        btnImport.onclick = () => {
+          const raw = (document.getElementById("inputVersusTurnCode").value || "").trim();
+          if (!raw) return alert("Please paste an opponent's turn link or payload!");
+          loadVersusTurnPayload(raw);
+          modal.classList.remove("active");
+        };
       }
+
+      const btnClose = document.getElementById("btnVersusClose");
+      if (btnClose) btnClose.onclick = () => modal.classList.remove("active");
+    }
+
+    function loadVersusTurnPayload(rawInput) {
+      try {
+        let str = rawInput.trim();
+        if (str.includes("#game=")) str = str.split("#game=")[1];
+        if (str.startsWith("VS2_")) {
+          let b64 = str.substring(4).replace(/-/g, "+").replace(/_/g, "/");
+          while (b64.length % 4) b64 += "=";
+          const vsObj = JSON.parse(atob(b64));
+          if (vsObj && vsObj.payload) {
+            ShareManager.loadFromInput(vsObj.payload);
+            isVersusMode = true;
+            versusMatch.p1Nick = vsObj.match.p1Nick || "Player 1";
+            versusMatch.p2Nick = vsObj.match.p2Nick || "Player 2";
+            versusMatch.p1TimeMs = vsObj.match.p1TimeMs || 0;
+            versusMatch.p2TimeMs = vsObj.match.p2TimeMs || 0;
+            versusMatch.activeTurn = vsObj.match.activeTurn || 1;
+            
+            const mySavedNick = getSavedNickname();
+            if (mySavedNick === versusMatch.p1Nick) {
+              versusMatch.localPlayer = 1;
+            } else {
+              versusMatch.localPlayer = 2;
+              versusMatch.p2Nick = mySavedNick;
+            }
+
+            updateVersusHUD();
+            if (versusMatch.activeTurn === versusMatch.localPlayer) {
+              startVersusThinkingClock();
+            }
+            return true;
+          }
+        }
+      } catch (e) {
+        console.warn("Versus payload load note:", e);
+      }
+      return false;
     }
 
     // --- Application Bootloader ---
