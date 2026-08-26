@@ -1923,13 +1923,31 @@
      * Directly bundles initialGrid, solutionGrid, topology, seed, and turn diffs into a 100% infallible payload.
      */
     static serializeGamePayload(game) {
+      let topoKey = game.topologyKey || "classic_9x9";
+      let Br = game.boardRows || game.Br;
+      let Bc = game.boardCols || game.Bc;
+
+      if ((!Br || !Bc) && game.initialGrid && game.initialGrid.length > 0) {
+        const N = game.initialGrid.length;
+        if (N === 4) { Br = 2; Bc = 2; topoKey = "mini_4x4"; }
+        else if (N === 6) { Br = 2; Bc = 3; topoKey = "wide_6x6"; }
+        else if (N === 8) { Br = 2; Bc = 4; topoKey = "wide_8x8"; }
+        else if (N === 10) { Br = 2; Bc = 5; topoKey = "wide_10x10"; }
+        else if (N === 12) { Br = 3; Bc = 4; topoKey = "duo_12x12"; }
+        else if (N === 16) { Br = 4; Bc = 4; topoKey = "hexa_16x16"; }
+        else { Br = 3; Bc = 3; topoKey = "classic_9x9"; }
+      }
+      Br = Br || 3;
+      Bc = Bc || 3;
+
       const packet = {
         v: 2,
         seed: Number(game.seed >>> 0) || 12345,
         diff: game.difficulty || "medium",
-        topo: game.topologyKey || "classic_9x9",
-        Br: game.boardRows || game.Br || 3,
-        Bc: game.boardCols || game.Bc || 3,
+        topo: topoKey,
+        Br: Br,
+        Bc: Bc,
+        N: Br * Bc,
         mode: game.gameMode || "catch_mistakes",
         init: game.initialGrid || [],
         sol: game.solutionGrid || [],
