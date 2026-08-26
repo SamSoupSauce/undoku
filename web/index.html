@@ -29,6 +29,108 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <style>
     
+    
+    /* ==========================================================================
+       Game HUD Cheeseburger Menu & Dropdown Actions (Restart, Share, Delete)
+       ========================================================================== */
+    .hud-dropdown-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    .hud-menu-btn {
+      background: var(--surface-card);
+      border: 1.5px solid var(--border-subtle);
+      color: var(--text-main);
+      font-size: 1.15rem;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .hud-menu-btn:hover {
+      border-color: var(--primary);
+      background: var(--surface-elevated);
+      color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    .hud-menu-btn.active {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .hud-dropdown-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: calc(100% + 8px);
+      background: var(--surface-card);
+      border: 1.5px solid var(--border-strong);
+      border-radius: 14px;
+      padding: 0.45rem;
+      min-width: 170px;
+      box-shadow: var(--shadow-md);
+      z-index: 120;
+      backdrop-filter: blur(12px);
+      animation: fadeInDropdown 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .hud-dropdown-menu.active {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    @keyframes fadeInDropdown {
+      0% { opacity: 0; transform: translateY(-4px) scale(0.96); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .hud-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.55rem 0.75rem;
+      border: none;
+      background: transparent;
+      color: var(--text-main);
+      font-size: 0.85rem;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+      transition: all 0.12s ease;
+    }
+
+    .hud-dropdown-item:hover {
+      background: var(--surface-subtle);
+      color: var(--primary);
+    }
+
+    .hud-dropdown-item.danger {
+      color: var(--danger);
+    }
+
+    .hud-dropdown-item.danger:hover {
+      background: var(--danger-light);
+      color: var(--danger);
+    }
+
+    .hud-dropdown-divider {
+      height: 1px;
+      background: var(--border-subtle);
+      margin: 0.25rem 0;
+    }
+
     /* ==========================================================================
        Screen State Machine & Navigation Router (Ticket 003_5)
        ========================================================================== */
@@ -565,6 +667,57 @@
     
     
     
+    
+    /* ==========================================================================
+       Theme: Andromeda Starlight (Deep Space Void & Ultraviolet Cyan Glow)
+       ========================================================================== */
+    [data-theme="andromeda"] {
+      --bg-gradient: linear-gradient(145deg, #070716 0%, #02020a 100%);
+      --surface-card: #101026;
+      --surface-subtle: #0a0a1a;
+      --surface-elevated: #1a1a3b;
+      --border-subtle: #292957;
+      --border-strong: #8b5cf6;
+      
+      --text-main: #ffffff;
+      --text-secondary: #ede9fe;
+      --text-muted: #a78bfa;
+      
+      --primary: #8b5cf6;
+      --primary-hover: #7c3aed;
+      --primary-light: rgba(139, 92, 246, 0.22);
+      --primary-glow: rgba(139, 92, 246, 0.50);
+      
+      --accent: #06b6d4;
+      --accent-light: rgba(6, 182, 212, 0.22);
+      --accent-glow: rgba(6, 182, 212, 0.45);
+      
+      --success: #34d399;
+      --success-light: rgba(52, 211, 153, 0.22);
+      --warning: #fbbf24;
+      --danger: #f43f5e;
+      --danger-light: rgba(244, 63, 94, 0.22);
+      --danger-glow: rgba(244, 63, 94, 0.45);
+      
+      --board-bg: #050512;
+      --cell-bg-alt: #0d0d21;
+      --cell-hover: rgba(139, 92, 246, 0.25);
+      --cell-selected: rgba(139, 92, 246, 0.45);
+      --cell-match: rgba(6, 182, 212, 0.15);
+      --cell-conflict: rgba(244, 63, 94, 0.45);
+      
+      --grid-line: #1c1c45;
+      --box-line: #8b5cf6;
+      
+      --digit-given: #ffffff;
+      --digit-user: #c4b5fd;
+      --digit-note: #06b6d4;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.8);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.95);
+    }
+
     /* ==========================================================================
        Theme: Rose Quartz & Crystal Opal (Amethyst Violet & Rose Quartz Glow)
        ========================================================================== */
@@ -2558,6 +2711,7 @@
           <option value="prism">⚡ Prism Spectra</option>
           <option value="jade">🌿 Imperial Jade</option>
           <option value="quartz">💎 Rose Quartz</option>
+          <option value="andromeda">🌌 Andromeda Starlight</option>
         </select>
       </div>
 
@@ -2702,6 +2856,25 @@
           <div class="hud-chip" id="chipMistakes">
             <span class="icon">❌</span>
             <span id="mistakeCounter">0/3</span>
+          </div>
+
+          <!-- Cheeseburger Menu for Restart, Share, Delete -->
+          <div class="hud-dropdown-wrapper">
+            <button class="hud-menu-btn" id="btnGameMenu" title="Game Options (☰)" aria-label="Game Menu">
+              ☰
+            </button>
+            <div class="hud-dropdown-menu" id="gameDropdownMenu">
+              <button class="hud-dropdown-item" id="btnMenuRestart">
+                <span>🔄</span> Restart
+              </button>
+              <button class="hud-dropdown-item" id="btnMenuShare">
+                <span>📡</span> Share
+              </button>
+              <div class="hud-dropdown-divider"></div>
+              <button class="hud-dropdown-item danger" id="btnMenuDelete">
+                <span>🗑️</span> Delete
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -5749,6 +5922,81 @@
           if (chev) chev.innerText = acc.classList.contains("open") ? "▲ Hide Solver" : "▼ Show Solver";
         }
       };
+
+      
+      // Cheeseburger Menu Actions (Restart, Share, Delete)
+      const bGameMenu = document.getElementById("btnGameMenu");
+      const dropMenu = document.getElementById("gameDropdownMenu");
+      if (bGameMenu && dropMenu) {
+        bGameMenu.onclick = (e) => {
+          e.stopPropagation();
+          dropMenu.classList.toggle("active");
+          bGameMenu.classList.toggle("active", dropMenu.classList.contains("active"));
+        };
+
+        document.addEventListener("click", (e) => {
+          if (!dropMenu.contains(e.target) && e.target !== bGameMenu) {
+            dropMenu.classList.remove("active");
+            bGameMenu.classList.remove("active");
+          }
+        });
+      }
+
+      const bMenuRestart = document.getElementById("btnMenuRestart");
+      if (bMenuRestart) {
+        bMenuRestart.onclick = () => {
+          if (dropMenu) dropMenu.classList.remove("active");
+          if (bGameMenu) bGameMenu.classList.remove("active");
+          if (!initialGrid || !initialGrid.length) return;
+          
+          userGrid = initialGrid.map(r => [...r]);
+          moveHistory = [];
+          userGuessHistory = [];
+          mistakesCount = 0;
+          gameTimeSeconds = 0;
+          notesGrid = Array.from({ length: currentTopology.N }, () => Array.from({ length: currentTopology.N }, () => new Set()));
+          
+          document.getElementById("mistakeCounter").innerText = `${mistakesCount}/${maxMistakes}`;
+          document.getElementById("chipMistakes").classList.remove("warning");
+          document.getElementById("conflictBanner").style.display = "none";
+          closeRadialRing();
+          updateDigitCounters();
+          renderBoard();
+          startTimer();
+          autoSaveActiveGame();
+        };
+      }
+
+      const bMenuShare = document.getElementById("btnMenuShare");
+      if (bMenuShare) {
+        bMenuShare.onclick = () => {
+          if (dropMenu) dropMenu.classList.remove("active");
+          if (bGameMenu) bGameMenu.classList.remove("active");
+          const session = activeSession || gameState;
+          if (session) {
+            openShareModal(session);
+          }
+        };
+      }
+
+      const bMenuDelete = document.getElementById("btnMenuDelete");
+      if (bMenuDelete) {
+        bMenuDelete.onclick = () => {
+          if (dropMenu) dropMenu.classList.remove("active");
+          if (bGameMenu) bGameMenu.classList.remove("active");
+          if (confirm("Are you sure you want to abandon and delete this active game?")) {
+            if (timerInterval) clearInterval(timerInterval);
+            activeSession = null;
+            gameState = null;
+            initialGrid = [];
+            userGrid = [];
+            try {
+              localStorage.removeItem("undoku_active_session_v1");
+            } catch (e) {}
+            navigateToScreen("HOME_MENU");
+          }
+        };
+      }
 
       // 7. Victory Modal Controls
       const bPlayAgain = document.getElementById("btnNextPuzzle");
