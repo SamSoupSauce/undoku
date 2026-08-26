@@ -91,4 +91,14 @@ describe("Ticket 004: Compact Binary Bitfield Serialization & Replay Reconstruct
     assert.strictEqual(unpacked.N, 16);
     assert.strictEqual(unpacked.difficulty, "impossible");
   });
+
+  it("should generate 100% identical puzzle boards and solutions when given the same PRNG seed", () => {
+    const seed = 0xABCD1234 >>> 0;
+    const run1 = SudokuEngine.generateAndCarve("hard", "classic_9x9", seed);
+    const run2 = SudokuEngine.generateAndCarve("hard", "classic_9x9", seed);
+
+    assert.deepStrictEqual(run1.puzzle, run2.puzzle, "Puzzles from same seed must match exactly");
+    assert.deepStrictEqual(run1.solution, run2.solution, "Solutions from same seed must match exactly");
+    assert.strictEqual(run1.deductions.length, run2.deductions.length, "Deduction counts from same seed must match");
+  });
 });

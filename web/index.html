@@ -669,6 +669,57 @@
     
     
     
+    
+    /* ==========================================================================
+       Theme: Celestial Supernova (Deep Plasma Void & Incandescent Gold Glow)
+       ========================================================================== */
+    [data-theme="supernova"] {
+      --bg-gradient: linear-gradient(145deg, #120904 0%, #060301 100%);
+      --surface-card: #201207;
+      --surface-subtle: #170d05;
+      --surface-elevated: #2e1a0b;
+      --border-subtle: #4d2b12;
+      --border-strong: #f59e0b;
+      
+      --text-main: #ffffff;
+      --text-secondary: #fef3c7;
+      --text-muted: #fbbf24;
+      
+      --primary: #f59e0b;
+      --primary-hover: #d97706;
+      --primary-light: rgba(245, 158, 11, 0.22);
+      --primary-glow: rgba(245, 158, 11, 0.50);
+      
+      --accent: #38bdf8;
+      --accent-light: rgba(56, 189, 248, 0.22);
+      --accent-glow: rgba(56, 189, 248, 0.45);
+      
+      --success: #10b981;
+      --success-light: rgba(16, 185, 129, 0.22);
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --danger-light: rgba(239, 68, 68, 0.22);
+      --danger-glow: rgba(239, 68, 68, 0.45);
+      
+      --board-bg: #0d0603;
+      --cell-bg-alt: #1a0e06;
+      --cell-hover: rgba(245, 158, 11, 0.25);
+      --cell-selected: rgba(245, 158, 11, 0.45);
+      --cell-match: rgba(56, 189, 248, 0.15);
+      --cell-conflict: rgba(239, 68, 68, 0.45);
+      
+      --grid-line: #331c0c;
+      --box-line: #f59e0b;
+      
+      --digit-given: #ffffff;
+      --digit-user: #fde68a;
+      --digit-note: #38bdf8;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.8);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.95);
+    }
+
     /* ==========================================================================
        Theme: Cyber Amethyst (Midnight Cyber Void & Electric Violet Glow)
        ========================================================================== */
@@ -2764,6 +2815,7 @@
           <option value="quartz">💎 Rose Quartz</option>
           <option value="andromeda">🌌 Andromeda Starlight</option>
           <option value="amethyst">🔮 Cyber Amethyst</option>
+          <option value="supernova">🌟 Celestial Supernova</option>
         </select>
       </div>
 
@@ -3820,7 +3872,7 @@
     }
 
     // --- Game Loading & Initialization ---
-    function loadPuzzle(difficulty = "hard", mode = null, allowHints = null, allowHighlighter = null, hintCap = null, allowDigitCounters = null, allowRadialRing = null, topologyKey = null) {
+    function loadPuzzle(difficulty = "hard", mode = null, allowHints = null, allowHighlighter = null, hintCap = null, allowDigitCounters = null, allowRadialRing = null, topologyKey = null, targetSeed = null) {
       if (mode) currentGameMode = mode;
       if (allowHints !== null) currentAllowHints = allowHints;
       if (allowHighlighter !== null) currentAllowHighlighter = allowHighlighter;
@@ -3906,8 +3958,12 @@
       confettiParticles = [];
       selectedCell = { r: 0, c: 0 };
 
-      // Instant client-side generation using fast bitmask engine!
-      const res = window.SudokuEngine.generateAndCarve(difficulty, currentTopologyKey);
+      // Deterministic PRNG Seed Resolution
+      const resolvedSeed = (targetSeed !== null && targetSeed !== undefined) ? Number(targetSeed) : Math.floor(Math.random() * 1e9);
+      const prng = new window.FastRand(resolvedSeed);
+
+      // Instant client-side generation using seeded deterministic bitmask engine!
+      const res = window.SudokuEngine.generateAndCarve(difficulty, currentTopologyKey, prng);
       initialGrid = res.puzzle.map(r => [...r]);
       userGrid = res.puzzle.map(r => [...r]);
       solutionGrid = res.solution.map(r => [...r]);
@@ -3949,6 +4005,7 @@
 
       // Create canonical GameSession instance prepped for IndexedDB
       activeSession = new GameSession({
+        seed: resolvedSeed,
         difficulty: currentDifficulty,
         topologyKey: currentTopologyKey,
         gameMode: currentGameMode,
@@ -5653,7 +5710,7 @@
           if (imported && imported.seed) {
             console.log("✨ Unpacked binary bitfield payload successfully:", imported);
             const topoKey = (imported.N === 4 ? "mini_4x4" : imported.N === 6 ? "wide_6x6" : imported.N === 8 ? "wide_8x8" : imported.N === 16 ? "hexa_16x16" : imported.N === 12 ? (imported.Bc === 6 ? "ultra_12x12" : "duo_12x12") : "classic_9x9");
-            loadPuzzle(imported.difficulty || "medium", imported.gameMode || "catch_mistakes", true, true, 3, true, true, topoKey, new FastRand(imported.seed));
+            loadPuzzle(imported.difficulty || "medium", imported.gameMode || "catch_mistakes", true, true, 3, true, true, topoKey, imported.seed);
             
             // Apply imported moves if present
             if (imported.turnHistory && imported.turnHistory.length > 0) {
@@ -5699,7 +5756,7 @@
             seed = ((seed * 36) + cleanCode.charCodeAt(i)) >>> 0;
           }
           console.log(`✨ Reconstructing deterministic puzzle from code ${cleanCode} (seed: ${seed})`);
-          loadPuzzle("hard", "catch_mistakes", true, true, 3, true, true, "classic_9x9", new FastRand(seed));
+          loadPuzzle("hard", "catch_mistakes", true, true, 3, true, true, "classic_9x9", seed);
           navigateToScreen("GAME_PLAY");
           return true;
         }

@@ -29,6 +29,7 @@
         this.state = BigInt(seed) & 0xffffffffffffffffn;
       }
       if (this.state === 0n) this.state = 1n;
+      this.initialSeed = Number(this.state & 0xffffffffn);
     }
 
     uint64() {
@@ -2030,16 +2031,22 @@
       };
     }
 
-    static generateAndCarve(targetDiff = "hard", configKey = "classic_9x9", rng = new FastRand()) {
-      if (configKey instanceof FastRand) {
+    static generateAndCarve(targetDiff = "hard", configKey = "classic_9x9", rng = null) {
+      if (configKey instanceof FastRand || typeof configKey === "number") {
         rng = configKey;
         configKey = "classic_9x9";
+      }
+      if (typeof rng === "number") {
+        rng = new FastRand(rng);
+      } else if (!rng || !(rng instanceof FastRand)) {
+        rng = new FastRand();
       }
       const res = SudokuEngine.generateAndAssessPuzzle(targetDiff, 0, configKey, rng);
       return {
         puzzle: res.puzzle,
         solution: res.solution,
         topology: res.topology,
+        seed: Number(rng.initialSeed || 12345),
         deductions: res.report.step_deductions,
         rating: res.report.rating,
         totalScore: res.report.total_score,
