@@ -20,6 +20,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Undoku">
   <link rel="icon" type="image/svg+xml" href="./icons/icon.svg">
+  <link rel="shortcut icon" type="image/svg+xml" href="./icons/icon.svg">
+  <link rel="alternate icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧩</text></svg>">
   <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -562,6 +564,57 @@
     
     
     
+    
+    /* ==========================================================================
+       Theme: Rose Quartz & Crystal Opal (Amethyst Violet & Rose Quartz Glow)
+       ========================================================================== */
+    [data-theme="quartz"] {
+      --bg-gradient: linear-gradient(145deg, #0f0c18 0%, #06040a 100%);
+      --surface-card: #1c152c;
+      --surface-subtle: #130e20;
+      --surface-elevated: #281e40;
+      --border-subtle: #412f66;
+      --border-strong: #f472b6;
+      
+      --text-main: #ffffff;
+      --text-secondary: #fdf2f8;
+      --text-muted: #f472b6;
+      
+      --primary: #f472b6;
+      --primary-hover: #ec4899;
+      --primary-light: rgba(244, 114, 182, 0.22);
+      --primary-glow: rgba(244, 114, 182, 0.50);
+      
+      --accent: #c084fc;
+      --accent-light: rgba(192, 132, 252, 0.22);
+      --accent-glow: rgba(192, 132, 252, 0.45);
+      
+      --success: #34d399;
+      --success-light: rgba(52, 211, 153, 0.22);
+      --warning: #fbbf24;
+      --danger: #fb7185;
+      --danger-light: rgba(251, 113, 133, 0.22);
+      --danger-glow: rgba(251, 113, 133, 0.45);
+      
+      --board-bg: #0b0813;
+      --cell-bg-alt: #161024;
+      --cell-hover: rgba(244, 114, 182, 0.25);
+      --cell-selected: rgba(244, 114, 182, 0.45);
+      --cell-match: rgba(192, 132, 252, 0.15);
+      --cell-conflict: rgba(251, 113, 133, 0.45);
+      
+      --grid-line: #2e204a;
+      --box-line: #f472b6;
+      
+      --digit-given: #ffffff;
+      --digit-user: #fbcfe8;
+      --digit-note: #c084fc;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.8);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.95);
+    }
+
     /* ==========================================================================
        Theme: Imperial Jade Matrix (Deep Jadeite Obsidian & Emerald Glow)
        ========================================================================== */
@@ -2504,6 +2557,7 @@
           <option value="nebula">🌌 Twilight Nebula</option>
           <option value="prism">⚡ Prism Spectra</option>
           <option value="jade">🌿 Imperial Jade</option>
+          <option value="quartz">💎 Rose Quartz</option>
         </select>
       </div>
 
@@ -3220,6 +3274,87 @@
 
   <!-- Client-Side Game Visual & Interaction Engine -->
   <script>
+
+    // ==========================================================================
+    // UTILITY HELPERS & RESILIENT CANVAS SIZERS
+    // ==========================================================================
+    function formatTime(totalSeconds = 0) {
+      const s = Math.max(0, Math.floor(totalSeconds));
+      const m = Math.floor(s / 60);
+      const remSec = s % 60;
+      return `${m < 10 ? "0" + m : m}:${remSec < 10 ? "0" + remSec : remSec}`;
+    }
+
+    function resizeCanvas() {
+      if (typeof initCanvases === "function") {
+        initCanvases();
+      }
+      if (typeof renderBoard === "function") {
+        renderBoard();
+      }
+    }
+
+    // ==========================================================================
+    // CANONICAL GAME SESSION CLASS (Ticket 004 / IndexedDB Prep)
+    // ==========================================================================
+    class GameSession {
+      constructor(params = {}) {
+        this.id = params.id || `game_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+        this.seed = params.seed || Math.floor(Math.random() * 1e9);
+        this.timestamp = params.timestamp || Date.now();
+        this.topologyKey = params.topologyKey || "classic_9x9";
+        this.topology = window.SudokuEngine ? window.SudokuEngine.resolveTopology(this.topologyKey) : { Br: 3, Bc: 3, N: 9 };
+        this.N = this.topology.N;
+        this.Br = this.topology.Br;
+        this.Bc = this.topology.Bc;
+        this.difficulty = params.difficulty || "medium";
+        this.gameMode = params.gameMode || "catch_mistakes";
+        this.allowHints = params.allowHints !== undefined ? params.allowHints : true;
+        this.allowHighlighter = params.allowHighlighter !== undefined ? params.allowHighlighter : true;
+        this.allowDigitCounters = params.allowDigitCounters !== undefined ? params.allowDigitCounters : true;
+        this.allowRadialRing = params.allowRadialRing !== undefined ? params.allowRadialRing : true;
+        this.hintCap = params.hintCap !== undefined ? params.hintCap : 3;
+        this.hintsRemaining = this.hintCap === 0 ? Infinity : this.hintCap;
+        this.initialGrid = params.initialGrid || [];
+        this.userGrid = params.userGrid || [];
+        this.solutionGrid = params.solutionGrid || [];
+        this.notes = params.notes || Array.from({ length: this.N }, () => Array.from({ length: this.N }, () => new Set()));
+        this.turnHistory = params.turnHistory || [];
+        this.mistakes = params.mistakes || 0;
+        this.maxMistakes = params.maxMistakes || 3;
+        this.secondsElapsed = params.secondsElapsed || 0;
+        this.isCompleted = params.isCompleted || false;
+        this.analytics = params.analytics || null;
+        this.deductions = params.deductions || [];
+      }
+
+      toDBRecord() {
+        return {
+          id: this.id,
+          timestamp: this.timestamp,
+          seed: this.seed,
+          difficulty: this.difficulty,
+          topologyKey: this.topologyKey,
+          topologyName: `${this.N}×${this.N} (${this.Br}×${this.Bc})`,
+          boardRows: this.Br,
+          boardCols: this.Bc,
+          N: this.N,
+          initialGrid: this.initialGrid,
+          userGrid: this.userGrid,
+          solutionGrid: this.solutionGrid,
+          durationSeconds: this.secondsElapsed,
+          mistakes: this.mistakes,
+          maxMistakes: this.maxMistakes,
+          hintsUsed: this.hintCap === 0 ? 0 : Math.max(0, this.hintCap - this.hintsRemaining),
+          turnHistory: this.turnHistory,
+          isCompleted: this.isCompleted,
+          analytics: this.analytics
+        };
+      }
+    }
+
+    let activeSession = null;
+
     // ==========================================
     // Client-Side Sudoku Game Controller (0 API Requests)
     // Generalized Rectangular Topology (Br x Bc) & Dynamic Scaling
@@ -3587,29 +3722,26 @@
       updateProportionRibbon();
       drawTrajectoryChart();
 
-      // Sync with global gameState object for persistence
-      gameState = {
-        seed: Math.floor(Math.random() * 1e9),
+      // Create canonical GameSession instance prepped for IndexedDB
+      activeSession = new GameSession({
         difficulty: currentDifficulty,
         topologyKey: currentTopologyKey,
-        N: currentTopology.N,
-        Br: currentTopology.Br,
-        Bc: currentTopology.Bc,
+        gameMode: currentGameMode,
+        allowHints: currentAllowHints,
+        allowHighlighter: currentAllowHighlighter,
+        allowDigitCounters: currentAllowDigitCounters,
+        allowRadialRing: currentAllowRadialRing,
+        hintCap: currentHintCap,
         initialGrid: initialGrid.map(r => [...r]),
         userGrid: userGrid.map(r => [...r]),
         solutionGrid: solutionGrid.map(r => [...r]),
-        notes: Array.from({ length: currentTopology.N }, () => Array.from({ length: currentTopology.N }, () => new Set())),
-        history: [],
-        redoStack: [],
-        mistakes: 0,
-        maxMistakes: maxMistakes,
-        secondsElapsed: 0,
-        isCompleted: false,
-        allowHints: currentAllowHints,
-        hintsLeft: currentHintsRemaining,
+        notes: notesGrid,
+        turnHistory: [],
         analytics: res.metrics,
-        playthroughReport: null
-      };
+        deductions: deductions
+      });
+
+      gameState = activeSession;
       isGameActive = true;
       startTimer();
       autoSaveActiveGame();
@@ -5299,22 +5431,30 @@
 
     // Auto-save active turn to DB
     function autoSaveActiveGame() {
-      if (!gameState || !gameState.initialGrid) return;
-      const rec = {
-        id: "active_session",
-        timestamp: Date.now(),
-        seed: gameState.seed,
-        difficulty: gameState.difficulty,
-        topologyKey: gameState.topologyKey,
-        topologyName: (gameState.topologyKey || "9×9 Classic").replace("_", " ").toUpperCase(),
-        initialGrid: gameState.initialGrid,
-        userGrid: gameState.userGrid,
-        solutionGrid: gameState.solutionGrid,
-        durationSeconds: gameState.secondsElapsed,
-        mistakes: gameState.mistakes,
-        hintsUsed: 3 - (gameState.hintsLeft || 0),
-        turnHistory: gameState.history || [],
-        isCompleted: gameState.isCompleted || false
+      const session = activeSession || gameState;
+      if (!session || !session.initialGrid || !session.initialGrid.length) return;
+      
+      // Sync dynamic runtime state to session
+      session.userGrid = userGrid;
+      session.mistakes = mistakesCount;
+      session.secondsElapsed = gameTimeSeconds;
+      session.turnHistory = moveHistory;
+      session.isCompleted = checkWin();
+
+      const rec = session.toDBRecord ? session.toDBRecord() : {
+        id: session.id || "active_session",
+        timestamp: session.timestamp || Date.now(),
+        seed: session.seed,
+        difficulty: session.difficulty,
+        topologyKey: session.topologyKey,
+        topologyName: `${session.N}×${session.N}`,
+        initialGrid: session.initialGrid,
+        userGrid: session.userGrid,
+        solutionGrid: session.solutionGrid,
+        durationSeconds: session.secondsElapsed,
+        mistakes: session.mistakes,
+        turnHistory: session.turnHistory,
+        isCompleted: session.isCompleted
       };
       asyncSaveGameToDB(rec);
     }
