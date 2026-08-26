@@ -1,0 +1,11 @@
+Undoku 🧩 is a 100% open-source, zero-dependency, mathematically deterministic Sudoku cognitive trainer and puzzle engine.
+
+🌟 Key Features:
+• 100% Offline & Private: Zero network requests, zero telemetry, zero advertisements, and zero tracking SDKs.
+• Generalized Rectangular Subgrid Topologies: Play 4x4 Mini, 6x6 Wide, 8x8 Wide, 9x9 Classic, 10x10 Decimal, 12x12 Duodecimal, and 16x16 Hexadoku!
+• Granular Cognitive Spectrum: Real-time 28+ metrics analyzing constraint entropy, assertion density, and suddenness jumps.
+• Dual Game Modes: Choose Assisted mode (instant red conflict warnings, undo, hints) or Like Paper mode (pure unassisted pencil-and-paper experience).
+• Dynamic High-Contrast Themes: Enjoy Warm Cozy, Slate Dark, Matcha Zen, Cyber Matrix, Sunset Amber, Synthwave Neon, Aurora Borealis, Sakura Blossom, Deep Oceanic, and Electric Violet!
+• Interactive Live Proof Solver: Step forward and backward through formal analytical elimination proofs.
+
+Built with clean, standards-compliant web technologies and zero proprietary blobs.

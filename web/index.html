@@ -4,6 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Undoku 🧩 — Pure Sudoku Game & Web Canvas Engine</title>
+  <meta name="description" content="Zero-dependency deterministic Sudoku engine with granular cognitive analytics and 100% offline gameplay.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="theme-color" content="#e06c3a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Undoku">
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -297,6 +307,57 @@
     
     
     
+    
+    /* ==========================================================================
+       Theme: Electric Violet (High-Contrast Cyber Laser)
+       ========================================================================== */
+    [data-theme="electric"] {
+      --bg-gradient: linear-gradient(145deg, #0e0720 0%, #05020c 100%);
+      --surface-card: #180c35;
+      --surface-subtle: #110828;
+      --surface-elevated: #24134e;
+      --border-subtle: #4c1d95;
+      --border-strong: #a855f7;
+      
+      --text-main: #ffffff;
+      --text-secondary: #f3e8ff;
+      --text-muted: #c084fc;
+      
+      --primary: #8b5cf6;
+      --primary-hover: #7c3aed;
+      --primary-light: rgba(139, 92, 246, 0.22);
+      --primary-glow: rgba(139, 92, 246, 0.50);
+      
+      --accent: #e879f9;
+      --accent-light: rgba(232, 121, 249, 0.22);
+      --accent-glow: rgba(232, 121, 249, 0.45);
+      
+      --success: #34d399;
+      --success-light: rgba(52, 211, 153, 0.22);
+      --warning: #fbbf24;
+      --danger: #f43f5e;
+      --danger-light: rgba(244, 63, 94, 0.22);
+      --danger-glow: rgba(244, 63, 94, 0.45);
+      
+      --board-bg: #0b051a;
+      --cell-bg-alt: #13092b;
+      --cell-hover: rgba(139, 92, 246, 0.25);
+      --cell-selected: rgba(139, 92, 246, 0.45);
+      --cell-match: rgba(232, 121, 249, 0.15);
+      --cell-conflict: rgba(244, 63, 94, 0.45);
+      
+      --grid-line: #2e1065;
+      --box-line: #c084fc;
+      
+      --digit-given: #ffffff;
+      --digit-user: #e879f9;
+      --digit-note: #c084fc;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.8);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.95);
+    }
+
     /* ==========================================================================
        Theme: Deep Oceanic Abyss (Midnight Trench & Bioluminescent Cyan Glow)
        ========================================================================== */
@@ -1715,6 +1776,7 @@
           <option value="aurora">🔮 Aurora Borealis</option>
           <option value="sakura">🌸 Sakura Blossom</option>
           <option value="oceanic">🌊 Deep Oceanic</option>
+          <option value="electric">⚡ Electric Violet</option>
         </select>
       </div>
 
@@ -3999,6 +4061,18 @@
       renderBoard();
       drawTrajectoryChart();
     });
+
+
+    // --- PWA Offline Service Worker Registration ---
+    if ("serviceWorker" in navigator && (window.location.protocol === "https:" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").then((reg) => {
+          console.log("Undoku PWA ServiceWorker active:", reg.scope);
+        }).catch((err) => {
+          console.log("ServiceWorker registration note:", err);
+        });
+      });
+    }
 
     // --- Application Bootloader ---
     window.addEventListener("DOMContentLoaded", () => {

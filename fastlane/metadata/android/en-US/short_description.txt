@@ -1,0 +1,1 @@
+Zero-dependency deterministic Sudoku engine with granular cognitive analytics.

@@ -31,6 +31,23 @@ fs.mkdirSync(siteDistDir, { recursive: true });
 fs.copyFileSync(path.join(rootDir, 'web', 'index.html'), path.join(siteDistDir, 'index.html'));
 fs.copyFileSync(webEnginePath, path.join(siteDistDir, 'engine.js'));
 
+// Copy PWA Manifest & Offline Service Worker
+const manifestPath = path.join(rootDir, 'web', 'manifest.webmanifest');
+if (fs.existsSync(manifestPath)) {
+  fs.copyFileSync(manifestPath, path.join(siteDistDir, 'manifest.webmanifest'));
+}
+
+const swPath = path.join(rootDir, 'web', 'sw.js');
+if (fs.existsSync(swPath)) {
+  fs.copyFileSync(swPath, path.join(siteDistDir, 'sw.js'));
+}
+
+// Copy PWA Icons
+const iconsDir = path.join(rootDir, 'web', 'icons');
+if (fs.existsSync(iconsDir)) {
+  fs.cpSync(iconsDir, path.join(siteDistDir, 'icons'), { recursive: true });
+}
+
 // Copy Wiki documentation
 const wikiDistDir = path.join(rootDir, 'wiki', 'dist');
 if (fs.existsSync(wikiDistDir)) {
