@@ -3658,6 +3658,61 @@
     </div>
   </div>
 
+  
+  <!-- Live Versus Room Modal: Real-time Connection & Matchmaking -->
+  <div class="modal-backdrop" id="versusRoomModal">
+    <div class="victory-modal" style="max-width: 520px; padding: 2rem;">
+      <div style="font-size: 2.8rem; margin-bottom: 0.35rem;">⚔️</div>
+      <h2 class="victory-title" id="vsRoomTitle">Versus Match Room</h2>
+      <p class="victory-subtitle" style="margin-bottom: 1.1rem;">
+        Persistent 1v1 battle arena. Thinking clocks and technique difficulty scoring stay active until all grid cells are filled!
+      </p>
+
+      <!-- Connection & Status Bar -->
+      <div style="background: var(--surface-subtle); border: 1.5px solid var(--border-subtle); border-radius: 14px; padding: 1rem; margin-bottom: 1.1rem; text-align: left;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <span style="font-size: 0.78rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Room Code</span>
+          <span class="hud-mode-pill assisted" id="vsRoomStatusBadge">🟢 WAITING FOR OPPONENT</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; font-weight: 800; color: var(--primary); letter-spacing: 2px;" id="displayVsRoomCode">
+            VS-9X4A
+          </div>
+          <button class="btn-action" id="btnCopyVsRoomCode" style="font-size: 0.78rem; padding: 0.4rem 0.75rem;">
+            📋 Copy Link
+          </button>
+        </div>
+      </div>
+
+      <!-- Match Roster & Technique Scoring Breakdown -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.1rem; text-align: left;">
+        <div style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.75rem;">
+          <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">👑 Host (P1)</div>
+          <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); margin-top: 0.2rem;" id="vsHostNickLabel">Player 1</div>
+          <div style="font-size: 0.72rem; color: var(--primary); font-weight: 700; margin-top: 0.2rem;">Ready to Battle</div>
+        </div>
+        <div style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.75rem;">
+          <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">⚔️ Challenger (P2)</div>
+          <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); margin-top: 0.2rem;" id="vsGuestNickLabel">Waiting...</div>
+          <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem;" id="vsGuestStatusLabel">Share room code or link to join</div>
+        </div>
+      </div>
+
+      <div style="background: var(--surface-subtle); border: 1px dashed var(--border-subtle); border-radius: 10px; padding: 0.65rem 0.85rem; margin-bottom: 1.25rem; font-size: 0.75rem; color: var(--text-muted); text-align: left;">
+        💡 <b>Dynamic Technique Scoring:</b> Naked Single (100 pts) • Hidden Single (150 pts) • Pointing Pair (300 pts) • Naked/Hidden Subsets (500-750 pts) • Speed Multipliers applied per move!
+      </div>
+
+      <div style="display: flex; gap: 0.6rem;">
+        <button class="btn-action" id="btnVsRoomCancel" style="flex: 1; justify-content: center; padding: 0.75rem; font-weight: 700;">
+          Cancel
+        </button>
+        <button class="btn-action primary" id="btnVsRoomStartRound" style="flex: 1.5; justify-content: center; padding: 0.75rem; font-weight: 800; font-size: 0.95rem;">
+          🚀 Start Battle Round
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Step 1: Size & Grid Topology Selection Modal -->
   <div class="modal-backdrop" id="sizeSelectModal">
     <div class="victory-modal" style="max-width: 520px; padding: 2rem;">
