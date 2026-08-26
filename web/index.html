@@ -561,6 +561,57 @@
     
     
     
+    
+    /* ==========================================================================
+       Theme: Imperial Jade Matrix (Deep Jadeite Obsidian & Emerald Glow)
+       ========================================================================== */
+    [data-theme="jade"] {
+      --bg-gradient: linear-gradient(145deg, #04140e 0%, #010805 100%);
+      --surface-card: #0c261c;
+      --surface-subtle: #071912;
+      --surface-elevated: #133829;
+      --border-subtle: #1b4d38;
+      --border-strong: #10b981;
+      
+      --text-main: #ffffff;
+      --text-secondary: #ecfdf5;
+      --text-muted: #6ee7b7;
+      
+      --primary: #10b981;
+      --primary-hover: #059669;
+      --primary-light: rgba(16, 185, 129, 0.22);
+      --primary-glow: rgba(16, 185, 129, 0.50);
+      
+      --accent: #eab308;
+      --accent-light: rgba(234, 179, 8, 0.22);
+      --accent-glow: rgba(234, 179, 8, 0.45);
+      
+      --success: #10b981;
+      --success-light: rgba(16, 185, 129, 0.22);
+      --warning: #eab308;
+      --danger: #f43f5e;
+      --danger-light: rgba(244, 63, 94, 0.22);
+      --danger-glow: rgba(244, 63, 94, 0.45);
+      
+      --board-bg: #030f0a;
+      --cell-bg-alt: #081e15;
+      --cell-hover: rgba(16, 185, 129, 0.25);
+      --cell-selected: rgba(16, 185, 129, 0.45);
+      --cell-match: rgba(234, 179, 8, 0.15);
+      --cell-conflict: rgba(244, 63, 94, 0.45);
+      
+      --grid-line: #123826;
+      --box-line: #10b981;
+      
+      --digit-given: #ffffff;
+      --digit-user: #a7f3d0;
+      --digit-note: #6ee7b7;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.8);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.95);
+    }
+
     /* ==========================================================================
        Theme: Prism Spectra (Iridescent Crystal & Rainbow Neon Glow)
        ========================================================================== */
@@ -2452,6 +2503,7 @@
           <option value="neonpulse">⚡ Cyber Neon Pulse</option>
           <option value="nebula">🌌 Twilight Nebula</option>
           <option value="prism">⚡ Prism Spectra</option>
+          <option value="jade">🌿 Imperial Jade</option>
         </select>
       </div>
 
@@ -3534,6 +3586,33 @@
       updateDigitCounters();
       updateProportionRibbon();
       drawTrajectoryChart();
+
+      // Sync with global gameState object for persistence
+      gameState = {
+        seed: Math.floor(Math.random() * 1e9),
+        difficulty: currentDifficulty,
+        topologyKey: currentTopologyKey,
+        N: currentTopology.N,
+        Br: currentTopology.Br,
+        Bc: currentTopology.Bc,
+        initialGrid: initialGrid.map(r => [...r]),
+        userGrid: userGrid.map(r => [...r]),
+        solutionGrid: solutionGrid.map(r => [...r]),
+        notes: Array.from({ length: currentTopology.N }, () => Array.from({ length: currentTopology.N }, () => new Set())),
+        history: [],
+        redoStack: [],
+        mistakes: 0,
+        maxMistakes: maxMistakes,
+        secondsElapsed: 0,
+        isCompleted: false,
+        allowHints: currentAllowHints,
+        hintsLeft: currentHintsRemaining,
+        analytics: res.metrics,
+        playthroughReport: null
+      };
+      isGameActive = true;
+      startTimer();
+      autoSaveActiveGame();
     }
 
     // --- Live Dynamic Solver Engine ---
@@ -4815,6 +4894,7 @@
       }
       closeConfirmationModal();
       loadPuzzle(targetDiff, selectedGameMode, allowHints, allowHighlighter, hintCap, allowDigitCounters, allowRadialRing, targetTopo);
+      navigateToScreen("GAME_PLAY");
     });
 
     document.getElementById("btnConfirmCancel").addEventListener("click", closeConfirmationModal);
