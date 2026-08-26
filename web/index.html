@@ -671,6 +671,57 @@
     
     
     
+    
+    /* ==========================================================================
+       Theme: Cyber Neon Crimson (Obsidian Void & Ruby Plasma Glow)
+       ========================================================================== */
+    [data-theme="crimson"] {
+      --bg-gradient: linear-gradient(145deg, #100407 0%, #050102 100%);
+      --surface-card: #1f090e;
+      --surface-subtle: #140509;
+      --surface-elevated: #2d0e16;
+      --border-subtle: #4c1724;
+      --border-strong: #f43f5e;
+      
+      --text-main: #ffffff;
+      --text-secondary: #ffe4e6;
+      --text-muted: #fda4af;
+      
+      --primary: #f43f5e;
+      --primary-hover: #e11d48;
+      --primary-light: rgba(244, 63, 94, 0.22);
+      --primary-glow: rgba(244, 63, 94, 0.50);
+      
+      --accent: #fbbf24;
+      --accent-light: rgba(251, 191, 36, 0.22);
+      --accent-glow: rgba(251, 191, 36, 0.45);
+      
+      --success: #10b981;
+      --success-light: rgba(16, 185, 129, 0.22);
+      --warning: #fbbf24;
+      --danger: #f43f5e;
+      --danger-light: rgba(244, 63, 94, 0.22);
+      --danger-glow: rgba(244, 63, 94, 0.45);
+      
+      --board-bg: #0b0204;
+      --cell-bg-alt: #18060a;
+      --cell-hover: rgba(244, 63, 94, 0.25);
+      --cell-selected: rgba(244, 63, 94, 0.45);
+      --cell-match: rgba(251, 191, 36, 0.15);
+      --cell-conflict: rgba(244, 63, 94, 0.45);
+      
+      --grid-line: #330c16;
+      --box-line: #f43f5e;
+      
+      --digit-given: #ffffff;
+      --digit-user: #fecdd3;
+      --digit-note: #fbbf24;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.8);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.95);
+    }
+
     /* ==========================================================================
        Theme: Cyber Titanium (Gunmetal Platinum & Ice Blue Glow)
        ========================================================================== */
@@ -2868,6 +2919,7 @@
           <option value="amethyst">🔮 Cyber Amethyst</option>
           <option value="supernova">🌟 Celestial Supernova</option>
           <option value="titanium">🛡️ Cyber Titanium</option>
+          <option value="crimson">⚡ Neon Crimson</option>
         </select>
       </div>
 
@@ -3025,6 +3077,9 @@
               </button>
               <button class="hud-dropdown-item" id="btnMenuShare">
                 <span>📡</span> Share
+              </button>
+              <button class="hud-dropdown-item" id="btnMenuVersus">
+                <span>⚔️</span> Versus (1v1)
               </button>
               <div class="hud-dropdown-divider"></div>
               <button class="hud-dropdown-item danger" id="btnMenuDelete">
@@ -5612,7 +5667,7 @@
       }
 
       container.innerHTML = list.map((rec, idx) => `
-        <div class="vault-record-card">
+        <div class="vault-record-card" style="position: relative;">
           <div style="display: flex; justify-content: space-between; align-items: flex-start;">
             <div>
               <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
@@ -5622,9 +5677,37 @@
                 ${rec.topologyName || "9×9 Classic"}
               </div>
             </div>
-            <span class="diff-select-badge ${rec.difficulty}" style="font-size: 0.7rem; padding: 0.2rem 0.5rem; min-width: auto;">
-              ${(rec.difficulty || "MEDIUM").toUpperCase()}
-            </span>
+
+            <div style="display: flex; gap: 0.45rem; align-items: center;">
+              <span class="diff-select-badge ${rec.difficulty}" style="font-size: 0.7rem; padding: 0.2rem 0.5rem; min-width: auto;">
+                ${(rec.difficulty || "MEDIUM").toUpperCase()}
+              </span>
+
+              <!-- Vault Entry Cheeseburger Menu -->
+              <div class="hud-dropdown-wrapper">
+                <button class="hud-menu-btn btn-vault-menu-toggle" data-idx="${idx}" title="Record Actions (☰)" style="width: 30px; height: 30px; font-size: 0.95rem; border-radius: 8px;">
+                  ☰
+                </button>
+                <div class="hud-dropdown-menu" id="vaultDropdown-${idx}" style="right: 0; min-width: 170px;">
+                  <button class="hud-dropdown-item btn-vault-play" data-idx="${idx}">
+                    <span>${rec.isCompleted ? "🎬" : "▶️"}</span> ${rec.isCompleted ? "Replay Proof" : "Resume Game"}
+                  </button>
+                  <button class="hud-dropdown-item btn-vault-share" data-idx="${idx}">
+                    <span>📡</span> Share Game
+                  </button>
+                  <button class="hud-dropdown-item btn-vault-versus" data-idx="${idx}">
+                    <span>⚔️</span> Versus Match
+                  </button>
+                  <button class="hud-dropdown-item btn-vault-svg" data-idx="${idx}">
+                    <span>⬇️</span> Export SVG
+                  </button>
+                  <div class="hud-dropdown-divider"></div>
+                  <button class="hud-dropdown-item danger btn-vault-delete" data-idx="${idx}">
+                    <span>🗑️</span> Delete Record
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div style="display: flex; gap: 0.8rem; font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); background: var(--surface-subtle); padding: 0.5rem 0.75rem; border-radius: 8px;">
@@ -5637,14 +5720,27 @@
             <button class="btn-action primary btn-vault-play" data-idx="${idx}" style="flex: 1; font-size: 0.78rem; padding: 0.45rem; justify-content: center;">
               ${rec.isCompleted ? "🎬 Replay" : "▶ Resume"}
             </button>
-            <button class="btn-action btn-vault-svg" data-idx="${idx}" style="font-size: 0.78rem; padding: 0.45rem 0.65rem;" title="Export Static SVG">
-              ⬇ SVG
+            <button class="btn-action btn-vault-versus" data-idx="${idx}" style="font-size: 0.78rem; padding: 0.45rem 0.65rem;" title="1v1 Versus Battle">
+              ⚔️ Versus
             </button>
           </div>
         </div>
       `).join("");
 
-      // Bind actions
+      // Bind Vault Dropdown Menu Toggles
+      container.querySelectorAll(".btn-vault-menu-toggle").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const idx = btn.getAttribute("data-idx");
+          const menu = document.getElementById(`vaultDropdown-${idx}`);
+          document.querySelectorAll(".hud-dropdown-menu").forEach(m => {
+            if (m !== menu) m.classList.remove("active");
+          });
+          if (menu) menu.classList.toggle("active");
+        });
+      });
+
+      // Bind Play/Resume/Replay
       container.querySelectorAll(".btn-vault-play").forEach(btn => {
         btn.addEventListener("click", () => {
           const idx = parseInt(btn.getAttribute("data-idx"), 10);
@@ -5655,6 +5751,29 @@
         });
       });
 
+      // Bind Share from Vault
+      container.querySelectorAll(".btn-vault-share").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const idx = parseInt(btn.getAttribute("data-idx"), 10);
+          const rec = list[idx];
+          if (rec) {
+            openShareModal(rec);
+          }
+        });
+      });
+
+      // Bind Versus from Vault
+      container.querySelectorAll(".btn-vault-versus").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const idx = parseInt(btn.getAttribute("data-idx"), 10);
+          const rec = list[idx];
+          if (rec) {
+            openVersusModal(rec);
+          }
+        });
+      });
+
+      // Bind Export SVG
       container.querySelectorAll(".btn-vault-svg").forEach(btn => {
         btn.addEventListener("click", () => {
           const idx = parseInt(btn.getAttribute("data-idx"), 10);
@@ -5671,6 +5790,22 @@
             a.download = `undoku_${rec.topologyKey || "classic_9x9"}_${rec.difficulty || "medium"}_${rec.timestamp || Date.now()}.svg`;
             a.click();
             URL.revokeObjectURL(url);
+          }
+        });
+      });
+
+      // Bind Delete single record from Vault
+      container.querySelectorAll(".btn-vault-delete").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const idx = parseInt(btn.getAttribute("data-idx"), 10);
+          const rec = list[idx];
+          if (rec && confirm("Delete this puzzle record from your vault?")) {
+            let all = getVaultRecords();
+            all = all.filter(r => r.id !== rec.id && r.timestamp !== rec.timestamp);
+            try {
+              localStorage.setItem("undoku_vault_records_v1", JSON.stringify(all));
+            } catch (e) {}
+            renderVaultRecords(tab);
           }
         });
       });
@@ -6281,6 +6416,18 @@
         };
       }
 
+      const bMenuVersus = document.getElementById("btnMenuVersus");
+      if (bMenuVersus) {
+        bMenuVersus.onclick = () => {
+          if (dropMenu) dropMenu.classList.remove("active");
+          if (bGameMenu) bGameMenu.classList.remove("active");
+          const session = activeSession || gameState;
+          if (session) {
+            openVersusModal(session);
+          }
+        };
+      }
+
       const bMenuDelete = document.getElementById("btnMenuDelete");
       if (bMenuDelete) {
         bMenuDelete.onclick = () => {
@@ -6317,6 +6464,53 @@
         if (bPlayPause) bPlayPause.innerText = "⏸ Pause";
         const b4 = document.getElementById("appModeBadge"); if (b4) b4.innerText = "Replay Mode";
       };
+    }
+
+
+    // ==========================================================================
+    // MULTIPLAYER FUNCTION 2: 1v1 VERSUS ARENA CONTROLLER
+    // ==========================================================================
+    let pendingVersusGame = null;
+
+    function openVersusModal(game) {
+      if (!game) game = activeSession || gameState;
+      if (!game) return;
+      pendingVersusGame = game;
+
+      const code = "VS-" + ShareManager.generateRoomCode(game.seed).replace("UDK-", "");
+      document.getElementById("displayVersusCode").textContent = code;
+
+      const modal = document.getElementById("versusModal");
+      if (modal) modal.classList.add("active");
+
+      const btnCopyLink = document.getElementById("btnCopyVersusLink");
+      if (btnCopyLink) {
+        btnCopyLink.onclick = () => {
+          const payload = ShareManager.generatePayload(game);
+          const vsUrl = ShareManager.getShareableUrl(payload) + "&mode=versus";
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(vsUrl).then(() => {
+              alert("⚔️ 1v1 Versus Match Link Copied!\n\n" + vsUrl);
+            }).catch(() => prompt("Copy Versus Link:", vsUrl));
+          } else {
+            prompt("Copy Versus Link:", vsUrl);
+          }
+        };
+      }
+
+      const btnLaunch = document.getElementById("btnLaunchVersusMatch");
+      if (btnLaunch) {
+        btnLaunch.onclick = () => {
+          modal.classList.remove("active");
+          loadGameFromRecord(game);
+          const b1 = document.getElementById("appModeBadge"); if (b1) b1.innerText = "⚔️ Versus Mode";
+        };
+      }
+
+      const btnClose = document.getElementById("btnVersusClose");
+      if (btnClose) {
+        btnClose.onclick = () => modal.classList.remove("active");
+      }
     }
 
     // --- Application Bootloader ---
