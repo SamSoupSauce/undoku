@@ -295,6 +295,57 @@
 
 
     
+    
+    /* ==========================================================================
+       Theme: Sakura Blossom (Blush Obsidian & Spring Flora Glow)
+       ========================================================================== */
+    [data-theme="sakura"] {
+      --bg-gradient: linear-gradient(145deg, #1f0b18 0%, #10040c 100%);
+      --surface-card: #2c1023;
+      --surface-subtle: #1c0916;
+      --surface-elevated: #3a162f;
+      --border-subtle: #581c43;
+      --border-strong: #f472b6;
+      
+      --text-main: #ffffff;
+      --text-secondary: #fce7f3;
+      --text-muted: #f472b6;
+      
+      --primary: #fb7185;
+      --primary-hover: #f43f5e;
+      --primary-light: rgba(251, 113, 133, 0.22);
+      --primary-glow: rgba(251, 113, 133, 0.50);
+      
+      --accent: #f472b6;
+      --accent-light: rgba(244, 114, 182, 0.22);
+      --accent-glow: rgba(244, 114, 182, 0.45);
+      
+      --success: #34d399;
+      --success-light: rgba(52, 211, 153, 0.22);
+      --warning: #fbbf24;
+      --danger: #f43f5e;
+      --danger-light: rgba(244, 63, 94, 0.22);
+      --danger-glow: rgba(244, 63, 94, 0.45);
+      
+      --board-bg: #190814;
+      --cell-bg-alt: #220b1b;
+      --cell-hover: rgba(244, 114, 182, 0.25);
+      --cell-selected: rgba(251, 113, 133, 0.45);
+      --cell-match: rgba(244, 114, 182, 0.15);
+      --cell-conflict: rgba(244, 63, 94, 0.45);
+      
+      --grid-line: #3d1430;
+      --box-line: #f472b6;
+      
+      --digit-given: #ffffff;
+      --digit-user: #fda4af;
+      --digit-note: #f472b6;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.8);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.95);
+    }
+
     /* ==========================================================================
        Theme: Aurora Borealis (Arctic Night & Ethereal Emerald Glow)
        ========================================================================== */
@@ -677,30 +728,36 @@
     }
 
     .diff-selection-list {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: 0.65rem;
       text-align: left;
+      margin-bottom: 0.5rem;
     }
 
     .diff-select-item {
       display: flex;
-      align-items: center;
-      gap: 0.9rem;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.45rem;
       background: var(--surface-subtle);
-      border: 1px solid var(--border-subtle);
+      border: 1.5px solid var(--border-subtle);
       border-radius: 14px;
-      padding: 0.75rem 1rem;
+      padding: 0.75rem 0.85rem;
       cursor: pointer;
-      transition: all 0.18s ease;
+      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
       width: 100%;
     }
 
     .diff-select-item:hover {
-      background: var(--surface-elevated);
+      background: var(--surface-card);
       border-color: var(--primary);
-      transform: translateX(4px);
+      transform: translateY(-2px);
       box-shadow: var(--shadow-sm);
+    }
+
+    .diff-select-item:last-child {
+      grid-column: span 2;
     }
 
     .diff-select-badge {
@@ -1605,6 +1662,7 @@
           <option value="sunset">🌅 Sunset Amber</option>
           <option value="synthwave">🌌 Synthwave Neon</option>
           <option value="aurora">🔮 Aurora Borealis</option>
+          <option value="sakura">🌸 Sakura Blossom</option>
         </select>
       </div>
 
@@ -1951,7 +2009,7 @@
 
   <!-- Step 2: Difficulty Selection Modal (Easy, Medium, Hard, Extreme, Impossible) -->
   <div class="modal-backdrop" id="diffSelectModal">
-    <div class="victory-modal" style="max-width: 480px; padding: 2rem;">
+    <div class="victory-modal" style="max-width: 520px; padding: 2rem;">
       <div style="font-size: 2.6rem; margin-bottom: 0.35rem;">🧩</div>
       <h2 class="victory-title">Select Difficulty</h2>
       <p class="victory-subtitle" style="margin-bottom: 1.25rem;" id="diffModalSubtitle">Grid: <b id="diffModalSizeLabel" style="color: var(--primary);">9×9 Classic</b> • Choose challenge tier</p>
