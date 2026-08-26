@@ -1,0 +1,18 @@
+{
+  "name": "undoku-server",
+  "version": "1.0.0",
+  "description": "Express.js REST API & Sudoku Mathematical Generation Engine for Undoku",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "supertest": "^7.1.0"
+  }
+}

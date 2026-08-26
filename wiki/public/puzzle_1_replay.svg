@@ -1,0 +1,1683 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 615" width="540" height="615">
+<style>
+  .text-given { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 33px; text-anchor: middle; dominant-baseline: central; fill: #f9fafb; }
+  .text-unsolve { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 33px; text-anchor: middle; dominant-baseline: central; fill: #38bdf8; }
+  .text-step { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 33px; text-anchor: middle; dominant-baseline: central; fill: #818cf8; }
+  .status-text { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 13px; fill: #f3f4f6; }
+  .sub-status { font-family: 'Inter', system-ui, sans-serif; font-weight: 400; font-size: 11px; fill: #9ca3af; }
+  .status-unsolve { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 13px; fill: #38bdf8; }
+  .status-victory { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 13px; fill: #fbbf24; }
+@keyframes anim-unsolve-val-0-1 {
+  0%, 5.23% { opacity: 1; transform: scale(1); }
+  6.82% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  8.41%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-0-1 {
+  0%, 5.23% { fill: #0d1322; }
+  6.82% { fill: rgba(244, 63, 94, 0.45); }
+  8.41%, 100% { fill: #0d1322; }
+}
+.unsolve-val-0-1 { animation: anim-unsolve-val-0-1 15.3s infinite; transform-origin: 90px 30px; }
+.unsolve-bg-0-1 { animation: anim-unsolve-bg-0-1 15.3s infinite; }
+@keyframes anim-unsolve-val-0-3 {
+  0%, 5.75% { opacity: 1; transform: scale(1); }
+  7.33% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  8.92%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-0-3 {
+  0%, 5.75% { fill: #0d1322; }
+  7.33% { fill: rgba(244, 63, 94, 0.45); }
+  8.92%, 100% { fill: #0d1322; }
+}
+.unsolve-val-0-3 { animation: anim-unsolve-val-0-3 15.3s infinite; transform-origin: 210px 30px; }
+.unsolve-bg-0-3 { animation: anim-unsolve-bg-0-3 15.3s infinite; }
+@keyframes anim-unsolve-val-1-4 {
+  0%, 6.26% { opacity: 1; transform: scale(1); }
+  7.85% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  9.44%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-1-4 {
+  0%, 6.26% { fill: #0d1322; }
+  7.85% { fill: rgba(244, 63, 94, 0.45); }
+  9.44%, 100% { fill: #0d1322; }
+}
+.unsolve-val-1-4 { animation: anim-unsolve-val-1-4 15.3s infinite; transform-origin: 270px 90px; }
+.unsolve-bg-1-4 { animation: anim-unsolve-bg-1-4 15.3s infinite; }
+@keyframes anim-unsolve-val-1-5 {
+  0%, 6.78% { opacity: 1; transform: scale(1); }
+  8.37% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  9.96%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-1-5 {
+  0%, 6.78% { fill: #0d1322; }
+  8.37% { fill: rgba(244, 63, 94, 0.45); }
+  9.96%, 100% { fill: #0d1322; }
+}
+.unsolve-val-1-5 { animation: anim-unsolve-val-1-5 15.3s infinite; transform-origin: 330px 90px; }
+.unsolve-bg-1-5 { animation: anim-unsolve-bg-1-5 15.3s infinite; }
+@keyframes anim-unsolve-val-1-6 {
+  0%, 7.30% { opacity: 1; transform: scale(1); }
+  8.89% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  10.48%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-1-6 {
+  0%, 7.30% { fill: #0d1322; }
+  8.89% { fill: rgba(244, 63, 94, 0.45); }
+  10.48%, 100% { fill: #0d1322; }
+}
+.unsolve-val-1-6 { animation: anim-unsolve-val-1-6 15.3s infinite; transform-origin: 390px 90px; }
+.unsolve-bg-1-6 { animation: anim-unsolve-bg-1-6 15.3s infinite; }
+@keyframes anim-unsolve-val-1-7 {
+  0%, 7.82% { opacity: 1; transform: scale(1); }
+  9.41% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  10.99%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-1-7 {
+  0%, 7.82% { fill: #0d1322; }
+  9.41% { fill: rgba(244, 63, 94, 0.45); }
+  10.99%, 100% { fill: #0d1322; }
+}
+.unsolve-val-1-7 { animation: anim-unsolve-val-1-7 15.3s infinite; transform-origin: 450px 90px; }
+.unsolve-bg-1-7 { animation: anim-unsolve-bg-1-7 15.3s infinite; }
+@keyframes anim-unsolve-val-1-8 {
+  0%, 8.33% { opacity: 1; transform: scale(1); }
+  9.92% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  11.51%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-1-8 {
+  0%, 8.33% { fill: #0d1322; }
+  9.92% { fill: rgba(244, 63, 94, 0.45); }
+  11.51%, 100% { fill: #0d1322; }
+}
+.unsolve-val-1-8 { animation: anim-unsolve-val-1-8 15.3s infinite; transform-origin: 510px 90px; }
+.unsolve-bg-1-8 { animation: anim-unsolve-bg-1-8 15.3s infinite; }
+@keyframes anim-unsolve-val-2-0 {
+  0%, 8.85% { opacity: 1; transform: scale(1); }
+  10.44% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  12.03%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-2-0 {
+  0%, 8.85% { fill: #0d1322; }
+  10.44% { fill: rgba(244, 63, 94, 0.45); }
+  12.03%, 100% { fill: #0d1322; }
+}
+.unsolve-val-2-0 { animation: anim-unsolve-val-2-0 15.3s infinite; transform-origin: 30px 150px; }
+.unsolve-bg-2-0 { animation: anim-unsolve-bg-2-0 15.3s infinite; }
+@keyframes anim-unsolve-val-2-3 {
+  0%, 9.37% { opacity: 1; transform: scale(1); }
+  10.96% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  12.55%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-2-3 {
+  0%, 9.37% { fill: #0d1322; }
+  10.96% { fill: rgba(244, 63, 94, 0.45); }
+  12.55%, 100% { fill: #0d1322; }
+}
+.unsolve-val-2-3 { animation: anim-unsolve-val-2-3 15.3s infinite; transform-origin: 210px 150px; }
+.unsolve-bg-2-3 { animation: anim-unsolve-bg-2-3 15.3s infinite; }
+@keyframes anim-unsolve-val-2-8 {
+  0%, 9.89% { opacity: 1; transform: scale(1); }
+  11.48% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  13.06%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-2-8 {
+  0%, 9.89% { fill: #0d1322; }
+  11.48% { fill: rgba(244, 63, 94, 0.45); }
+  13.06%, 100% { fill: #0d1322; }
+}
+.unsolve-val-2-8 { animation: anim-unsolve-val-2-8 15.3s infinite; transform-origin: 510px 150px; }
+.unsolve-bg-2-8 { animation: anim-unsolve-bg-2-8 15.3s infinite; }
+@keyframes anim-unsolve-val-3-1 {
+  0%, 10.41% { opacity: 1; transform: scale(1); }
+  11.99% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  13.58%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-3-1 {
+  0%, 10.41% { fill: #0d1322; }
+  11.99% { fill: rgba(244, 63, 94, 0.45); }
+  13.58%, 100% { fill: #0d1322; }
+}
+.unsolve-val-3-1 { animation: anim-unsolve-val-3-1 15.3s infinite; transform-origin: 90px 210px; }
+.unsolve-bg-3-1 { animation: anim-unsolve-bg-3-1 15.3s infinite; }
+@keyframes anim-unsolve-val-3-2 {
+  0%, 10.92% { opacity: 1; transform: scale(1); }
+  12.51% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  14.10%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-3-2 {
+  0%, 10.92% { fill: #0d1322; }
+  12.51% { fill: rgba(244, 63, 94, 0.45); }
+  14.10%, 100% { fill: #0d1322; }
+}
+.unsolve-val-3-2 { animation: anim-unsolve-val-3-2 15.3s infinite; transform-origin: 150px 210px; }
+.unsolve-bg-3-2 { animation: anim-unsolve-bg-3-2 15.3s infinite; }
+@keyframes anim-unsolve-val-4-2 {
+  0%, 11.44% { opacity: 1; transform: scale(1); }
+  13.03% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  14.62%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-4-2 {
+  0%, 11.44% { fill: #0d1322; }
+  13.03% { fill: rgba(244, 63, 94, 0.45); }
+  14.62%, 100% { fill: #0d1322; }
+}
+.unsolve-val-4-2 { animation: anim-unsolve-val-4-2 15.3s infinite; transform-origin: 150px 270px; }
+.unsolve-bg-4-2 { animation: anim-unsolve-bg-4-2 15.3s infinite; }
+@keyframes anim-unsolve-val-4-7 {
+  0%, 11.96% { opacity: 1; transform: scale(1); }
+  13.55% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  15.13%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-4-7 {
+  0%, 11.96% { fill: #0d1322; }
+  13.55% { fill: rgba(244, 63, 94, 0.45); }
+  15.13%, 100% { fill: #0d1322; }
+}
+.unsolve-val-4-7 { animation: anim-unsolve-val-4-7 15.3s infinite; transform-origin: 450px 270px; }
+.unsolve-bg-4-7 { animation: anim-unsolve-bg-4-7 15.3s infinite; }
+@keyframes anim-unsolve-val-5-1 {
+  0%, 12.48% { opacity: 1; transform: scale(1); }
+  14.06% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  15.65%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-5-1 {
+  0%, 12.48% { fill: #0d1322; }
+  14.06% { fill: rgba(244, 63, 94, 0.45); }
+  15.65%, 100% { fill: #0d1322; }
+}
+.unsolve-val-5-1 { animation: anim-unsolve-val-5-1 15.3s infinite; transform-origin: 90px 330px; }
+.unsolve-bg-5-1 { animation: anim-unsolve-bg-5-1 15.3s infinite; }
+@keyframes anim-unsolve-val-5-2 {
+  0%, 12.99% { opacity: 1; transform: scale(1); }
+  14.58% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  16.17%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-5-2 {
+  0%, 12.99% { fill: #0d1322; }
+  14.58% { fill: rgba(244, 63, 94, 0.45); }
+  16.17%, 100% { fill: #0d1322; }
+}
+.unsolve-val-5-2 { animation: anim-unsolve-val-5-2 15.3s infinite; transform-origin: 150px 330px; }
+.unsolve-bg-5-2 { animation: anim-unsolve-bg-5-2 15.3s infinite; }
+@keyframes anim-unsolve-val-5-7 {
+  0%, 13.51% { opacity: 1; transform: scale(1); }
+  15.10% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  16.69%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-5-7 {
+  0%, 13.51% { fill: #0d1322; }
+  15.10% { fill: rgba(244, 63, 94, 0.45); }
+  16.69%, 100% { fill: #0d1322; }
+}
+.unsolve-val-5-7 { animation: anim-unsolve-val-5-7 15.3s infinite; transform-origin: 450px 330px; }
+.unsolve-bg-5-7 { animation: anim-unsolve-bg-5-7 15.3s infinite; }
+@keyframes anim-unsolve-val-5-8 {
+  0%, 14.03% { opacity: 1; transform: scale(1); }
+  15.62% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  17.21%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-5-8 {
+  0%, 14.03% { fill: #0d1322; }
+  15.62% { fill: rgba(244, 63, 94, 0.45); }
+  17.21%, 100% { fill: #0d1322; }
+}
+.unsolve-val-5-8 { animation: anim-unsolve-val-5-8 15.3s infinite; transform-origin: 510px 330px; }
+.unsolve-bg-5-8 { animation: anim-unsolve-bg-5-8 15.3s infinite; }
+@keyframes anim-unsolve-val-6-0 {
+  0%, 14.55% { opacity: 1; transform: scale(1); }
+  16.13% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  17.72%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-6-0 {
+  0%, 14.55% { fill: #0d1322; }
+  16.13% { fill: rgba(244, 63, 94, 0.45); }
+  17.72%, 100% { fill: #0d1322; }
+}
+.unsolve-val-6-0 { animation: anim-unsolve-val-6-0 15.3s infinite; transform-origin: 30px 390px; }
+.unsolve-bg-6-0 { animation: anim-unsolve-bg-6-0 15.3s infinite; }
+@keyframes anim-unsolve-val-6-3 {
+  0%, 15.06% { opacity: 1; transform: scale(1); }
+  16.65% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  18.24%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-6-3 {
+  0%, 15.06% { fill: #0d1322; }
+  16.65% { fill: rgba(244, 63, 94, 0.45); }
+  18.24%, 100% { fill: #0d1322; }
+}
+.unsolve-val-6-3 { animation: anim-unsolve-val-6-3 15.3s infinite; transform-origin: 210px 390px; }
+.unsolve-bg-6-3 { animation: anim-unsolve-bg-6-3 15.3s infinite; }
+@keyframes anim-unsolve-val-6-7 {
+  0%, 15.58% { opacity: 1; transform: scale(1); }
+  17.17% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  18.76%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-6-7 {
+  0%, 15.58% { fill: #0d1322; }
+  17.17% { fill: rgba(244, 63, 94, 0.45); }
+  18.76%, 100% { fill: #0d1322; }
+}
+.unsolve-val-6-7 { animation: anim-unsolve-val-6-7 15.3s infinite; transform-origin: 450px 390px; }
+.unsolve-bg-6-7 { animation: anim-unsolve-bg-6-7 15.3s infinite; }
+@keyframes anim-unsolve-val-7-3 {
+  0%, 16.10% { opacity: 1; transform: scale(1); }
+  17.69% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  19.28%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-7-3 {
+  0%, 16.10% { fill: #0d1322; }
+  17.69% { fill: rgba(244, 63, 94, 0.45); }
+  19.28%, 100% { fill: #0d1322; }
+}
+.unsolve-val-7-3 { animation: anim-unsolve-val-7-3 15.3s infinite; transform-origin: 210px 450px; }
+.unsolve-bg-7-3 { animation: anim-unsolve-bg-7-3 15.3s infinite; }
+@keyframes anim-unsolve-val-7-4 {
+  0%, 16.62% { opacity: 1; transform: scale(1); }
+  18.21% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  19.79%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-7-4 {
+  0%, 16.62% { fill: #0d1322; }
+  18.21% { fill: rgba(244, 63, 94, 0.45); }
+  19.79%, 100% { fill: #0d1322; }
+}
+.unsolve-val-7-4 { animation: anim-unsolve-val-7-4 15.3s infinite; transform-origin: 270px 450px; }
+.unsolve-bg-7-4 { animation: anim-unsolve-bg-7-4 15.3s infinite; }
+@keyframes anim-unsolve-val-7-5 {
+  0%, 17.13% { opacity: 1; transform: scale(1); }
+  18.72% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  20.31%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-7-5 {
+  0%, 17.13% { fill: #0d1322; }
+  18.72% { fill: rgba(244, 63, 94, 0.45); }
+  20.31%, 100% { fill: #0d1322; }
+}
+.unsolve-val-7-5 { animation: anim-unsolve-val-7-5 15.3s infinite; transform-origin: 330px 450px; }
+.unsolve-bg-7-5 { animation: anim-unsolve-bg-7-5 15.3s infinite; }
+@keyframes anim-unsolve-val-7-6 {
+  0%, 17.65% { opacity: 1; transform: scale(1); }
+  19.24% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  20.83%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-7-6 {
+  0%, 17.65% { fill: #0d1322; }
+  19.24% { fill: rgba(244, 63, 94, 0.45); }
+  20.83%, 100% { fill: #0d1322; }
+}
+.unsolve-val-7-6 { animation: anim-unsolve-val-7-6 15.3s infinite; transform-origin: 390px 450px; }
+.unsolve-bg-7-6 { animation: anim-unsolve-bg-7-6 15.3s infinite; }
+@keyframes anim-unsolve-val-7-7 {
+  0%, 18.17% { opacity: 1; transform: scale(1); }
+  19.76% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  21.35%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-7-7 {
+  0%, 18.17% { fill: #0d1322; }
+  19.76% { fill: rgba(244, 63, 94, 0.45); }
+  21.35%, 100% { fill: #0d1322; }
+}
+.unsolve-val-7-7 { animation: anim-unsolve-val-7-7 15.3s infinite; transform-origin: 450px 450px; }
+.unsolve-bg-7-7 { animation: anim-unsolve-bg-7-7 15.3s infinite; }
+@keyframes anim-unsolve-val-8-0 {
+  0%, 18.69% { opacity: 1; transform: scale(1); }
+  20.28% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  21.86%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-8-0 {
+  0%, 18.69% { fill: #0d1322; }
+  20.28% { fill: rgba(244, 63, 94, 0.45); }
+  21.86%, 100% { fill: #0d1322; }
+}
+.unsolve-val-8-0 { animation: anim-unsolve-val-8-0 15.3s infinite; transform-origin: 30px 510px; }
+.unsolve-bg-8-0 { animation: anim-unsolve-bg-8-0 15.3s infinite; }
+@keyframes anim-unsolve-val-8-1 {
+  0%, 19.21% { opacity: 1; transform: scale(1); }
+  20.79% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  22.38%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-8-1 {
+  0%, 19.21% { fill: #0d1322; }
+  20.79% { fill: rgba(244, 63, 94, 0.45); }
+  22.38%, 100% { fill: #0d1322; }
+}
+.unsolve-val-8-1 { animation: anim-unsolve-val-8-1 15.3s infinite; transform-origin: 90px 510px; }
+.unsolve-bg-8-1 { animation: anim-unsolve-bg-8-1 15.3s infinite; }
+@keyframes anim-unsolve-val-8-5 {
+  0%, 19.72% { opacity: 1; transform: scale(1); }
+  21.30% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  22.88%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-8-5 {
+  0%, 19.72% { fill: #0d1322; }
+  21.30% { fill: rgba(244, 63, 94, 0.45); }
+  22.88%, 100% { fill: #0d1322; }
+}
+.unsolve-val-8-5 { animation: anim-unsolve-val-8-5 15.3s infinite; transform-origin: 330px 510px; }
+.unsolve-bg-8-5 { animation: anim-unsolve-bg-8-5 15.3s infinite; }
+@keyframes anim-unsolve-val-8-7 {
+  0%, 20.24% { opacity: 1; transform: scale(1); }
+  21.56% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; }
+  22.88%, 100% { opacity: 0; transform: scale(0.2); }
+}
+@keyframes anim-unsolve-bg-8-7 {
+  0%, 20.24% { fill: #0d1322; }
+  21.56% { fill: rgba(244, 63, 94, 0.45); }
+  22.88%, 100% { fill: #0d1322; }
+}
+.unsolve-val-8-7 { animation: anim-unsolve-val-8-7 15.3s infinite; transform-origin: 450px 510px; }
+.unsolve-bg-8-7 { animation: anim-unsolve-bg-8-7 15.3s infinite; }
+@keyframes anim-replay-step-0 {
+  0%, 22.88% { opacity: 0; transform: scale(0.2); }
+  23.71% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  24.97%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-0 {
+  0%, 22.88% { fill: #0d1322; }
+  23.71% { fill: rgba(245, 158, 11, 0.6); }
+  24.97%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-0 {
+  0%, 22.88% { opacity: 0; }
+  22.89%, 24.97% { opacity: 1; }
+  24.98%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-0 {
+  0%, 22.88% { opacity: 0; }
+  22.89%, 24.97% { opacity: 1; }
+  24.98%, 100% { opacity: 0; }
+}
+.replay-step-val-0 { animation: anim-replay-step-0 15.3s infinite; transform-origin: 90px 30px; }
+.replay-step-bg-0 { animation: anim-replay-bg-0 15.3s infinite; }
+.replay-beam-0 { animation: anim-beam-0 15.3s infinite; }
+.replay-step-status-0 { animation: anim-replay-status-0 15.3s infinite; }
+@keyframes anim-replay-step-1 {
+  0%, 24.97% { opacity: 0; transform: scale(0.2); }
+  25.80% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  27.06%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-1 {
+  0%, 24.97% { fill: #0d1322; }
+  25.80% { fill: rgba(245, 158, 11, 0.6); }
+  27.06%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-1 {
+  0%, 24.97% { opacity: 0; }
+  24.98%, 27.06% { opacity: 1; }
+  27.07%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-1 {
+  0%, 24.97% { opacity: 0; }
+  24.98%, 27.06% { opacity: 1; }
+  27.07%, 100% { opacity: 0; }
+}
+.replay-step-val-1 { animation: anim-replay-step-1 15.3s infinite; transform-origin: 210px 30px; }
+.replay-step-bg-1 { animation: anim-replay-bg-1 15.3s infinite; }
+.replay-beam-1 { animation: anim-beam-1 15.3s infinite; }
+.replay-step-status-1 { animation: anim-replay-status-1 15.3s infinite; }
+@keyframes anim-replay-step-2 {
+  0%, 27.06% { opacity: 0; transform: scale(0.2); }
+  27.90% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  29.15%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-2 {
+  0%, 27.06% { fill: #0d1322; }
+  27.90% { fill: rgba(245, 158, 11, 0.6); }
+  29.15%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-2 {
+  0%, 27.06% { opacity: 0; }
+  27.07%, 29.15% { opacity: 1; }
+  29.16%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-2 {
+  0%, 27.06% { opacity: 0; }
+  27.07%, 29.15% { opacity: 1; }
+  29.16%, 100% { opacity: 0; }
+}
+.replay-step-val-2 { animation: anim-replay-step-2 15.3s infinite; transform-origin: 390px 90px; }
+.replay-step-bg-2 { animation: anim-replay-bg-2 15.3s infinite; }
+.replay-beam-2 { animation: anim-beam-2 15.3s infinite; }
+.replay-step-status-2 { animation: anim-replay-status-2 15.3s infinite; }
+@keyframes anim-replay-step-3 {
+  0%, 29.15% { opacity: 0; transform: scale(0.2); }
+  29.99% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  31.24%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-3 {
+  0%, 29.15% { fill: #0d1322; }
+  29.99% { fill: rgba(245, 158, 11, 0.6); }
+  31.24%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-3 {
+  0%, 29.15% { opacity: 0; }
+  29.16%, 31.24% { opacity: 1; }
+  31.25%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-3 {
+  0%, 29.15% { opacity: 0; }
+  29.16%, 31.24% { opacity: 1; }
+  31.25%, 100% { opacity: 0; }
+}
+.replay-step-val-3 { animation: anim-replay-step-3 15.3s infinite; transform-origin: 510px 90px; }
+.replay-step-bg-3 { animation: anim-replay-bg-3 15.3s infinite; }
+.replay-beam-3 { animation: anim-beam-3 15.3s infinite; }
+.replay-step-status-3 { animation: anim-replay-status-3 15.3s infinite; }
+@keyframes anim-replay-step-4 {
+  0%, 31.24% { opacity: 0; transform: scale(0.2); }
+  32.08% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  33.33%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-4 {
+  0%, 31.24% { fill: #0d1322; }
+  32.08% { fill: rgba(245, 158, 11, 0.6); }
+  33.33%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-4 {
+  0%, 31.24% { opacity: 0; }
+  31.25%, 33.33% { opacity: 1; }
+  33.34%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-4 {
+  0%, 31.24% { opacity: 0; }
+  31.25%, 33.33% { opacity: 1; }
+  33.34%, 100% { opacity: 0; }
+}
+.replay-step-val-4 { animation: anim-replay-step-4 15.3s infinite; transform-origin: 450px 90px; }
+.replay-step-bg-4 { animation: anim-replay-bg-4 15.3s infinite; }
+.replay-beam-4 { animation: anim-beam-4 15.3s infinite; }
+.replay-step-status-4 { animation: anim-replay-status-4 15.3s infinite; }
+@keyframes anim-replay-step-5 {
+  0%, 33.33% { opacity: 0; transform: scale(0.2); }
+  34.17% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  35.42%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-5 {
+  0%, 33.33% { fill: #0d1322; }
+  34.17% { fill: rgba(245, 158, 11, 0.6); }
+  35.42%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-5 {
+  0%, 33.33% { opacity: 0; }
+  33.34%, 35.42% { opacity: 1; }
+  35.43%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-5 {
+  0%, 33.33% { opacity: 0; }
+  33.34%, 35.42% { opacity: 1; }
+  35.43%, 100% { opacity: 0; }
+}
+.replay-step-val-5 { animation: anim-replay-step-5 15.3s infinite; transform-origin: 270px 90px; }
+.replay-step-bg-5 { animation: anim-replay-bg-5 15.3s infinite; }
+.replay-beam-5 { animation: anim-beam-5 15.3s infinite; }
+.replay-step-status-5 { animation: anim-replay-status-5 15.3s infinite; }
+@keyframes anim-replay-step-6 {
+  0%, 35.42% { opacity: 0; transform: scale(0.2); }
+  36.26% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  37.52%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-6 {
+  0%, 35.42% { fill: #0d1322; }
+  36.26% { fill: rgba(245, 158, 11, 0.6); }
+  37.52%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-6 {
+  0%, 35.42% { opacity: 0; }
+  35.43%, 37.52% { opacity: 1; }
+  37.53%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-6 {
+  0%, 35.42% { opacity: 0; }
+  35.43%, 37.52% { opacity: 1; }
+  37.53%, 100% { opacity: 0; }
+}
+.replay-step-val-6 { animation: anim-replay-step-6 15.3s infinite; transform-origin: 330px 90px; }
+.replay-step-bg-6 { animation: anim-replay-bg-6 15.3s infinite; }
+.replay-beam-6 { animation: anim-beam-6 15.3s infinite; }
+.replay-step-status-6 { animation: anim-replay-status-6 15.3s infinite; }
+@keyframes anim-replay-step-7 {
+  0%, 37.52% { opacity: 0; transform: scale(0.2); }
+  38.35% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  39.61%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-7 {
+  0%, 37.52% { fill: #0d1322; }
+  38.35% { fill: rgba(245, 158, 11, 0.6); }
+  39.61%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-7 {
+  0%, 37.52% { opacity: 0; }
+  37.53%, 39.61% { opacity: 1; }
+  39.62%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-7 {
+  0%, 37.52% { opacity: 0; }
+  37.53%, 39.61% { opacity: 1; }
+  39.62%, 100% { opacity: 0; }
+}
+.replay-step-val-7 { animation: anim-replay-step-7 15.3s infinite; transform-origin: 30px 150px; }
+.replay-step-bg-7 { animation: anim-replay-bg-7 15.3s infinite; }
+.replay-beam-7 { animation: anim-beam-7 15.3s infinite; }
+.replay-step-status-7 { animation: anim-replay-status-7 15.3s infinite; }
+@keyframes anim-replay-step-8 {
+  0%, 39.61% { opacity: 0; transform: scale(0.2); }
+  40.44% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  41.70%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-8 {
+  0%, 39.61% { fill: #0d1322; }
+  40.44% { fill: rgba(245, 158, 11, 0.6); }
+  41.70%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-8 {
+  0%, 39.61% { opacity: 0; }
+  39.62%, 41.70% { opacity: 1; }
+  41.71%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-8 {
+  0%, 39.61% { opacity: 0; }
+  39.62%, 41.70% { opacity: 1; }
+  41.71%, 100% { opacity: 0; }
+}
+.replay-step-val-8 { animation: anim-replay-step-8 15.3s infinite; transform-origin: 210px 150px; }
+.replay-step-bg-8 { animation: anim-replay-bg-8 15.3s infinite; }
+.replay-beam-8 { animation: anim-beam-8 15.3s infinite; }
+.replay-step-status-8 { animation: anim-replay-status-8 15.3s infinite; }
+@keyframes anim-replay-step-9 {
+  0%, 41.70% { opacity: 0; transform: scale(0.2); }
+  42.54% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  43.79%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-9 {
+  0%, 41.70% { fill: #0d1322; }
+  42.54% { fill: rgba(245, 158, 11, 0.6); }
+  43.79%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-9 {
+  0%, 41.70% { opacity: 0; }
+  41.71%, 43.79% { opacity: 1; }
+  43.80%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-9 {
+  0%, 41.70% { opacity: 0; }
+  41.71%, 43.79% { opacity: 1; }
+  43.80%, 100% { opacity: 0; }
+}
+.replay-step-val-9 { animation: anim-replay-step-9 15.3s infinite; transform-origin: 510px 150px; }
+.replay-step-bg-9 { animation: anim-replay-bg-9 15.3s infinite; }
+.replay-beam-9 { animation: anim-beam-9 15.3s infinite; }
+.replay-step-status-9 { animation: anim-replay-status-9 15.3s infinite; }
+@keyframes anim-replay-step-10 {
+  0%, 43.79% { opacity: 0; transform: scale(0.2); }
+  44.63% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  45.88%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-10 {
+  0%, 43.79% { fill: #0d1322; }
+  44.63% { fill: rgba(245, 158, 11, 0.6); }
+  45.88%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-10 {
+  0%, 43.79% { opacity: 0; }
+  43.80%, 45.88% { opacity: 1; }
+  45.89%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-10 {
+  0%, 43.79% { opacity: 0; }
+  43.80%, 45.88% { opacity: 1; }
+  45.89%, 100% { opacity: 0; }
+}
+.replay-step-val-10 { animation: anim-replay-step-10 15.3s infinite; transform-origin: 90px 210px; }
+.replay-step-bg-10 { animation: anim-replay-bg-10 15.3s infinite; }
+.replay-beam-10 { animation: anim-beam-10 15.3s infinite; }
+.replay-step-status-10 { animation: anim-replay-status-10 15.3s infinite; }
+@keyframes anim-replay-step-11 {
+  0%, 45.88% { opacity: 0; transform: scale(0.2); }
+  46.72% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  47.97%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-11 {
+  0%, 45.88% { fill: #0d1322; }
+  46.72% { fill: rgba(245, 158, 11, 0.6); }
+  47.97%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-11 {
+  0%, 45.88% { opacity: 0; }
+  45.89%, 47.97% { opacity: 1; }
+  47.98%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-11 {
+  0%, 45.88% { opacity: 0; }
+  45.89%, 47.97% { opacity: 1; }
+  47.98%, 100% { opacity: 0; }
+}
+.replay-step-val-11 { animation: anim-replay-step-11 15.3s infinite; transform-origin: 150px 210px; }
+.replay-step-bg-11 { animation: anim-replay-bg-11 15.3s infinite; }
+.replay-beam-11 { animation: anim-beam-11 15.3s infinite; }
+.replay-step-status-11 { animation: anim-replay-status-11 15.3s infinite; }
+@keyframes anim-replay-step-12 {
+  0%, 47.97% { opacity: 0; transform: scale(0.2); }
+  48.81% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  50.07%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-12 {
+  0%, 47.97% { fill: #0d1322; }
+  48.81% { fill: rgba(245, 158, 11, 0.6); }
+  50.07%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-12 {
+  0%, 47.97% { opacity: 0; }
+  47.98%, 50.07% { opacity: 1; }
+  50.08%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-12 {
+  0%, 47.97% { opacity: 0; }
+  47.98%, 50.07% { opacity: 1; }
+  50.08%, 100% { opacity: 0; }
+}
+.replay-step-val-12 { animation: anim-replay-step-12 15.3s infinite; transform-origin: 150px 270px; }
+.replay-step-bg-12 { animation: anim-replay-bg-12 15.3s infinite; }
+.replay-beam-12 { animation: anim-beam-12 15.3s infinite; }
+.replay-step-status-12 { animation: anim-replay-status-12 15.3s infinite; }
+@keyframes anim-replay-step-13 {
+  0%, 50.07% { opacity: 0; transform: scale(0.2); }
+  50.90% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  52.16%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-13 {
+  0%, 50.07% { fill: #0d1322; }
+  50.90% { fill: rgba(245, 158, 11, 0.6); }
+  52.16%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-13 {
+  0%, 50.07% { opacity: 0; }
+  50.08%, 52.16% { opacity: 1; }
+  52.17%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-13 {
+  0%, 50.07% { opacity: 0; }
+  50.08%, 52.16% { opacity: 1; }
+  52.17%, 100% { opacity: 0; }
+}
+.replay-step-val-13 { animation: anim-replay-step-13 15.3s infinite; transform-origin: 450px 270px; }
+.replay-step-bg-13 { animation: anim-replay-bg-13 15.3s infinite; }
+.replay-beam-13 { animation: anim-beam-13 15.3s infinite; }
+.replay-step-status-13 { animation: anim-replay-status-13 15.3s infinite; }
+@keyframes anim-replay-step-14 {
+  0%, 52.16% { opacity: 0; transform: scale(0.2); }
+  52.99% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  54.25%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-14 {
+  0%, 52.16% { fill: #0d1322; }
+  52.99% { fill: rgba(245, 158, 11, 0.6); }
+  54.25%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-14 {
+  0%, 52.16% { opacity: 0; }
+  52.17%, 54.25% { opacity: 1; }
+  54.26%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-14 {
+  0%, 52.16% { opacity: 0; }
+  52.17%, 54.25% { opacity: 1; }
+  54.26%, 100% { opacity: 0; }
+}
+.replay-step-val-14 { animation: anim-replay-step-14 15.3s infinite; transform-origin: 90px 330px; }
+.replay-step-bg-14 { animation: anim-replay-bg-14 15.3s infinite; }
+.replay-beam-14 { animation: anim-beam-14 15.3s infinite; }
+.replay-step-status-14 { animation: anim-replay-status-14 15.3s infinite; }
+@keyframes anim-replay-step-15 {
+  0%, 54.25% { opacity: 0; transform: scale(0.2); }
+  55.08% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  56.34%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-15 {
+  0%, 54.25% { fill: #0d1322; }
+  55.08% { fill: rgba(245, 158, 11, 0.6); }
+  56.34%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-15 {
+  0%, 54.25% { opacity: 0; }
+  54.26%, 56.34% { opacity: 1; }
+  56.35%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-15 {
+  0%, 54.25% { opacity: 0; }
+  54.26%, 56.34% { opacity: 1; }
+  56.35%, 100% { opacity: 0; }
+}
+.replay-step-val-15 { animation: anim-replay-step-15 15.3s infinite; transform-origin: 150px 330px; }
+.replay-step-bg-15 { animation: anim-replay-bg-15 15.3s infinite; }
+.replay-beam-15 { animation: anim-beam-15 15.3s infinite; }
+.replay-step-status-15 { animation: anim-replay-status-15 15.3s infinite; }
+@keyframes anim-replay-step-16 {
+  0%, 56.34% { opacity: 0; transform: scale(0.2); }
+  57.18% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  58.43%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-16 {
+  0%, 56.34% { fill: #0d1322; }
+  57.18% { fill: rgba(245, 158, 11, 0.6); }
+  58.43%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-16 {
+  0%, 56.34% { opacity: 0; }
+  56.35%, 58.43% { opacity: 1; }
+  58.44%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-16 {
+  0%, 56.34% { opacity: 0; }
+  56.35%, 58.43% { opacity: 1; }
+  58.44%, 100% { opacity: 0; }
+}
+.replay-step-val-16 { animation: anim-replay-step-16 15.3s infinite; transform-origin: 450px 330px; }
+.replay-step-bg-16 { animation: anim-replay-bg-16 15.3s infinite; }
+.replay-beam-16 { animation: anim-beam-16 15.3s infinite; }
+.replay-step-status-16 { animation: anim-replay-status-16 15.3s infinite; }
+@keyframes anim-replay-step-17 {
+  0%, 58.43% { opacity: 0; transform: scale(0.2); }
+  59.27% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  60.52%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-17 {
+  0%, 58.43% { fill: #0d1322; }
+  59.27% { fill: rgba(245, 158, 11, 0.6); }
+  60.52%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-17 {
+  0%, 58.43% { opacity: 0; }
+  58.44%, 60.52% { opacity: 1; }
+  60.53%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-17 {
+  0%, 58.43% { opacity: 0; }
+  58.44%, 60.52% { opacity: 1; }
+  60.53%, 100% { opacity: 0; }
+}
+.replay-step-val-17 { animation: anim-replay-step-17 15.3s infinite; transform-origin: 510px 330px; }
+.replay-step-bg-17 { animation: anim-replay-bg-17 15.3s infinite; }
+.replay-beam-17 { animation: anim-beam-17 15.3s infinite; }
+.replay-step-status-17 { animation: anim-replay-status-17 15.3s infinite; }
+@keyframes anim-replay-step-18 {
+  0%, 60.52% { opacity: 0; transform: scale(0.2); }
+  61.36% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  62.61%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-18 {
+  0%, 60.52% { fill: #0d1322; }
+  61.36% { fill: rgba(245, 158, 11, 0.6); }
+  62.61%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-18 {
+  0%, 60.52% { opacity: 0; }
+  60.53%, 62.61% { opacity: 1; }
+  62.62%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-18 {
+  0%, 60.52% { opacity: 0; }
+  60.53%, 62.61% { opacity: 1; }
+  62.62%, 100% { opacity: 0; }
+}
+.replay-step-val-18 { animation: anim-replay-step-18 15.3s infinite; transform-origin: 30px 390px; }
+.replay-step-bg-18 { animation: anim-replay-bg-18 15.3s infinite; }
+.replay-beam-18 { animation: anim-beam-18 15.3s infinite; }
+.replay-step-status-18 { animation: anim-replay-status-18 15.3s infinite; }
+@keyframes anim-replay-step-19 {
+  0%, 62.61% { opacity: 0; transform: scale(0.2); }
+  63.45% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  64.71%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-19 {
+  0%, 62.61% { fill: #0d1322; }
+  63.45% { fill: rgba(245, 158, 11, 0.6); }
+  64.71%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-19 {
+  0%, 62.61% { opacity: 0; }
+  62.62%, 64.71% { opacity: 1; }
+  64.72%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-19 {
+  0%, 62.61% { opacity: 0; }
+  62.62%, 64.71% { opacity: 1; }
+  64.72%, 100% { opacity: 0; }
+}
+.replay-step-val-19 { animation: anim-replay-step-19 15.3s infinite; transform-origin: 210px 390px; }
+.replay-step-bg-19 { animation: anim-replay-bg-19 15.3s infinite; }
+.replay-beam-19 { animation: anim-beam-19 15.3s infinite; }
+.replay-step-status-19 { animation: anim-replay-status-19 15.3s infinite; }
+@keyframes anim-replay-step-20 {
+  0%, 64.71% { opacity: 0; transform: scale(0.2); }
+  65.54% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  66.80%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-20 {
+  0%, 64.71% { fill: #0d1322; }
+  65.54% { fill: rgba(245, 158, 11, 0.6); }
+  66.80%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-20 {
+  0%, 64.71% { opacity: 0; }
+  64.72%, 66.80% { opacity: 1; }
+  66.81%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-20 {
+  0%, 64.71% { opacity: 0; }
+  64.72%, 66.80% { opacity: 1; }
+  66.81%, 100% { opacity: 0; }
+}
+.replay-step-val-20 { animation: anim-replay-step-20 15.3s infinite; transform-origin: 450px 390px; }
+.replay-step-bg-20 { animation: anim-replay-bg-20 15.3s infinite; }
+.replay-beam-20 { animation: anim-beam-20 15.3s infinite; }
+.replay-step-status-20 { animation: anim-replay-status-20 15.3s infinite; }
+@keyframes anim-replay-step-21 {
+  0%, 66.80% { opacity: 0; transform: scale(0.2); }
+  67.63% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  68.89%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-21 {
+  0%, 66.80% { fill: #0d1322; }
+  67.63% { fill: rgba(245, 158, 11, 0.6); }
+  68.89%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-21 {
+  0%, 66.80% { opacity: 0; }
+  66.81%, 68.89% { opacity: 1; }
+  68.90%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-21 {
+  0%, 66.80% { opacity: 0; }
+  66.81%, 68.89% { opacity: 1; }
+  68.90%, 100% { opacity: 0; }
+}
+.replay-step-val-21 { animation: anim-replay-step-21 15.3s infinite; transform-origin: 210px 450px; }
+.replay-step-bg-21 { animation: anim-replay-bg-21 15.3s infinite; }
+.replay-beam-21 { animation: anim-beam-21 15.3s infinite; }
+.replay-step-status-21 { animation: anim-replay-status-21 15.3s infinite; }
+@keyframes anim-replay-step-22 {
+  0%, 68.89% { opacity: 0; transform: scale(0.2); }
+  69.73% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  70.98%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-22 {
+  0%, 68.89% { fill: #0d1322; }
+  69.73% { fill: rgba(245, 158, 11, 0.6); }
+  70.98%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-22 {
+  0%, 68.89% { opacity: 0; }
+  68.90%, 70.98% { opacity: 1; }
+  70.99%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-22 {
+  0%, 68.89% { opacity: 0; }
+  68.90%, 70.98% { opacity: 1; }
+  70.99%, 100% { opacity: 0; }
+}
+.replay-step-val-22 { animation: anim-replay-step-22 15.3s infinite; transform-origin: 270px 450px; }
+.replay-step-bg-22 { animation: anim-replay-bg-22 15.3s infinite; }
+.replay-beam-22 { animation: anim-beam-22 15.3s infinite; }
+.replay-step-status-22 { animation: anim-replay-status-22 15.3s infinite; }
+@keyframes anim-replay-step-23 {
+  0%, 70.98% { opacity: 0; transform: scale(0.2); }
+  71.82% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  73.07%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-23 {
+  0%, 70.98% { fill: #0d1322; }
+  71.82% { fill: rgba(245, 158, 11, 0.6); }
+  73.07%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-23 {
+  0%, 70.98% { opacity: 0; }
+  70.99%, 73.07% { opacity: 1; }
+  73.08%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-23 {
+  0%, 70.98% { opacity: 0; }
+  70.99%, 73.07% { opacity: 1; }
+  73.08%, 100% { opacity: 0; }
+}
+.replay-step-val-23 { animation: anim-replay-step-23 15.3s infinite; transform-origin: 390px 450px; }
+.replay-step-bg-23 { animation: anim-replay-bg-23 15.3s infinite; }
+.replay-beam-23 { animation: anim-beam-23 15.3s infinite; }
+.replay-step-status-23 { animation: anim-replay-status-23 15.3s infinite; }
+@keyframes anim-replay-step-24 {
+  0%, 73.07% { opacity: 0; transform: scale(0.2); }
+  73.91% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  75.16%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-24 {
+  0%, 73.07% { fill: #0d1322; }
+  73.91% { fill: rgba(245, 158, 11, 0.6); }
+  75.16%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-24 {
+  0%, 73.07% { opacity: 0; }
+  73.08%, 75.16% { opacity: 1; }
+  75.17%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-24 {
+  0%, 73.07% { opacity: 0; }
+  73.08%, 75.16% { opacity: 1; }
+  75.17%, 100% { opacity: 0; }
+}
+.replay-step-val-24 { animation: anim-replay-step-24 15.3s infinite; transform-origin: 330px 450px; }
+.replay-step-bg-24 { animation: anim-replay-bg-24 15.3s infinite; }
+.replay-beam-24 { animation: anim-beam-24 15.3s infinite; }
+.replay-step-status-24 { animation: anim-replay-status-24 15.3s infinite; }
+@keyframes anim-replay-step-25 {
+  0%, 75.16% { opacity: 0; transform: scale(0.2); }
+  76.00% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  77.25%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-25 {
+  0%, 75.16% { fill: #0d1322; }
+  76.00% { fill: rgba(245, 158, 11, 0.6); }
+  77.25%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-25 {
+  0%, 75.16% { opacity: 0; }
+  75.17%, 77.25% { opacity: 1; }
+  77.26%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-25 {
+  0%, 75.16% { opacity: 0; }
+  75.17%, 77.25% { opacity: 1; }
+  77.26%, 100% { opacity: 0; }
+}
+.replay-step-val-25 { animation: anim-replay-step-25 15.3s infinite; transform-origin: 450px 450px; }
+.replay-step-bg-25 { animation: anim-replay-bg-25 15.3s infinite; }
+.replay-beam-25 { animation: anim-beam-25 15.3s infinite; }
+.replay-step-status-25 { animation: anim-replay-status-25 15.3s infinite; }
+@keyframes anim-replay-step-26 {
+  0%, 77.25% { opacity: 0; transform: scale(0.2); }
+  78.09% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  79.35%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-26 {
+  0%, 77.25% { fill: #0d1322; }
+  78.09% { fill: rgba(245, 158, 11, 0.6); }
+  79.35%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-26 {
+  0%, 77.25% { opacity: 0; }
+  77.26%, 79.35% { opacity: 1; }
+  79.36%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-26 {
+  0%, 77.25% { opacity: 0; }
+  77.26%, 79.35% { opacity: 1; }
+  79.36%, 100% { opacity: 0; }
+}
+.replay-step-val-26 { animation: anim-replay-step-26 15.3s infinite; transform-origin: 30px 510px; }
+.replay-step-bg-26 { animation: anim-replay-bg-26 15.3s infinite; }
+.replay-beam-26 { animation: anim-beam-26 15.3s infinite; }
+.replay-step-status-26 { animation: anim-replay-status-26 15.3s infinite; }
+@keyframes anim-replay-step-27 {
+  0%, 79.35% { opacity: 0; transform: scale(0.2); }
+  80.18% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  81.44%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-27 {
+  0%, 79.35% { fill: #0d1322; }
+  80.18% { fill: rgba(245, 158, 11, 0.6); }
+  81.44%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-27 {
+  0%, 79.35% { opacity: 0; }
+  79.36%, 81.44% { opacity: 1; }
+  81.45%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-27 {
+  0%, 79.35% { opacity: 0; }
+  79.36%, 81.44% { opacity: 1; }
+  81.45%, 100% { opacity: 0; }
+}
+.replay-step-val-27 { animation: anim-replay-step-27 15.3s infinite; transform-origin: 90px 510px; }
+.replay-step-bg-27 { animation: anim-replay-bg-27 15.3s infinite; }
+.replay-beam-27 { animation: anim-beam-27 15.3s infinite; }
+.replay-step-status-27 { animation: anim-replay-status-27 15.3s infinite; }
+@keyframes anim-replay-step-28 {
+  0%, 81.44% { opacity: 0; transform: scale(0.2); }
+  82.27% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  83.53%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-28 {
+  0%, 81.44% { fill: #0d1322; }
+  82.27% { fill: rgba(245, 158, 11, 0.6); }
+  83.53%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-28 {
+  0%, 81.44% { opacity: 0; }
+  81.45%, 83.53% { opacity: 1; }
+  83.54%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-28 {
+  0%, 81.44% { opacity: 0; }
+  81.45%, 83.53% { opacity: 1; }
+  83.54%, 100% { opacity: 0; }
+}
+.replay-step-val-28 { animation: anim-replay-step-28 15.3s infinite; transform-origin: 330px 510px; }
+.replay-step-bg-28 { animation: anim-replay-bg-28 15.3s infinite; }
+.replay-beam-28 { animation: anim-beam-28 15.3s infinite; }
+.replay-step-status-28 { animation: anim-replay-status-28 15.3s infinite; }
+@keyframes anim-replay-step-29 {
+  0%, 83.53% { opacity: 0; transform: scale(0.2); }
+  84.37% { opacity: 1; transform: scale(1.35); fill: #fbbf24; }
+  85.62%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; }
+}
+@keyframes anim-replay-bg-29 {
+  0%, 83.53% { fill: #0d1322; }
+  84.37% { fill: rgba(245, 158, 11, 0.6); }
+  85.62%, 100% { fill: rgba(99, 102, 241, 0.2); }
+}
+@keyframes anim-beam-29 {
+  0%, 83.53% { opacity: 0; }
+  83.54%, 85.62% { opacity: 1; }
+  85.63%, 100% { opacity: 0; }
+}
+@keyframes anim-replay-status-29 {
+  0%, 83.53% { opacity: 0; }
+  83.54%, 85.62% { opacity: 1; }
+  85.63%, 100% { opacity: 0; }
+}
+.replay-step-val-29 { animation: anim-replay-step-29 15.3s infinite; transform-origin: 450px 510px; }
+.replay-step-bg-29 { animation: anim-replay-bg-29 15.3s infinite; }
+.replay-beam-29 { animation: anim-beam-29 15.3s infinite; }
+.replay-step-status-29 { animation: anim-replay-status-29 15.3s infinite; }
+@keyframes anim-status-unsolve-phase {
+  0%, 22.88% { opacity: 1; }
+  22.93%, 100% { opacity: 0; }
+}
+.status-phase-unsolve { animation: anim-status-unsolve-phase 15.3s infinite; }
+@keyframes anim-status-victory-phase {
+  0%, 85.62% { opacity: 0; }
+  85.67%, 100% { opacity: 1; }
+}
+.status-phase-victory { animation: anim-status-victory-phase 15.3s infinite; }
+</style>
+<rect width="540" height="615" fill="#090d16"/>
+<rect x="0" y="0" width="60" height="60" fill="#0d1322"/>
+<text x="30" y="30" class="text-given">3</text>
+<rect x="60" y="0" width="60" height="60" fill="#0d1322" class="unsolve-bg-0-1"/>
+<text x="90" y="30" class="text-unsolve unsolve-val-0-1">8</text>
+<rect x="120" y="0" width="60" height="60" fill="#0d1322"/>
+<text x="150" y="30" class="text-given">6</text>
+<rect x="180" y="0" width="60" height="60" fill="#111827" class="unsolve-bg-0-3"/>
+<text x="210" y="30" class="text-unsolve unsolve-val-0-3">1</text>
+<rect x="240" y="0" width="60" height="60" fill="#111827"/>
+<text x="270" y="30" class="text-given">2</text>
+<rect x="300" y="0" width="60" height="60" fill="#111827"/>
+<text x="330" y="30" class="text-given">5</text>
+<rect x="360" y="0" width="60" height="60" fill="#0d1322"/>
+<text x="390" y="30" class="text-given">9</text>
+<rect x="420" y="0" width="60" height="60" fill="#0d1322"/>
+<text x="450" y="30" class="text-given">7</text>
+<rect x="480" y="0" width="60" height="60" fill="#0d1322"/>
+<text x="510" y="30" class="text-given">4</text>
+<rect x="0" y="60" width="60" height="60" fill="#0d1322"/>
+<text x="30" y="90" class="text-given">4</text>
+<rect x="60" y="60" width="60" height="60" fill="#0d1322"/>
+<text x="90" y="90" class="text-given">2</text>
+<rect x="120" y="60" width="60" height="60" fill="#0d1322"/>
+<text x="150" y="90" class="text-given">1</text>
+<rect x="180" y="60" width="60" height="60" fill="#111827"/>
+<text x="210" y="90" class="text-given">6</text>
+<rect x="240" y="60" width="60" height="60" fill="#111827" class="unsolve-bg-1-4"/>
+<text x="270" y="90" class="text-unsolve unsolve-val-1-4">7</text>
+<rect x="300" y="60" width="60" height="60" fill="#111827" class="unsolve-bg-1-5"/>
+<text x="330" y="90" class="text-unsolve unsolve-val-1-5">9</text>
+<rect x="360" y="60" width="60" height="60" fill="#0d1322" class="unsolve-bg-1-6"/>
+<text x="390" y="90" class="text-unsolve unsolve-val-1-6">8</text>
+<rect x="420" y="60" width="60" height="60" fill="#0d1322" class="unsolve-bg-1-7"/>
+<text x="450" y="90" class="text-unsolve unsolve-val-1-7">3</text>
+<rect x="480" y="60" width="60" height="60" fill="#0d1322" class="unsolve-bg-1-8"/>
+<text x="510" y="90" class="text-unsolve unsolve-val-1-8">5</text>
+<rect x="0" y="120" width="60" height="60" fill="#0d1322" class="unsolve-bg-2-0"/>
+<text x="30" y="150" class="text-unsolve unsolve-val-2-0">7</text>
+<rect x="60" y="120" width="60" height="60" fill="#0d1322"/>
+<text x="90" y="150" class="text-given">5</text>
+<rect x="120" y="120" width="60" height="60" fill="#0d1322"/>
+<text x="150" y="150" class="text-given">9</text>
+<rect x="180" y="120" width="60" height="60" fill="#111827" class="unsolve-bg-2-3"/>
+<text x="210" y="150" class="text-unsolve unsolve-val-2-3">3</text>
+<rect x="240" y="120" width="60" height="60" fill="#111827"/>
+<text x="270" y="150" class="text-given">4</text>
+<rect x="300" y="120" width="60" height="60" fill="#111827"/>
+<text x="330" y="150" class="text-given">8</text>
+<rect x="360" y="120" width="60" height="60" fill="#0d1322"/>
+<text x="390" y="150" class="text-given">6</text>
+<rect x="420" y="120" width="60" height="60" fill="#0d1322"/>
+<text x="450" y="150" class="text-given">2</text>
+<rect x="480" y="120" width="60" height="60" fill="#0d1322" class="unsolve-bg-2-8"/>
+<text x="510" y="150" class="text-unsolve unsolve-val-2-8">1</text>
+<rect x="0" y="180" width="60" height="60" fill="#111827"/>
+<text x="30" y="210" class="text-given">9</text>
+<rect x="60" y="180" width="60" height="60" fill="#111827" class="unsolve-bg-3-1"/>
+<text x="90" y="210" class="text-unsolve unsolve-val-3-1">3</text>
+<rect x="120" y="180" width="60" height="60" fill="#111827" class="unsolve-bg-3-2"/>
+<text x="150" y="210" class="text-unsolve unsolve-val-3-2">2</text>
+<rect x="180" y="180" width="60" height="60" fill="#0d1322"/>
+<text x="210" y="210" class="text-given">7</text>
+<rect x="240" y="180" width="60" height="60" fill="#0d1322"/>
+<text x="270" y="210" class="text-given">5</text>
+<rect x="300" y="180" width="60" height="60" fill="#0d1322"/>
+<text x="330" y="210" class="text-given">4</text>
+<rect x="360" y="180" width="60" height="60" fill="#111827"/>
+<text x="390" y="210" class="text-given">1</text>
+<rect x="420" y="180" width="60" height="60" fill="#111827"/>
+<text x="450" y="210" class="text-given">6</text>
+<rect x="480" y="180" width="60" height="60" fill="#111827"/>
+<text x="510" y="210" class="text-given">8</text>
+<rect x="0" y="240" width="60" height="60" fill="#111827"/>
+<text x="30" y="270" class="text-given">6</text>
+<rect x="60" y="240" width="60" height="60" fill="#111827"/>
+<text x="90" y="270" class="text-given">1</text>
+<rect x="120" y="240" width="60" height="60" fill="#111827" class="unsolve-bg-4-2"/>
+<text x="150" y="270" class="text-unsolve unsolve-val-4-2">8</text>
+<rect x="180" y="240" width="60" height="60" fill="#0d1322"/>
+<text x="210" y="270" class="text-given">2</text>
+<rect x="240" y="240" width="60" height="60" fill="#0d1322"/>
+<text x="270" y="270" class="text-given">9</text>
+<rect x="300" y="240" width="60" height="60" fill="#0d1322"/>
+<text x="330" y="270" class="text-given">3</text>
+<rect x="360" y="240" width="60" height="60" fill="#111827"/>
+<text x="390" y="270" class="text-given">4</text>
+<rect x="420" y="240" width="60" height="60" fill="#111827" class="unsolve-bg-4-7"/>
+<text x="450" y="270" class="text-unsolve unsolve-val-4-7">5</text>
+<rect x="480" y="240" width="60" height="60" fill="#111827"/>
+<text x="510" y="270" class="text-given">7</text>
+<rect x="0" y="300" width="60" height="60" fill="#111827"/>
+<text x="30" y="330" class="text-given">5</text>
+<rect x="60" y="300" width="60" height="60" fill="#111827" class="unsolve-bg-5-1"/>
+<text x="90" y="330" class="text-unsolve unsolve-val-5-1">7</text>
+<rect x="120" y="300" width="60" height="60" fill="#111827" class="unsolve-bg-5-2"/>
+<text x="150" y="330" class="text-unsolve unsolve-val-5-2">4</text>
+<rect x="180" y="300" width="60" height="60" fill="#0d1322"/>
+<text x="210" y="330" class="text-given">8</text>
+<rect x="240" y="300" width="60" height="60" fill="#0d1322"/>
+<text x="270" y="330" class="text-given">1</text>
+<rect x="300" y="300" width="60" height="60" fill="#0d1322"/>
+<text x="330" y="330" class="text-given">6</text>
+<rect x="360" y="300" width="60" height="60" fill="#111827"/>
+<text x="390" y="330" class="text-given">3</text>
+<rect x="420" y="300" width="60" height="60" fill="#111827" class="unsolve-bg-5-7"/>
+<text x="450" y="330" class="text-unsolve unsolve-val-5-7">9</text>
+<rect x="480" y="300" width="60" height="60" fill="#111827" class="unsolve-bg-5-8"/>
+<text x="510" y="330" class="text-unsolve unsolve-val-5-8">2</text>
+<rect x="0" y="360" width="60" height="60" fill="#0d1322" class="unsolve-bg-6-0"/>
+<text x="30" y="390" class="text-unsolve unsolve-val-6-0">2</text>
+<rect x="60" y="360" width="60" height="60" fill="#0d1322"/>
+<text x="90" y="390" class="text-given">4</text>
+<rect x="120" y="360" width="60" height="60" fill="#0d1322"/>
+<text x="150" y="390" class="text-given">7</text>
+<rect x="180" y="360" width="60" height="60" fill="#111827" class="unsolve-bg-6-3"/>
+<text x="210" y="390" class="text-unsolve unsolve-val-6-3">9</text>
+<rect x="240" y="360" width="60" height="60" fill="#111827"/>
+<text x="270" y="390" class="text-given">6</text>
+<rect x="300" y="360" width="60" height="60" fill="#111827"/>
+<text x="330" y="390" class="text-given">1</text>
+<rect x="360" y="360" width="60" height="60" fill="#0d1322"/>
+<text x="390" y="390" class="text-given">5</text>
+<rect x="420" y="360" width="60" height="60" fill="#0d1322" class="unsolve-bg-6-7"/>
+<text x="450" y="390" class="text-unsolve unsolve-val-6-7">8</text>
+<rect x="480" y="360" width="60" height="60" fill="#0d1322"/>
+<text x="510" y="390" class="text-given">3</text>
+<rect x="0" y="420" width="60" height="60" fill="#0d1322"/>
+<text x="30" y="450" class="text-given">8</text>
+<rect x="60" y="420" width="60" height="60" fill="#0d1322"/>
+<text x="90" y="450" class="text-given">9</text>
+<rect x="120" y="420" width="60" height="60" fill="#0d1322"/>
+<text x="150" y="450" class="text-given">5</text>
+<rect x="180" y="420" width="60" height="60" fill="#111827" class="unsolve-bg-7-3"/>
+<text x="210" y="450" class="text-unsolve unsolve-val-7-3">4</text>
+<rect x="240" y="420" width="60" height="60" fill="#111827" class="unsolve-bg-7-4"/>
+<text x="270" y="450" class="text-unsolve unsolve-val-7-4">3</text>
+<rect x="300" y="420" width="60" height="60" fill="#111827" class="unsolve-bg-7-5"/>
+<text x="330" y="450" class="text-unsolve unsolve-val-7-5">7</text>
+<rect x="360" y="420" width="60" height="60" fill="#0d1322" class="unsolve-bg-7-6"/>
+<text x="390" y="450" class="text-unsolve unsolve-val-7-6">2</text>
+<rect x="420" y="420" width="60" height="60" fill="#0d1322" class="unsolve-bg-7-7"/>
+<text x="450" y="450" class="text-unsolve unsolve-val-7-7">1</text>
+<rect x="480" y="420" width="60" height="60" fill="#0d1322"/>
+<text x="510" y="450" class="text-given">6</text>
+<rect x="0" y="480" width="60" height="60" fill="#0d1322" class="unsolve-bg-8-0"/>
+<text x="30" y="510" class="text-unsolve unsolve-val-8-0">1</text>
+<rect x="60" y="480" width="60" height="60" fill="#0d1322" class="unsolve-bg-8-1"/>
+<text x="90" y="510" class="text-unsolve unsolve-val-8-1">6</text>
+<rect x="120" y="480" width="60" height="60" fill="#0d1322"/>
+<text x="150" y="510" class="text-given">3</text>
+<rect x="180" y="480" width="60" height="60" fill="#111827"/>
+<text x="210" y="510" class="text-given">5</text>
+<rect x="240" y="480" width="60" height="60" fill="#111827"/>
+<text x="270" y="510" class="text-given">8</text>
+<rect x="300" y="480" width="60" height="60" fill="#111827" class="unsolve-bg-8-5"/>
+<text x="330" y="510" class="text-unsolve unsolve-val-8-5">2</text>
+<rect x="360" y="480" width="60" height="60" fill="#0d1322"/>
+<text x="390" y="510" class="text-given">7</text>
+<rect x="420" y="480" width="60" height="60" fill="#0d1322" class="unsolve-bg-8-7"/>
+<text x="450" y="510" class="text-unsolve unsolve-val-8-7">4</text>
+<rect x="480" y="480" width="60" height="60" fill="#0d1322"/>
+<text x="510" y="510" class="text-given">9</text>
+<g class="replay-beam-0">
+  <rect x="0" y="0" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="30" x2="540" y2="30" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="60" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="90" y1="0" x2="90" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="0" y="0" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-1">
+  <rect x="0" y="0" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="30" x2="540" y2="30" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="180" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="210" y1="0" x2="210" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="180" y="0" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-2">
+  <rect x="0" y="60" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="90" x2="540" y2="90" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="360" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="390" y1="0" x2="390" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="360" y="0" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-3">
+  <rect x="0" y="60" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="90" x2="540" y2="90" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="480" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="510" y1="0" x2="510" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="360" y="0" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-4">
+  <rect x="0" y="60" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="90" x2="540" y2="90" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="420" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="450" y1="0" x2="450" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="360" y="0" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-5">
+  <rect x="0" y="60" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="90" x2="540" y2="90" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="240" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="270" y1="0" x2="270" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="180" y="0" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-6">
+  <rect x="0" y="60" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="90" x2="540" y2="90" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="300" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="330" y1="0" x2="330" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="180" y="0" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-7">
+  <rect x="0" y="120" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="150" x2="540" y2="150" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="0" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="30" y1="0" x2="30" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="0" y="0" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-8">
+  <rect x="0" y="120" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="150" x2="540" y2="150" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="180" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="210" y1="0" x2="210" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="180" y="0" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-9">
+  <rect x="0" y="120" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="150" x2="540" y2="150" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="480" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="510" y1="0" x2="510" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="360" y="0" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-10">
+  <rect x="0" y="180" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="210" x2="540" y2="210" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="60" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="90" y1="0" x2="90" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="0" y="180" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-11">
+  <rect x="0" y="180" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="210" x2="540" y2="210" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="120" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="150" y1="0" x2="150" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="0" y="180" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-12">
+  <rect x="0" y="240" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="270" x2="540" y2="270" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="120" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="150" y1="0" x2="150" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="0" y="180" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-13">
+  <rect x="0" y="240" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="270" x2="540" y2="270" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="420" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="450" y1="0" x2="450" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="360" y="180" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-14">
+  <rect x="0" y="300" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="330" x2="540" y2="330" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="60" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="90" y1="0" x2="90" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="0" y="180" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-15">
+  <rect x="0" y="300" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="330" x2="540" y2="330" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="120" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="150" y1="0" x2="150" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="0" y="180" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-16">
+  <rect x="0" y="300" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="330" x2="540" y2="330" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="420" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="450" y1="0" x2="450" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="360" y="180" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-17">
+  <rect x="0" y="300" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="330" x2="540" y2="330" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="480" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="510" y1="0" x2="510" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="360" y="180" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-18">
+  <rect x="0" y="360" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="390" x2="540" y2="390" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="0" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="30" y1="0" x2="30" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="0" y="360" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-19">
+  <rect x="0" y="360" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="390" x2="540" y2="390" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="180" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="210" y1="0" x2="210" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="180" y="360" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-20">
+  <rect x="0" y="360" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="390" x2="540" y2="390" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="420" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="450" y1="0" x2="450" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="360" y="360" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-21">
+  <rect x="0" y="420" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="450" x2="540" y2="450" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="180" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="210" y1="0" x2="210" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="180" y="360" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-22">
+  <rect x="0" y="420" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="450" x2="540" y2="450" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="240" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="270" y1="0" x2="270" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="180" y="360" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-23">
+  <rect x="0" y="420" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="450" x2="540" y2="450" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="360" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="390" y1="0" x2="390" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="360" y="360" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-24">
+  <rect x="0" y="420" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="450" x2="540" y2="450" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="300" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="330" y1="0" x2="330" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="180" y="360" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-25">
+  <rect x="0" y="420" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="450" x2="540" y2="450" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="420" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="450" y1="0" x2="450" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="360" y="360" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-26">
+  <rect x="0" y="480" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="510" x2="540" y2="510" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="0" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="30" y1="0" x2="30" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="0" y="360" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-27">
+  <rect x="0" y="480" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="510" x2="540" y2="510" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="60" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="90" y1="0" x2="90" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="0" y="360" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-28">
+  <rect x="0" y="480" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="510" x2="540" y2="510" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="300" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="330" y1="0" x2="330" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="180" y="360" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<g class="replay-beam-29">
+  <rect x="0" y="480" width="540" height="60" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="0" y1="510" x2="540" y2="510" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="420" y="0" width="60" height="540" fill="rgba(99, 102, 241, 0.12)"/>
+  <line x1="450" y1="0" x2="450" y2="540" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>
+  <rect x="360" y="360" width="180" height="180" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>
+</g>
+<rect x="60" y="0" width="60" height="60" class="replay-step-bg-0"/>
+<text x="90" y="30" class="text-step replay-step-val-0">8</text>
+<rect x="180" y="0" width="60" height="60" class="replay-step-bg-1"/>
+<text x="210" y="30" class="text-step replay-step-val-1">1</text>
+<rect x="360" y="60" width="60" height="60" class="replay-step-bg-2"/>
+<text x="390" y="90" class="text-step replay-step-val-2">8</text>
+<rect x="480" y="60" width="60" height="60" class="replay-step-bg-3"/>
+<text x="510" y="90" class="text-step replay-step-val-3">5</text>
+<rect x="420" y="60" width="60" height="60" class="replay-step-bg-4"/>
+<text x="450" y="90" class="text-step replay-step-val-4">3</text>
+<rect x="240" y="60" width="60" height="60" class="replay-step-bg-5"/>
+<text x="270" y="90" class="text-step replay-step-val-5">7</text>
+<rect x="300" y="60" width="60" height="60" class="replay-step-bg-6"/>
+<text x="330" y="90" class="text-step replay-step-val-6">9</text>
+<rect x="0" y="120" width="60" height="60" class="replay-step-bg-7"/>
+<text x="30" y="150" class="text-step replay-step-val-7">7</text>
+<rect x="180" y="120" width="60" height="60" class="replay-step-bg-8"/>
+<text x="210" y="150" class="text-step replay-step-val-8">3</text>
+<rect x="480" y="120" width="60" height="60" class="replay-step-bg-9"/>
+<text x="510" y="150" class="text-step replay-step-val-9">1</text>
+<rect x="60" y="180" width="60" height="60" class="replay-step-bg-10"/>
+<text x="90" y="210" class="text-step replay-step-val-10">3</text>
+<rect x="120" y="180" width="60" height="60" class="replay-step-bg-11"/>
+<text x="150" y="210" class="text-step replay-step-val-11">2</text>
+<rect x="120" y="240" width="60" height="60" class="replay-step-bg-12"/>
+<text x="150" y="270" class="text-step replay-step-val-12">8</text>
+<rect x="420" y="240" width="60" height="60" class="replay-step-bg-13"/>
+<text x="450" y="270" class="text-step replay-step-val-13">5</text>
+<rect x="60" y="300" width="60" height="60" class="replay-step-bg-14"/>
+<text x="90" y="330" class="text-step replay-step-val-14">7</text>
+<rect x="120" y="300" width="60" height="60" class="replay-step-bg-15"/>
+<text x="150" y="330" class="text-step replay-step-val-15">4</text>
+<rect x="420" y="300" width="60" height="60" class="replay-step-bg-16"/>
+<text x="450" y="330" class="text-step replay-step-val-16">9</text>
+<rect x="480" y="300" width="60" height="60" class="replay-step-bg-17"/>
+<text x="510" y="330" class="text-step replay-step-val-17">2</text>
+<rect x="0" y="360" width="60" height="60" class="replay-step-bg-18"/>
+<text x="30" y="390" class="text-step replay-step-val-18">2</text>
+<rect x="180" y="360" width="60" height="60" class="replay-step-bg-19"/>
+<text x="210" y="390" class="text-step replay-step-val-19">9</text>
+<rect x="420" y="360" width="60" height="60" class="replay-step-bg-20"/>
+<text x="450" y="390" class="text-step replay-step-val-20">8</text>
+<rect x="180" y="420" width="60" height="60" class="replay-step-bg-21"/>
+<text x="210" y="450" class="text-step replay-step-val-21">4</text>
+<rect x="240" y="420" width="60" height="60" class="replay-step-bg-22"/>
+<text x="270" y="450" class="text-step replay-step-val-22">3</text>
+<rect x="360" y="420" width="60" height="60" class="replay-step-bg-23"/>
+<text x="390" y="450" class="text-step replay-step-val-23">2</text>
+<rect x="300" y="420" width="60" height="60" class="replay-step-bg-24"/>
+<text x="330" y="450" class="text-step replay-step-val-24">7</text>
+<rect x="420" y="420" width="60" height="60" class="replay-step-bg-25"/>
+<text x="450" y="450" class="text-step replay-step-val-25">1</text>
+<rect x="0" y="480" width="60" height="60" class="replay-step-bg-26"/>
+<text x="30" y="510" class="text-step replay-step-val-26">1</text>
+<rect x="60" y="480" width="60" height="60" class="replay-step-bg-27"/>
+<text x="90" y="510" class="text-step replay-step-val-27">6</text>
+<rect x="300" y="480" width="60" height="60" class="replay-step-bg-28"/>
+<text x="330" y="510" class="text-step replay-step-val-28">2</text>
+<rect x="420" y="480" width="60" height="60" class="replay-step-bg-29"/>
+<text x="450" y="510" class="text-step replay-step-val-29">4</text>
+<line x1="60" y1="0" x2="60" y2="540" stroke="#1f293d" stroke-width="1"/>
+<line x1="0" y1="60" x2="540" y2="60" stroke="#1f293d" stroke-width="1"/>
+<line x1="120" y1="0" x2="120" y2="540" stroke="#1f293d" stroke-width="1"/>
+<line x1="0" y1="120" x2="540" y2="120" stroke="#1f293d" stroke-width="1"/>
+<line x1="240" y1="0" x2="240" y2="540" stroke="#1f293d" stroke-width="1"/>
+<line x1="0" y1="240" x2="540" y2="240" stroke="#1f293d" stroke-width="1"/>
+<line x1="300" y1="0" x2="300" y2="540" stroke="#1f293d" stroke-width="1"/>
+<line x1="0" y1="300" x2="540" y2="300" stroke="#1f293d" stroke-width="1"/>
+<line x1="420" y1="0" x2="420" y2="540" stroke="#1f293d" stroke-width="1"/>
+<line x1="0" y1="420" x2="540" y2="420" stroke="#1f293d" stroke-width="1"/>
+<line x1="480" y1="0" x2="480" y2="540" stroke="#1f293d" stroke-width="1"/>
+<line x1="0" y1="480" x2="540" y2="480" stroke="#1f293d" stroke-width="1"/>
+<line x1="0" y1="0" x2="0" y2="540" stroke="#6366f1" stroke-width="4"/>
+<line x1="0" y1="0" x2="540" y2="0" stroke="#6366f1" stroke-width="4"/>
+<line x1="180" y1="0" x2="180" y2="540" stroke="#6366f1" stroke-width="3"/>
+<line x1="0" y1="180" x2="540" y2="180" stroke="#6366f1" stroke-width="3"/>
+<line x1="360" y1="0" x2="360" y2="540" stroke="#6366f1" stroke-width="3"/>
+<line x1="0" y1="360" x2="540" y2="360" stroke="#6366f1" stroke-width="3"/>
+<line x1="540" y1="0" x2="540" y2="540" stroke="#6366f1" stroke-width="4"/>
+<line x1="0" y1="540" x2="540" y2="540" stroke="#6366f1" stroke-width="4"/>
+<rect x="0" y="540" width="540" height="75" fill="#0d1322" stroke="#1f293d" stroke-width="1"/>
+<g class="status-phase-unsolve">
+  <text x="16" y="566" class="status-unsolve">⚡ Phase 1: Rapid Unsolving &amp; Carving</text>
+  <text x="16" y="588" class="sub-status">Carving solved board into 51 unique clues (Difficulty: Medium)...</text>
+</g>
+<g class="replay-step-status-0">
+  <text x="16" y="566" class="status-text">Step 1 / 30: [Naked Single] at (0,1) = 8</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (0,1): only 8 fits [assertions: 27, cross-h: 7, cross-v: 5, 3x3-sq: 7] (Score: 2.30 | Reasons: ⬌7 ⬍5 ▦7)</text>
+</g>
+<g class="replay-step-status-1">
+  <text x="16" y="566" class="status-text">Step 2 / 30: [Naked Single] at (0,3) = 1</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (0,3): only 1 fits [assertions: 26, cross-h: 8, cross-v: 5, 3x3-sq: 5] (Score: 2.24 | Reasons: ⬌8 ⬍5 ▦5)</text>
+</g>
+<g class="replay-step-status-2">
+  <text x="16" y="566" class="status-text">Step 3 / 30: [Naked Single] at (1,6) = 8</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (1,6): only 8 fits [assertions: 24, cross-h: 4, cross-v: 7, 3x3-sq: 5] (Score: 2.12 | Reasons: ⬌4 ⬍7 ▦5)</text>
+</g>
+<g class="replay-step-status-3">
+  <text x="16" y="566" class="status-text">Step 4 / 30: [Naked Single] at (1,8) = 5</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (1,8): only 5 fits [assertions: 25, cross-h: 5, cross-v: 6, 3x3-sq: 6] (Score: 2.18 | Reasons: ⬌5 ⬍6 ▦6)</text>
+</g>
+<g class="replay-step-status-4">
+  <text x="16" y="566" class="status-text">Step 5 / 30: [Naked Single] at (1,7) = 3</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (1,7): only 3 fits [assertions: 24, cross-h: 6, cross-v: 3, 3x3-sq: 7] (Score: 2.12 | Reasons: ⬌6 ⬍3 ▦7)</text>
+</g>
+<g class="replay-step-status-5">
+  <text x="16" y="566" class="status-text">Step 6 / 30: [Naked Single] at (1,4) = 7</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (1,4): only 7 fits [assertions: 28, cross-h: 7, cross-v: 7, 3x3-sq: 6] (Score: 2.36 | Reasons: ⬌7 ⬍7 ▦6)</text>
+</g>
+<g class="replay-step-status-6">
+  <text x="16" y="566" class="status-text">Step 7 / 30: [Naked Single] at (1,5) = 9</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (1,5): only 9 fits [assertions: 29, cross-h: 8, cross-v: 6, 3x3-sq: 7] (Score: 2.42 | Reasons: ⬌8 ⬍6 ▦7)</text>
+</g>
+<g class="replay-step-status-7">
+  <text x="16" y="566" class="status-text">Step 8 / 30: [Naked Single] at (2,0) = 7</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (2,0): only 7 fits [assertions: 28, cross-h: 6, cross-v: 6, 3x3-sq: 8] (Score: 2.36 | Reasons: ⬌6 ⬍6 ▦8)</text>
+</g>
+<g class="replay-step-status-8">
+  <text x="16" y="566" class="status-text">Step 9 / 30: [Naked Single] at (2,3) = 3</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (2,3): only 3 fits [assertions: 29, cross-h: 7, cross-v: 6, 3x3-sq: 8] (Score: 2.42 | Reasons: ⬌7 ⬍6 ▦8)</text>
+</g>
+<g class="replay-step-status-9">
+  <text x="16" y="566" class="status-text">Step 10 / 30: [Naked Single] at (2,8) = 1</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (2,8): only 1 fits [assertions: 31, cross-h: 8, cross-v: 7, 3x3-sq: 8] (Score: 2.54 | Reasons: ⬌8 ⬍7 ▦8)</text>
+</g>
+<g class="replay-step-status-10">
+  <text x="16" y="566" class="status-text">Step 11 / 30: [Naked Single] at (3,1) = 3</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (3,1): only 3 fits [assertions: 25, cross-h: 7, cross-v: 6, 3x3-sq: 4] (Score: 2.18 | Reasons: ⬌7 ⬍6 ▦4)</text>
+</g>
+<g class="replay-step-status-11">
+  <text x="16" y="566" class="status-text">Step 12 / 30: [Naked Single] at (3,2) = 2</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (3,2): only 2 fits [assertions: 27, cross-h: 8, cross-v: 6, 3x3-sq: 5] (Score: 2.30 | Reasons: ⬌8 ⬍6 ▦5)</text>
+</g>
+<g class="replay-step-status-12">
+  <text x="16" y="566" class="status-text">Step 13 / 30: [Naked Single] at (4,2) = 8</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (4,2): only 8 fits [assertions: 28, cross-h: 7, cross-v: 7, 3x3-sq: 6] (Score: 2.36 | Reasons: ⬌7 ⬍7 ▦6)</text>
+</g>
+<g class="replay-step-status-13">
+  <text x="16" y="566" class="status-text">Step 14 / 30: [Naked Single] at (4,7) = 5</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (4,7): only 5 fits [assertions: 26, cross-h: 8, cross-v: 4, 3x3-sq: 6] (Score: 2.24 | Reasons: ⬌8 ⬍4 ▦6)</text>
+</g>
+<g class="replay-step-status-14">
+  <text x="16" y="566" class="status-text">Step 15 / 30: [Naked Single] at (5,1) = 7</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (5,1): only 7 fits [assertions: 27, cross-h: 5, cross-v: 7, 3x3-sq: 7] (Score: 2.30 | Reasons: ⬌5 ⬍7 ▦7)</text>
+</g>
+<g class="replay-step-status-15">
+  <text x="16" y="566" class="status-text">Step 16 / 30: [Naked Single] at (5,2) = 4</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (5,2): only 4 fits [assertions: 30, cross-h: 6, cross-v: 8, 3x3-sq: 8] (Score: 2.48 | Reasons: ⬌6 ⬍8 ▦8)</text>
+</g>
+<g class="replay-step-status-16">
+  <text x="16" y="566" class="status-text">Step 17 / 30: [Naked Single] at (5,7) = 9</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (5,7): only 9 fits [assertions: 27, cross-h: 7, cross-v: 5, 3x3-sq: 7] (Score: 2.30 | Reasons: ⬌7 ⬍5 ▦7)</text>
+</g>
+<g class="replay-step-status-17">
+  <text x="16" y="566" class="status-text">Step 18 / 30: [Naked Single] at (5,8) = 2</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (5,8): only 2 fits [assertions: 32, cross-h: 8, cross-v: 8, 3x3-sq: 8] (Score: 2.60 | Reasons: ⬌8 ⬍8 ▦8)</text>
+</g>
+<g class="replay-step-status-18">
+  <text x="16" y="566" class="status-text">Step 19 / 30: [Naked Single] at (6,0) = 2</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (6,0): only 2 fits [assertions: 27, cross-h: 6, cross-v: 7, 3x3-sq: 6] (Score: 2.30 | Reasons: ⬌6 ⬍7 ▦6)</text>
+</g>
+<g class="replay-step-status-19">
+  <text x="16" y="566" class="status-text">Step 20 / 30: [Naked Single] at (6,3) = 9</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (6,3): only 9 fits [assertions: 26, cross-h: 7, cross-v: 7, 3x3-sq: 4] (Score: 2.24 | Reasons: ⬌7 ⬍7 ▦4)</text>
+</g>
+<g class="replay-step-status-20">
+  <text x="16" y="566" class="status-text">Step 21 / 30: [Naked Single] at (6,7) = 8</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (6,7): only 8 fits [assertions: 27, cross-h: 8, cross-v: 6, 3x3-sq: 5] (Score: 2.30 | Reasons: ⬌8 ⬍6 ▦5)</text>
+</g>
+<g class="replay-step-status-21">
+  <text x="16" y="566" class="status-text">Step 22 / 30: [Naked Single] at (7,3) = 4</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (7,3): only 4 fits [assertions: 25, cross-h: 4, cross-v: 8, 3x3-sq: 5] (Score: 2.18 | Reasons: ⬌4 ⬍8 ▦5)</text>
+</g>
+<g class="replay-step-status-22">
+  <text x="16" y="566" class="status-text">Step 23 / 30: [Naked Single] at (7,4) = 3</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (7,4): only 3 fits [assertions: 27, cross-h: 5, cross-v: 8, 3x3-sq: 6] (Score: 2.30 | Reasons: ⬌5 ⬍8 ▦6)</text>
+</g>
+<g class="replay-step-status-23">
+  <text x="16" y="566" class="status-text">Step 24 / 30: [Naked Single] at (7,6) = 2</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (7,6): only 2 fits [assertions: 28, cross-h: 6, cross-v: 8, 3x3-sq: 6] (Score: 2.36 | Reasons: ⬌6 ⬍8 ▦6)</text>
+</g>
+<g class="replay-step-status-24">
+  <text x="16" y="566" class="status-text">Step 25 / 30: [Naked Single] at (7,5) = 7</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (7,5): only 7 fits [assertions: 29, cross-h: 7, cross-v: 7, 3x3-sq: 7] (Score: 2.42 | Reasons: ⬌7 ⬍7 ▦7)</text>
+</g>
+<g class="replay-step-status-25">
+  <text x="16" y="566" class="status-text">Step 26 / 30: [Naked Single] at (7,7) = 1</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (7,7): only 1 fits [assertions: 30, cross-h: 8, cross-v: 7, 3x3-sq: 7] (Score: 2.48 | Reasons: ⬌8 ⬍7 ▦7)</text>
+</g>
+<g class="replay-step-status-26">
+  <text x="16" y="566" class="status-text">Step 27 / 30: [Naked Single] at (8,0) = 1</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (8,0): only 1 fits [assertions: 28, cross-h: 5, cross-v: 8, 3x3-sq: 7] (Score: 2.36 | Reasons: ⬌5 ⬍8 ▦7)</text>
+</g>
+<g class="replay-step-status-27">
+  <text x="16" y="566" class="status-text">Step 28 / 30: [Naked Single] at (8,1) = 6</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (8,1): only 6 fits [assertions: 30, cross-h: 6, cross-v: 8, 3x3-sq: 8] (Score: 2.48 | Reasons: ⬌6 ⬍8 ▦8)</text>
+</g>
+<g class="replay-step-status-28">
+  <text x="16" y="566" class="status-text">Step 29 / 30: [Naked Single] at (8,5) = 2</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (8,5): only 2 fits [assertions: 31, cross-h: 7, cross-v: 8, 3x3-sq: 8] (Score: 2.54 | Reasons: ⬌7 ⬍8 ▦8)</text>
+</g>
+<g class="replay-step-status-29">
+  <text x="16" y="566" class="status-text">Step 30 / 30: [Naked Single] at (8,7) = 4</text>
+  <text x="16" y="588" class="sub-status">Naked Single at (8,7): only 4 fits [assertions: 32, cross-h: 8, cross-v: 8, 3x3-sq: 8] (Score: 2.60 | Reasons: ⬌8 ⬍8 ▦8)</text>
+</g>
+<g class="status-phase-victory">
+  <text x="16" y="566" class="status-victory">🏆 Victory: Puzzle 100% Logically Proven</text>
+  <text x="16" y="588" class="sub-status">Rating: Medium | Total Score: 70.38 | Solved in 30 steps</text>
+</g>
+</svg>

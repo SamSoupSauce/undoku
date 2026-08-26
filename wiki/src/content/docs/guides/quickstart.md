@@ -12,22 +12,24 @@ description: Get started with Undoku Go Sudoku engine and REST API.
 
 ## Running the Application
 
-### 1. CLI Execution / Initializer
-Runs sample puzzle generation, prints difficulty evaluations, and initializes the local SQLite database (`undoku.db`):
+### 1. Express.js REST API Server (Node.js)
+Launch the unified Express.js server with integrated generator, evaluators, and SVG rendering on port `8080`:
 
 ```bash
-go run main.go
+npm start
+# or from server directory:
+cd server && npm start
 ```
 
-### 2. REST API Server Mode
-Set `RUN_HTTP_SERVER=true` to launch the HTTP web server listening on port `8080`:
+### 2. Golang Engine & REST API
+Runs sample puzzle generation, prints difficulty evaluations, and starts the Go HTTP server on port `8080`:
 
 ```bash
 RUN_HTTP_SERVER=true go run main.go
 ```
 
 ### 3. PostgreSQL Database Connection
-Pass `POSTGRES_DSN` to connect GORM directly to a PostgreSQL database:
+Pass `POSTGRES_DSN` to connect storage directly to PostgreSQL:
 
 ```bash
 POSTGRES_DSN="postgres://user:password@localhost:5432/undoku?sslmode=disable" RUN_HTTP_SERVER=true go run main.go
@@ -35,8 +37,8 @@ POSTGRES_DSN="postgres://user:password@localhost:5432/undoku?sslmode=disable" RU
 
 ## Running Unit Tests
 
-Run the complete test suite covering `FastRand`, `SolveAndEvaluate`, `CarveWithTargetDifficulty`, and GORM storage CRUD operations:
+Run the complete test suite covering the Express.js server, browser generation engine consistency, Go engine, and SVG vector rendering:
 
 ```bash
-go test -v ./...
+npm test
 ```

@@ -1,18 +1,10 @@
 #!/usr/bin/env bash
 set -e
 
-echo "🔨 Building Astro Starlight Wiki..."
-npm --prefix wiki run build
+echo "🔨 Running universal build pipeline..."
+node scripts/build.js
 
-echo "📦 Assembling static deployment bundle (Root Game + /wiki/ Documentation)..."
-rm -rf site_dist
-mkdir -p site_dist
-cp web/index.html site_dist/index.html
-mkdir -p site_dist/wiki
-cp -r wiki/dist/* site_dist/wiki/
-touch site_dist/.nojekyll
-
-echo "🚀 Deploying static assets to 'deploy' branch..."
+echo "🚀 Deploying static assets from site_dist/ to 'deploy' branch..."
 cd site_dist
 git init -b deploy
 git config user.name "$(git -C .. config user.name || echo 'undoku-deploy-bot')"

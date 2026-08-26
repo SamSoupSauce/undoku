@@ -210,15 +210,18 @@ func (s *Sudoku) FindNakedSingle(b *models.Board) (models.Deduction, bool) {
 				if len(cands) == 1 {
 					val := cands[0]
 					reasons := s.AnalyzeCellEliminations(b, r, c)
-					score := 1.0 + float64(reasons.Total())*0.05
-					desc := fmt.Sprintf("Naked Single at (%d,%d): only %d fits [cross-h: %d, cross-v: %d, 3x3-sq: %d]",
-						r, c, val, reasons.CrossHorizontal, reasons.CrossVertical, reasons.Box3x3)
+					// Assertions: 8 eliminated candidate checks + all peer constraint eliminations
+					assertions := 8 + reasons.Total()
+					score := 1.0 + float64(reasons.Total())*0.04 + float64(assertions)*0.02
+					desc := fmt.Sprintf("Naked Single at (%d,%d): only %d fits [assertions: %d, cross-h: %d, cross-v: %d, 3x3-sq: %d]",
+						r, c, val, assertions, reasons.CrossHorizontal, reasons.CrossVertical, reasons.Box3x3)
 					return models.Deduction{
 						Row:         r,
 						Col:         c,
 						Val:         val,
 						Technique:   "Naked Single",
 						Reasons:     reasons,
+						Assertions:  assertions,
 						StepScore:   score,
 						Description: desc,
 					}, true
@@ -237,25 +240,40 @@ func (s *Sudoku) FindHiddenSingle(b *models.Board) (models.Deduction, bool) {
 			for num := 1; num <= 9; num++ {
 				count := 0
 				targetR, targetC := -1, -1
+				peerElimAssertions := 0
 				for r := boxR; r < boxR+3; r++ {
 					for c := boxC; c < boxC+3; c++ {
-						if b[r][c] == 0 && s.IsValid(b, r, c, num) {
-							count++
-							targetR, targetC = r, c
+						if b[r][c] == 0 {
+							if s.IsValid(b, r, c, num) {
+								count++
+								targetR, targetC = r, c
+							} else {
+								// Count reasons why this peer cell cannot hold num
+								for i := 0; i < 9; i++ {
+									if b[r][i] == num {
+										peerElimAssertions++
+									}
+									if b[i][c] == num {
+										peerElimAssertions++
+									}
+								}
+							}
 						}
 					}
 				}
 				if count == 1 {
 					reasons := s.AnalyzeCellEliminations(b, targetR, targetC)
-					score := 1.5 + float64(reasons.Total())*0.05
-					desc := fmt.Sprintf("Hidden Single in 3x3 Box at (%d,%d): %d is unique in box [cross-h: %d, cross-v: %d, 3x3-sq: %d]",
-						targetR, targetC, num, reasons.CrossHorizontal, reasons.CrossVertical, reasons.Box3x3)
+					assertions := peerElimAssertions + reasons.Total() + 1
+					score := 1.5 + float64(reasons.Total())*0.04 + float64(assertions)*0.02
+					desc := fmt.Sprintf("Hidden Single in 3x3 Box at (%d,%d): %d is unique in box [assertions: %d, cross-h: %d, cross-v: %d, 3x3-sq: %d]",
+						targetR, targetC, num, assertions, reasons.CrossHorizontal, reasons.CrossVertical, reasons.Box3x3)
 					return models.Deduction{
 						Row:         targetR,
 						Col:         targetC,
 						Val:         num,
 						Technique:   "Hidden Single Box",
 						Reasons:     reasons,
+						Assertions:  assertions,
 						StepScore:   score,
 						Description: desc,
 					}, true
@@ -269,23 +287,43 @@ func (s *Sudoku) FindHiddenSingle(b *models.Board) (models.Deduction, bool) {
 		for num := 1; num <= 9; num++ {
 			count := 0
 			targetC := -1
+			peerElimAssertions := 0
 			for c := 0; c < 9; c++ {
-				if b[r][c] == 0 && s.IsValid(b, r, c, num) {
-					count++
-					targetC = c
+				if b[r][c] == 0 {
+					if s.IsValid(b, r, c, num) {
+						count++
+						targetC = c
+					} else {
+						// Column and box checks eliminating num from cell (r, c)
+						for i := 0; i < 9; i++ {
+							if b[i][c] == num {
+								peerElimAssertions++
+							}
+						}
+						startR, startC := (r/3)*3, (c/3)*3
+						for br := startR; br < startR+3; br++ {
+							for bc := startC; bc < startC+3; bc++ {
+								if b[br][bc] == num {
+									peerElimAssertions++
+								}
+							}
+						}
+					}
 				}
 			}
 			if count == 1 {
 				reasons := s.AnalyzeCellEliminations(b, r, targetC)
-				score := 1.8 + float64(reasons.Total())*0.05
-				desc := fmt.Sprintf("Hidden Single in Row %d at (%d,%d): %d is unique in row [cross-h: %d, cross-v: %d, 3x3-sq: %d]",
-					r, r, targetC, num, reasons.CrossHorizontal, reasons.CrossVertical, reasons.Box3x3)
+				assertions := peerElimAssertions + reasons.Total() + 1
+				score := 1.8 + float64(reasons.Total())*0.04 + float64(assertions)*0.02
+				desc := fmt.Sprintf("Hidden Single in Row %d at (%d,%d): %d is unique in row [assertions: %d, cross-h: %d, cross-v: %d, 3x3-sq: %d]",
+					r, r, targetC, num, assertions, reasons.CrossHorizontal, reasons.CrossVertical, reasons.Box3x3)
 				return models.Deduction{
 					Row:         r,
 					Col:         targetC,
 					Val:         num,
 					Technique:   "Hidden Single Row",
 					Reasons:     reasons,
+					Assertions:  assertions,
 					StepScore:   score,
 					Description: desc,
 				}, true
@@ -298,23 +336,43 @@ func (s *Sudoku) FindHiddenSingle(b *models.Board) (models.Deduction, bool) {
 		for num := 1; num <= 9; num++ {
 			count := 0
 			targetR := -1
+			peerElimAssertions := 0
 			for r := 0; r < 9; r++ {
-				if b[r][c] == 0 && s.IsValid(b, r, c, num) {
-					count++
-					targetR = r
+				if b[r][c] == 0 {
+					if s.IsValid(b, r, c, num) {
+						count++
+						targetR = r
+					} else {
+						// Row and box checks eliminating num from cell (r, c)
+						for i := 0; i < 9; i++ {
+							if b[r][i] == num {
+								peerElimAssertions++
+							}
+						}
+						startR, startC := (r/3)*3, (c/3)*3
+						for br := startR; br < startR+3; br++ {
+							for bc := startC; bc < startC+3; bc++ {
+								if b[br][bc] == num {
+									peerElimAssertions++
+								}
+							}
+						}
+					}
 				}
 			}
 			if count == 1 {
 				reasons := s.AnalyzeCellEliminations(b, targetR, c)
-				score := 1.8 + float64(reasons.Total())*0.05
-				desc := fmt.Sprintf("Hidden Single in Col %d at (%d,%d): %d is unique in col [cross-h: %d, cross-v: %d, 3x3-sq: %d]",
-					c, targetR, c, num, reasons.CrossHorizontal, reasons.CrossVertical, reasons.Box3x3)
+				assertions := peerElimAssertions + reasons.Total() + 1
+				score := 1.8 + float64(reasons.Total())*0.04 + float64(assertions)*0.02
+				desc := fmt.Sprintf("Hidden Single in Col %d at (%d,%d): %d is unique in col [assertions: %d, cross-h: %d, cross-v: %d, 3x3-sq: %d]",
+					c, targetR, c, num, assertions, reasons.CrossHorizontal, reasons.CrossVertical, reasons.Box3x3)
 				return models.Deduction{
 					Row:         targetR,
 					Col:         c,
 					Val:         num,
 					Technique:   "Hidden Single Col",
 					Reasons:     reasons,
+					Assertions:  assertions,
 					StepScore:   score,
 					Description: desc,
 				}, true
@@ -361,6 +419,7 @@ func (s *Sudoku) SolveAndEvaluate(puzzle models.Board) (models.DifficultyReport,
 		deduction, found := s.FindNextDeduction(&work)
 		if !found {
 			report.Rating = "Unsolvable by logical singles"
+			report.CalculateMetricsWithBoard(&puzzle)
 			return report, false
 		}
 
@@ -374,17 +433,17 @@ func (s *Sudoku) SolveAndEvaluate(puzzle models.Board) (models.DifficultyReport,
 	}
 
 	switch {
-	case report.TotalScore < 45:
+	case report.TotalScore < 48 && len(report.StepDeductions) < 44:
 		report.Rating = "Easy"
-	case report.TotalScore < 75:
+	case report.TotalScore < 58 && len(report.StepDeductions) < 50:
 		report.Rating = "Medium"
-	case report.TotalScore < 115:
+	case report.TotalScore < 68 && len(report.StepDeductions) < 55:
 		report.Rating = "Hard"
 	default:
 		report.Rating = "Expert"
 	}
 
-	report.CalculateMetrics()
+	report.CalculateMetricsWithBoard(&puzzle)
 	return report, true
 }
 
@@ -393,16 +452,15 @@ func (s *Sudoku) CarveWithTargetDifficulty(fullBoard models.Board, targetDifficu
 	if targetBlanks <= 0 {
 		switch strings.ToLower(targetDifficulty) {
 		case "easy":
-			targetBlanks = 28 + s.rng.Intn(8) // 28 - 35
+			targetBlanks = 40 + s.rng.Intn(6) // 40 - 45
 		case "medium":
-			targetBlanks = 36 + s.rng.Intn(8) // 36 - 43
+			targetBlanks = 47 + s.rng.Intn(6) // 47 - 52
 		case "hard":
-			targetBlanks = 44 + s.rng.Intn(8) // 44 - 51
+			targetBlanks = 53 + s.rng.Intn(5) // 53 - 57
 		case "expert":
-			targetBlanks = 52 + s.rng.Intn(6) // 52 - 57
+			targetBlanks = 58 + s.rng.Intn(7) // 58 - 64
 		default:
-			// Randomly choose across full spectrum (28 to 57 blanks)
-			targetBlanks = 28 + s.rng.Intn(30)
+			targetBlanks = 40 + s.rng.Intn(25)
 		}
 	}
 
@@ -608,7 +666,16 @@ func PrintBoard(b *models.Board) {
 func PrintDifficultyReport(report models.DifficultyReport) {
 	fmt.Printf("\n--- Sudoku Difficulty Evaluation Report ---\n")
 	fmt.Printf("Aggregate Numerical Score : %.2f\n", report.TotalScore)
-	fmt.Printf("Assigned Difficulty Rating: %s\n\n", report.Rating)
+	fmt.Printf("Multi-Factor Composite    : %.2f\n", report.CompositeScore)
+	fmt.Printf("Canonical Rating          : %s\n", report.Rating)
+	fmt.Printf("Granular Difficulty Tier  : %s\n\n", report.GranularTier)
+
+	fmt.Printf("Logical Complexity & Assertions:\n")
+	fmt.Printf(" - Total Logical Assertions           : %d\n", report.Metrics.TotalAssertions)
+	fmt.Printf(" - Peak Step Assertions (Bottleneck) : %d (Step #%d)\n", report.Metrics.MaxStepAssertions, report.Metrics.BottleneckStep)
+	fmt.Printf(" - Average Assertions / Step          : %.2f\n", report.Metrics.AvgAssertionsPerStep)
+	fmt.Printf(" - Assertion Density                  : %.2f assertions/blank\n", report.Metrics.AssertionDensity)
+	fmt.Printf(" - Cognitive Complexity Index         : %.2f\n\n", report.Metrics.ComplexityRating)
 
 	fmt.Printf("Individual Elimination Reason Breakdown:\n")
 	fmt.Printf(" - Cross-Horizontal (Row) constraints : %d\n", report.ReasonCounts.CrossHorizontal)
@@ -616,14 +683,23 @@ func PrintDifficultyReport(report models.DifficultyReport) {
 	fmt.Printf(" - Impossible 3x3 Square constraints  : %d\n", report.ReasonCounts.Box3x3)
 	fmt.Printf(" - Total Elimination Reasons          : %d\n\n", report.ReasonCounts.Total())
 
-	fmt.Printf("Statistical Analytics & Complexity Metrics:\n")
+	fmt.Printf("Statistical Analytics & Trajectory:\n")
 	fmt.Printf(" - Step Score Min / Max / Spread     : %.2f / %.2f / %.2f\n", report.Metrics.MinStepScore, report.Metrics.MaxStepScore, report.Metrics.ScoreSpread)
 	fmt.Printf(" - Variance & Standard Deviation     : %.4f (StdDev: %.4f)\n", report.Metrics.ScoreVariance, report.Metrics.ScoreStdDev)
 	fmt.Printf(" - Divergence (Mean Abs Deviation)   : %.4f\n", report.Metrics.ScoreDivergence)
 	fmt.Printf(" - Suddenness (Max Step-to-Step Jump): %.4f\n", report.Metrics.Suddenness)
+	fmt.Printf(" - Trajectory Pacing & Slope          : %s (%+.4f/step)\n", report.Metrics.DifficultyPacing, report.Metrics.PacingSlope)
 	fmt.Printf(" - Longest Technique Streak           : %d consecutive [%s]\n", report.Metrics.MaxStreak, report.Metrics.MaxStreakTechnique)
 	fmt.Printf(" - Most Frequent Technique            : %s\n", report.Metrics.MostFrequentTechnique)
 	fmt.Printf(" - Least Frequent Technique           : %s\n\n", report.Metrics.LeastFrequentTechnique)
+
+	fmt.Printf("Board Geometry & Search Entropy:\n")
+	fmt.Printf(" - Givens / Blanks Count              : %d givens / %d blanks\n", report.Metrics.ClueCount, report.Metrics.BlanksCount)
+	fmt.Printf(" - Clue Geometric Symmetry Score      : %.2f (%.0f%%)\n", report.Metrics.ClueSymmetryScore, report.Metrics.ClueSymmetryScore*100)
+	fmt.Printf(" - Clue Distribution Variance         : %.3f\n", report.Metrics.ClueDistributionVariance)
+	fmt.Printf(" - Max Single-Box Clue Congestion     : %d clues\n", report.Metrics.BoxCongestionMax)
+	fmt.Printf(" - Max Band/Stack Clue Congestion     : %d clues\n", report.Metrics.BandCongestionMax)
+	fmt.Printf(" - Estimated Candidate Breadth        : %.2f cands/cell\n\n", report.Metrics.AverageCandidates)
 }
 
 type Server struct {

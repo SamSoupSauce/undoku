@@ -1,25 +1,155 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="cozy">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Undoku 🧩⚡ — Web Canvas Sudoku Engine</title>
+  <title>Undoku 🧩 — Pure Sudoku Game & Web Canvas Engine</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg-dark: #070a12;
-      --card-bg: #0e1424;
-      --card-border: rgba(99, 102, 241, 0.25);
-      --primary: #6366f1;
-      --primary-hover: #4f46e5;
-      --accent: #38bdf8;
-      --amber: #f59e0b;
-      --green: #10b981;
-      --red: #ef4444;
-      --text-main: #f8fafc;
+    /* ==========================================================================
+       THEMES & COLOR PALETTES
+       ========================================================================== */
+    :root, [data-theme="cozy"] {
+      --bg-gradient: linear-gradient(145deg, #faf7f2 0%, #f3ede2 100%);
+      --surface-card: #ffffff;
+      --surface-subtle: #f8f5ee;
+      --surface-elevated: #ffffff;
+      --border-subtle: #e6dfd3;
+      --border-strong: #d3c7b5;
+      
+      --text-main: #2d261e;
+      --text-secondary: #736756;
+      --text-muted: #9e9180;
+      
+      --primary: #e06c3a;
+      --primary-hover: #cb5926;
+      --primary-light: #fbeee7;
+      --primary-glow: rgba(224, 108, 58, 0.25);
+      
+      --accent: #3b82f6;
+      --accent-light: #eff6ff;
+      --accent-glow: rgba(59, 130, 246, 0.2);
+      
+      --success: #16a34a;
+      --success-light: #f0fdf4;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --danger-light: #fef2f2;
+      --danger-glow: rgba(220, 38, 38, 0.2);
+      
+      --board-bg: #ffffff;
+      --cell-bg-alt: #fdfbf7;
+      --cell-hover: #faefe4;
+      --cell-selected: #fed7aa;
+      --cell-match: #ffedd5;
+      --cell-conflict: #fee2e2;
+      
+      --grid-line: #e2d9cb;
+      --box-line: #5c4e3c;
+      
+      --digit-given: #241c14;
+      --digit-user: #e06c3a;
+      --digit-note: #786c5c;
+      
+      --shadow-sm: 0 2px 6px rgba(60, 45, 30, 0.05);
+      --shadow-md: 0 10px 25px -5px rgba(60, 45, 30, 0.08), 0 4px 10px -2px rgba(60, 45, 30, 0.04);
+      --shadow-lg: 0 20px 35px -8px rgba(60, 45, 30, 0.12), 0 8px 16px -4px rgba(60, 45, 30, 0.06);
+    }
+
+    [data-theme="light"] {
+      --bg-gradient: linear-gradient(145deg, #f8fafc 0%, #edf2f7 100%);
+      --surface-card: #ffffff;
+      --surface-subtle: #f1f5f9;
+      --surface-elevated: #ffffff;
+      --border-subtle: #e2e8f0;
+      --border-strong: #cbd5e1;
+      
+      --text-main: #0f172a;
+      --text-secondary: #475569;
       --text-muted: #94a3b8;
+      
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-light: #eef2ff;
+      --primary-glow: rgba(79, 70, 229, 0.25);
+      
+      --accent: #0284c7;
+      --accent-light: #f0f9ff;
+      --accent-glow: rgba(2, 132, 199, 0.2);
+      
+      --success: #16a34a;
+      --success-light: #f0fdf4;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --danger-light: #fef2f2;
+      --danger-glow: rgba(239, 68, 68, 0.2);
+      
+      --board-bg: #ffffff;
+      --cell-bg-alt: #f8fafc;
+      --cell-hover: #e0e7ff;
+      --cell-selected: #c7d2fe;
+      --cell-match: #e0e7ff;
+      --cell-conflict: #fee2e2;
+      
+      --grid-line: #e2e8f0;
+      --box-line: #334155;
+      
+      --digit-given: #0f172a;
+      --digit-user: #4f46e5;
+      --digit-note: #64748b;
+      
+      --shadow-sm: 0 2px 6px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+      --shadow-lg: 0 20px 35px -8px rgba(15, 23, 42, 0.12);
+    }
+
+    [data-theme="dark"] {
+      --bg-gradient: linear-gradient(145deg, #131824 0%, #0d111a 100%);
+      --surface-card: #1c2233;
+      --surface-subtle: #161b29;
+      --surface-elevated: #242c42;
+      --border-subtle: #2d364f;
+      --border-strong: #404c6e;
+      
+      --text-main: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      
+      --primary: #f97316;
+      --primary-hover: #ea580c;
+      --primary-light: rgba(249, 115, 22, 0.15);
+      --primary-glow: rgba(249, 115, 22, 0.35);
+      
+      --accent: #38bdf8;
+      --accent-light: rgba(56, 189, 248, 0.15);
+      --accent-glow: rgba(56, 189, 248, 0.3);
+      
+      --success: #22c55e;
+      --success-light: rgba(34, 197, 94, 0.15);
+      --warning: #f59e0b;
+      --danger: #f87171;
+      --danger-light: rgba(248, 113, 113, 0.15);
+      --danger-glow: rgba(248, 113, 113, 0.3);
+      
+      --board-bg: #161b29;
+      --cell-bg-alt: #1c2336;
+      --cell-hover: rgba(249, 115, 22, 0.2);
+      --cell-selected: rgba(249, 115, 22, 0.35);
+      --cell-match: rgba(56, 189, 248, 0.2);
+      --cell-conflict: rgba(248, 113, 113, 0.3);
+      
+      --grid-line: #273046;
+      --box-line: #818cf8;
+      
+      --digit-given: #f8fafc;
+      --digit-user: #fb923c;
+      --digit-note: #94a3b8;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.45);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.6);
     }
 
     * {
@@ -27,120 +157,229 @@
       margin: 0;
       padding: 0;
       user-select: none;
+      -webkit-user-select: none;
     }
 
     body {
-      background-color: var(--bg-dark);
-      background-image: 
-        radial-gradient(at 10% 20%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
-        radial-gradient(at 90% 80%, rgba(56, 189, 248, 0.1) 0px, transparent 50%);
+      background: var(--bg-gradient);
       color: var(--text-main);
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 1.5rem 1rem;
+      padding: 1.25rem 1rem 3rem;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
-    header {
+    .app-header {
       width: 100%;
-      max-width: 1100px;
+      max-width: 1080px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1.5rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-subtle);
     }
 
-    .brand {
+    .brand-group {
       display: flex;
       align-items: center;
       gap: 0.75rem;
     }
 
-    .brand h1 {
-      font-size: 1.5rem;
+    .brand-logo {
+      font-size: 1.75rem;
       font-weight: 800;
-      background: linear-gradient(135deg, #ffffff, #a5b4fc);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      letter-spacing: -0.02em;
-    }
-
-    .brand .tag {
-      font-size: 0.7rem;
-      background: rgba(99, 102, 241, 0.2);
-      color: #a5b4fc;
-      border: 1px solid rgba(99, 102, 241, 0.4);
-      padding: 0.2rem 0.5rem;
-      border-radius: 9999px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 1rem;
-    }
-
-    .nav-link {
-      color: var(--text-muted);
-      text-decoration: none;
-      font-size: 0.85rem;
-      font-weight: 600;
-      padding: 0.4rem 0.8rem;
-      border-radius: 8px;
-      border: 1px solid rgba(148, 163, 184, 0.15);
-      background: rgba(30, 41, 59, 0.4);
-      transition: all 0.2s ease;
+      letter-spacing: -0.03em;
+      color: var(--text-main);
       display: flex;
       align-items: center;
       gap: 0.4rem;
     }
 
-    .nav-link:hover {
-      color: #fff;
-      border-color: var(--primary);
-      background: rgba(99, 102, 241, 0.15);
-      transform: translateY(-1px);
+    .brand-logo .accent-dot {
+      color: var(--primary);
     }
 
-    .main-layout {
+    .brand-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.25rem 0.55rem;
+      border-radius: 999px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .theme-switcher {
+      display: flex;
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      padding: 0.2rem;
+      gap: 0.2rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .theme-btn {
+      background: transparent;
+      border: none;
+      padding: 0.35rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.2s ease;
+    }
+
+    .theme-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-header {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      padding: 0.45rem 0.85rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-header:hover {
+      color: var(--primary);
+      border-color: var(--primary);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .game-arena {
       width: 100%;
-      max-width: 1100px;
+      max-width: 1080px;
       display: grid;
-      grid-template-columns: 560px 1fr;
-      gap: 1.5rem;
+      grid-template-columns: 540px 1fr;
+      gap: 1.75rem;
       align-items: start;
     }
 
     @media (max-width: 1024px) {
-      .main-layout {
+      .game-arena {
         grid-template-columns: 1fr;
-        max-width: 580px;
+        max-width: 540px;
       }
     }
 
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 1.25rem;
-      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 25px rgba(99, 102, 241, 0.08);
+    .game-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-lg);
+      position: relative;
     }
 
-    .canvas-container {
+    .game-hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .difficulty-tabs {
+      display: flex;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 0.25rem;
+      gap: 0.25rem;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 2px 8px var(--primary-glow);
+    }
+
+    .hud-metrics {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .hud-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border-subtle);
+      padding: 0.35rem 0.7rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .hud-chip .icon {
+      font-size: 0.95rem;
+    }
+
+    .hud-timer {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .hud-mistakes.warning {
+      color: var(--danger);
+      background: var(--danger-light);
+      border-color: var(--danger);
+    }
+
+    .board-wrapper {
       position: relative;
       width: 100%;
       aspect-ratio: 1;
-      background: #090d16;
-      border-radius: 12px;
+      border-radius: 16px;
       overflow: hidden;
-      border: 1px solid rgba(99, 102, 241, 0.3);
-      box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.85);
+      box-shadow: inset 0 0 0 1px var(--border-strong), var(--shadow-md);
+      background: var(--board-bg);
+      margin-bottom: 1.25rem;
     }
 
     #sudokuCanvas {
@@ -150,285 +389,351 @@
       cursor: pointer;
     }
 
-    .status-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.85rem;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .badge-group {
-      display: flex;
-      gap: 0.4rem;
-      align-items: center;
-    }
-
-    .badge {
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 0.25rem 0.6rem;
-      border-radius: 9999px;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
-
-    .badge-rating {
-      background: rgba(245, 158, 11, 0.2);
-      border: 1px solid rgba(245, 158, 11, 0.4);
-      color: #fbbf24;
-    }
-
-    .badge-score {
-      background: rgba(16, 185, 129, 0.2);
-      border: 1px solid rgba(16, 185, 129, 0.4);
-      color: #34d399;
-      font-family: 'Fira Code', monospace;
-    }
-
-    .badge-mode {
-      background: rgba(56, 189, 248, 0.2);
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      color: #38bdf8;
-    }
-
-    .badge-errors {
-      background: rgba(239, 68, 68, 0.2);
-      border: 1px solid rgba(239, 68, 68, 0.45);
-      color: #f87171;
-      font-family: 'Fira Code', monospace;
-    }
-
-    .error-alert-banner {
+    .conflict-banner {
       display: none;
       align-items: center;
-      gap: 0.6rem;
-      background: linear-gradient(135deg, rgba(239, 68, 68, 0.22), rgba(185, 28, 28, 0.32));
-      border: 1px solid #ef4444;
+      gap: 0.5rem;
+      background: var(--danger-light);
+      border: 1px solid var(--danger);
       border-radius: 10px;
       padding: 0.6rem 0.9rem;
-      margin-bottom: 0.75rem;
-      color: #fca5a5;
-      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      color: var(--danger);
+      font-size: 0.82rem;
       font-weight: 600;
-      box-shadow: 0 0 18px rgba(239, 68, 68, 0.35);
-      animation: pulseError 1.8s infinite ease-in-out;
+      animation: bannerShake 0.4s ease;
     }
 
-    @keyframes pulseError {
-      0%, 100% { box-shadow: 0 0 14px rgba(239, 68, 68, 0.3); border-color: #ef4444; }
-      50% { box-shadow: 0 0 24px rgba(239, 68, 68, 0.65); border-color: #f87171; }
+    @keyframes bannerShake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-5px); }
+      40%, 80% { transform: translateX(5px); }
     }
 
-    .error-alert-banner .error-icon {
-      font-size: 1.1rem;
-      flex-shrink: 0;
-    }
-
-    .controls-row {
-      display: flex;
-      gap: 0.4rem;
-      align-items: center;
-      margin-top: 0.85rem;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      background: rgba(30, 41, 59, 0.8);
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      color: #f1f5f9;
-      padding: 0.45rem 0.8rem;
-      font-size: 0.8rem;
-      font-weight: 600;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-
-    .btn:hover {
-      background: rgba(51, 65, 85, 0.9);
-      border-color: rgba(148, 163, 184, 0.5);
-      transform: translateY(-1px);
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #4f46e5, #6366f1);
-      border-color: #818cf8;
-      color: #fff;
-    }
-
-    .btn-primary:hover {
-      background: linear-gradient(135deg, #4338ca, #4f46e5);
-      box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
-    }
-
-    .btn-accent {
-      background: linear-gradient(135deg, #0284c7, #38bdf8);
-      border-color: #7dd3fc;
-      color: #0f172a;
-      font-weight: 700;
-    }
-
-    .btn-active {
-      background: linear-gradient(135deg, #ea580c, #f97316);
-      border-color: #fdba74;
-      color: #fff;
-    }
-
-    .btn-diff {
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-    }
-
-    .btn-diff.active {
-      background: linear-gradient(135deg, #4f46e5, #6366f1) !important;
-      border-color: #a5b4fc !important;
-      color: #ffffff !important;
-      font-weight: 700 !important;
-      box-shadow: 0 0 16px rgba(99, 102, 241, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-      transform: translateY(-1px);
-    }
-
-    .keypad-grid {
-      display: grid;
-      grid-template-columns: repeat(9, 1fr);
-      gap: 0.35rem;
-      margin-top: 0.85rem;
-    }
-
-    .key-btn {
-      aspect-ratio: 1;
-      background: rgba(30, 41, 59, 0.6);
-      border: 1px solid rgba(71, 85, 105, 0.5);
-      border-radius: 8px;
-      color: #f8fafc;
-      font-size: 1.15rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.12s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Inter', sans-serif;
-    }
-
-    .key-btn:hover {
-      background: rgba(99, 102, 241, 0.3);
-      border-color: var(--primary);
-      color: #fff;
-      transform: scale(1.05);
-    }
-
-    .hud-panel {
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid rgba(99, 102, 241, 0.25);
-      border-radius: 12px;
-      padding: 1rem;
-      margin-top: 0.85rem;
-    }
-
-    .hud-header {
+    .game-toolbar {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.4rem;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
     }
 
-    .hud-technique-title {
-      font-size: 0.95rem;
+    .tool-btn {
+      flex: 1;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 0.65rem 0.4rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
       font-weight: 700;
-      color: #a5b4fc;
-    }
-
-    .hud-step-count {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      font-family: 'Fira Code', monospace;
-    }
-
-    .hud-text {
-      font-size: 0.82rem;
-      color: #cbd5e1;
-      line-height: 1.45;
-      margin-bottom: 0.75rem;
-    }
-
-    .metrics-pills {
+      cursor: pointer;
       display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tool-btn .tool-icon {
+      font-size: 1.2rem;
+    }
+
+    .tool-btn:hover {
+      background: var(--surface-elevated);
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tool-btn:active {
+      transform: translateY(0);
+    }
+
+    .tool-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+
+    .digit-keypad {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
       gap: 0.4rem;
-      flex-wrap: wrap;
     }
 
-    .pill {
-      background: rgba(30, 41, 59, 0.8);
-      border: 1px solid rgba(71, 85, 105, 0.4);
-      padding: 0.25rem 0.55rem;
-      border-radius: 6px;
-      font-size: 0.72rem;
+    .digit-btn {
+      aspect-ratio: 1;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      color: var(--text-main);
+      font-size: 1.35rem;
+      font-weight: 800;
+      cursor: pointer;
       display: flex;
-      gap: 0.35rem;
+      flex-direction: column;
       align-items: center;
-      color: #94a3b8;
+      justify-content: center;
+      position: relative;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: var(--shadow-sm);
     }
 
-    .pill-num {
-      font-weight: 700;
-      color: #f1f5f9;
-      font-family: 'Fira Code', monospace;
+    .digit-btn:hover {
+      background: var(--surface-elevated);
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: scale(1.08);
+      box-shadow: var(--shadow-md);
     }
 
-    .side-panel {
+    .digit-btn:active {
+      transform: scale(0.96);
+    }
+
+    .digit-btn.completed {
+      opacity: 0.35;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .digit-count-badge {
+      font-size: 0.62rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: -2px;
+    }
+
+    .side-stack {
       display: flex;
       flex-direction: column;
       gap: 1.25rem;
     }
 
-    .panel-title {
-      font-size: 1rem;
-      font-weight: 700;
+    .solver-hud-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 1.25rem;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 0.85rem;
+    }
+
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 800;
       display: flex;
       align-items: center;
       gap: 0.4rem;
-      color: #e2e8f0;
+      color: var(--text-main);
     }
 
-    .difficulty-selector {
+    .provenance-box {
+      background: var(--surface-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .provenance-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .provenance-text {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+
+    .solver-controls {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-action {
+      background: var(--surface-subtle);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 0.5rem 0.9rem;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s ease;
+    }
+
+    .btn-action:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--surface-elevated);
+      transform: translateY(-1px);
+    }
+
+    .btn-action.primary {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+
+    .btn-action.primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .analytics-accordion {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      transition: all 0.3s ease;
+    }
+
+    .accordion-header {
+      padding: 1.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      background: var(--surface-card);
+      transition: background 0.2s ease;
+    }
+
+    .accordion-header:hover {
+      background: var(--surface-subtle);
+    }
+
+    .accordion-content {
+      padding: 0 1.25rem 1.25rem;
+      display: none;
+    }
+
+    .analytics-accordion.open .accordion-content {
+      display: block;
+    }
+
+    /* Proportion Ribbon & Distribution Bar */
+    .proportion-card {
+      background: var(--surface-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .proportion-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .proportion-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .proportion-bar {
+      height: 12px;
+      width: 100%;
+      border-radius: 999px;
+      overflow: hidden;
+      display: flex;
+      background: rgba(0, 0, 0, 0.06);
+      margin-bottom: 0.65rem;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .proportion-seg {
+      height: 100%;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .proportion-seg.gentle { background: #16a34a; }
+    .proportion-seg.moderate { background: #eab308; }
+    .proportion-seg.challenging { background: #f97316; }
+    .proportion-seg.bottleneck { background: #dc2626; }
+
+    .proportion-legend {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 0.4rem;
-      margin-bottom: 0.75rem;
     }
 
-    .mutation-info-box {
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid rgba(99, 102, 241, 0.2);
+    .prop-chip {
+      display: flex;
+      flex-direction: column;
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
       border-radius: 8px;
-      padding: 0.6rem 0.75rem;
-      font-size: 0.75rem;
-      color: #94a3b8;
-      line-height: 1.4;
-      margin-bottom: 0.75rem;
+      padding: 0.35rem 0.45rem;
+      font-size: 0.68rem;
     }
 
-    .mutation-tag {
-      color: #38bdf8;
+    .prop-chip-header {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 0.15rem;
+    }
+
+    .prop-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .prop-dot.gentle { background: #16a34a; }
+    .prop-dot.moderate { background: #eab308; }
+    .prop-dot.challenging { background: #f97316; }
+    .prop-dot.bottleneck { background: #dc2626; }
+
+    .prop-chip-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 800;
+      font-size: 0.82rem;
+      color: var(--text-main);
+    }
+
+    .prop-chip-pct {
+      font-size: 0.65rem;
       font-weight: 600;
+      color: var(--text-muted);
+      margin-left: 0.2rem;
     }
 
-    .chart-container {
-      position: relative;
+    .chart-box {
       width: 100%;
-      height: 180px;
-      background: #090d16;
-      border-radius: 10px;
-      border: 1px solid rgba(99, 102, 241, 0.25);
+      height: 260px;
+      background: var(--surface-subtle);
+      border-radius: 12px;
       overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      margin-bottom: 1rem;
+      position: relative;
     }
 
     #trajectoryCanvas {
@@ -437,674 +742,471 @@
       display: block;
     }
 
-    .analytics-grid {
+    .stats-pills-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 0.6rem;
-      margin-top: 0.85rem;
     }
 
-    .stat-box {
-      background: rgba(15, 23, 42, 0.7);
-      border: 1px solid rgba(71, 85, 105, 0.3);
-      border-radius: 8px;
-      padding: 0.6rem;
+    .metric-card {
+      background: var(--surface-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 0.65rem 0.8rem;
     }
 
-    .stat-label {
+    .metric-label {
       font-size: 0.7rem;
+      font-weight: 600;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
 
-    .stat-val {
+    .metric-value {
       font-size: 1.05rem;
-      font-weight: 700;
-      color: #f8fafc;
-      font-family: 'Fira Code', monospace;
+      font-weight: 800;
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      margin-top: 0.2rem;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .victory-modal {
+      background: var(--surface-card);
+      border: 2px solid var(--primary);
+      border-radius: 24px;
+      padding: 2.25rem;
+      max-width: 440px;
+      width: 90%;
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(20px) scale(0.95);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+    }
+
+    .modal-backdrop.active .victory-modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .victory-badge-icon {
+      font-size: 3.5rem;
+      margin-bottom: 0.5rem;
+      animation: bounceWin 1.2s infinite alternate;
+    }
+
+    @keyframes bounceWin {
+      0% { transform: translateY(0) scale(1); }
+      100% { transform: translateY(-8px) scale(1.08); }
+    }
+
+    .victory-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 0.4rem;
+    }
+
+    .victory-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+
+    .victory-stats-row {
+      display: flex;
+      justify-content: space-around;
+      background: var(--surface-subtle);
+      border-radius: 14px;
+      padding: 0.9rem 0.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .win-stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .win-stat-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .win-stat-val {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--primary);
+      font-family: 'JetBrains Mono', monospace;
       margin-top: 0.15rem;
     }
 
-    .speed-slider-group {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-left: auto;
-    }
-
-    input[type=range] {
-      accent-color: var(--primary);
-      cursor: pointer;
-      width: 80px;
+    #confettiCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 999;
     }
   </style>
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <h1>Undoku 🧩⚡</h1>
-      <span class="tag">Web Canvas Engine</span>
+  <canvas id="confettiCanvas"></canvas>
+
+  <!-- Top Header Bar -->
+  <header class="app-header">
+    <div class="brand-group">
+      <div class="brand-logo">
+        🧩 Undoku<span class="accent-dot">.</span>
+      </div>
+      <span class="brand-badge" id="appModeBadge">Play Mode</span>
     </div>
-    <div class="nav-links">
-      <a href="./wiki/" class="nav-link">
-        <span>📖</span> Documentation Wiki
+
+    <div class="header-actions">
+      <!-- Theme Switcher -->
+      <div class="theme-switcher">
+        <button class="theme-btn active" data-theme="cozy" title="Warm Cozy Palette">☕ Cozy</button>
+        <button class="theme-btn" data-theme="light" title="Crisp Clean Minimal">☀️ Clean</button>
+        <button class="theme-btn" data-theme="dark" title="Slate Midnight Dark">🌙 Slate</button>
+      </div>
+
+      <a href="./wiki/" class="btn-header">
+        <span>📖</span> Docs
       </a>
-      <a href="https://github.com/SamSoupSauce/undoku" target="_blank" class="nav-link">
+      <a href="https://github.com/SamSoupSauce/undoku" target="_blank" class="btn-header">
         <span>⭐</span> GitHub
       </a>
     </div>
   </header>
 
-  <main class="main-layout">
-    <!-- Left Column: Sudoku Board & HUD -->
-    <div class="card">
-      <div class="status-bar">
-        <div class="badge-group">
-          <span class="badge badge-rating" id="ui-rating">Hard</span>
-          <span class="badge badge-score" id="ui-score">Score: 84.50</span>
-          <span class="badge badge-mode" id="ui-mode">Interactive Play</span>
-          <span class="badge badge-errors" id="ui-errors" title="Mistakes / Invalid inputs">⚠️ Errors: <strong id="valErrors">0</strong></span>
+  <!-- Main Game Arena -->
+  <main class="game-arena">
+    <!-- Left Column: Board & Controls -->
+    <div class="game-card">
+      <!-- Top HUD: Difficulty, Timer, Mistakes -->
+      <div class="game-hud">
+        <div class="difficulty-tabs">
+          <button class="tab-btn" data-diff="easy">Easy</button>
+          <button class="tab-btn" data-diff="medium">Medium</button>
+          <button class="tab-btn active" data-diff="hard">Hard</button>
+          <button class="tab-btn" data-diff="expert">Expert</button>
         </div>
-        <div class="speed-slider-group">
-          <span>Speed:</span>
-          <input type="range" id="speedSlider" min="1" max="10" value="8">
+
+        <div class="hud-metrics">
+          <div class="hud-chip">
+            <span class="icon">⏱️</span>
+            <span class="hud-timer" id="gameTimer">00:00</span>
+          </div>
+          <div class="hud-chip" id="chipMistakes">
+            <span class="icon">❌</span>
+            <span id="mistakeCounter">0/3</span>
+          </div>
         </div>
       </div>
 
-      <!-- Error Reason Alert Banner -->
-      <div class="error-alert-banner" id="errorBanner">
-        <span class="error-icon">❌</span>
-        <span id="errorReasonText">Conflict detected</span>
+      <!-- Conflict Alert Banner -->
+      <div class="conflict-banner" id="conflictBanner">
+        <span>⚠️</span>
+        <span id="conflictText">Conflict detected with existing cell</span>
       </div>
 
-      <div class="canvas-container">
+      <!-- Canvas Sudoku Board -->
+      <div class="board-wrapper">
         <canvas id="sudokuCanvas" width="540" height="540"></canvas>
       </div>
 
-      <!-- Controls Row -->
-      <div class="controls-row">
-        <button class="btn btn-primary" id="btnPlayPause">▶ Play Solver</button>
-        <button class="btn" id="btnPrevStep" title="Previous Step">⏮</button>
-        <button class="btn" id="btnNextStep" title="Next Step">⏭</button>
-        <button class="btn" id="btnReset" title="Reset Board">↺ Reset</button>
-        <button class="btn" id="btnToggleHeatmap">🔥 Heatmap</button>
-        <button class="btn btn-accent" id="btnDownloadReplay" title="Download animated SVG replay (unsolve + playthrough)">⬇️ SVG Replay</button>
-        <button class="btn" id="btnToggleNotes">✏️ Notes</button>
-        <button class="btn" id="btnClearCell" style="margin-left: auto;">❌ Clear</button>
+      <!-- Action Toolbar (Notes, Erase, Hint, Undo, New) -->
+      <div class="game-toolbar">
+        <button class="tool-btn" id="btnUndo" title="Undo last move (Ctrl+Z)">
+          <span class="tool-icon">↩️</span>
+          <span>Undo</span>
+        </button>
+        <button class="tool-btn" id="btnErase" title="Erase cell (Backspace/Del)">
+          <span class="tool-icon">⌫</span>
+          <span>Erase</span>
+        </button>
+        <button class="tool-btn" id="btnToggleNotes" title="Toggle Pencil / Notes Mode (N)">
+          <span class="tool-icon">✏️</span>
+          <span id="labelNotes">Notes (OFF)</span>
+        </button>
+        <button class="tool-btn" id="btnHint" title="Reveal next logical deduction (H)">
+          <span class="tool-icon">💡</span>
+          <span>Hint</span>
+        </button>
+        <button class="tool-btn" id="btnNewGame" title="Generate New Puzzle">
+          <span class="tool-icon">🎲</span>
+          <span>New Game</span>
+        </button>
       </div>
 
-      <!-- Keypad -->
-      <div class="keypad-grid">
-        <button class="key-btn" data-val="1">1</button>
-        <button class="key-btn" data-val="2">2</button>
-        <button class="key-btn" data-val="3">3</button>
-        <button class="key-btn" data-val="4">4</button>
-        <button class="key-btn" data-val="5">5</button>
-        <button class="key-btn" data-val="6">6</button>
-        <button class="key-btn" data-val="7">7</button>
-        <button class="key-btn" data-val="8">8</button>
-        <button class="key-btn" data-val="9">9</button>
-      </div>
-
-      <!-- Step Deduction HUD -->
-      <div class="hud-panel">
-        <div class="hud-header">
-          <span class="hud-technique-title" id="hudTechTitle">Interactive Player Active</span>
-          <span class="hud-step-count" id="hudStepCounter">Step 0 / 44</span>
-        </div>
-        <p class="hud-text" id="hudExplanation">
-          Click any cell to input digits using keyboard or keypad. Switch to 'Play Solver' to watch real-time step deductions.
-        </p>
-        <div class="metrics-pills">
-          <div class="pill"><span>⬌ Row Constraints:</span> <span class="pill-num" id="hudRowElims">0</span></div>
-          <div class="pill"><span>⬍ Col Constraints:</span> <span class="pill-num" id="hudColElims">0</span></div>
-          <div class="pill"><span>▦ 3x3 Box Constraints:</span> <span class="pill-num" id="hudBoxElims">0</span></div>
-          <div class="pill" style="margin-left: auto;"><span>★ Step Score:</span> <span class="pill-num" id="hudStepScore">0.00</span></div>
-        </div>
+      <!-- Tactile Digit Keypad (1-9) -->
+      <div class="digit-keypad">
+        <button class="digit-btn" data-val="1">1<span class="digit-count-badge" id="badge-1">9</span></button>
+        <button class="digit-btn" data-val="2">2<span class="digit-count-badge" id="badge-2">9</span></button>
+        <button class="digit-btn" data-val="3">3<span class="digit-count-badge" id="badge-3">9</span></button>
+        <button class="digit-btn" data-val="4">4<span class="digit-count-badge" id="badge-4">9</span></button>
+        <button class="digit-btn" data-val="5">5<span class="digit-count-badge" id="badge-5">9</span></button>
+        <button class="digit-btn" data-val="6">6<span class="digit-count-badge" id="badge-6">9</span></button>
+        <button class="digit-btn" data-val="7">7<span class="digit-count-badge" id="badge-7">9</span></button>
+        <button class="digit-btn" data-val="8">8<span class="digit-count-badge" id="badge-8">9</span></button>
+        <button class="digit-btn" data-val="9">9<span class="digit-count-badge" id="badge-9">9</span></button>
       </div>
     </div>
 
-    <!-- Right Column: Generation & Complexity Analytics -->
-    <div class="side-panel">
-      <!-- Puzzle Generation Card -->
-      <div class="card">
-        <h2 class="panel-title">⚡ Rule-Based Generator & Mutator</h2>
-        <div class="difficulty-selector">
-          <button class="btn btn-diff" id="genEasy" data-diff="easy">Easy</button>
-          <button class="btn btn-diff" id="genMedium" data-diff="medium">Medium</button>
-          <button class="btn btn-diff active" id="genHard" data-diff="hard">Hard</button>
-          <button class="btn btn-diff" id="genExpert" data-diff="expert">Expert</button>
-        </div>
-        
-        <div class="mutation-info-box" id="mutationSummary">
-          <span class="mutation-tag">Rule Mutation:</span> Bijective digit permutation, band row swaps, stack col swaps, band/stack permutations & reflections applied.
+    <!-- Right Column: Step Solver Provenance & Collapsible Analytics -->
+    <div class="side-stack">
+      <!-- Deductive Provenance & Auto-Solver Card -->
+      <div class="solver-hud-card">
+        <div class="section-header">
+          <h2 class="section-title">🧠 Logical Solver Provenance</h2>
+          <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);" id="hudStepCounter">Step 0 / 45</span>
         </div>
 
-        <div style="display: flex; gap: 0.5rem;">
-          <button class="btn btn-accent" id="btnRandomGen" style="width: 100%; justify-content: center;">
-            🎲 Generate & Mutate New Puzzle
-          </button>
+        <div class="provenance-box">
+          <div class="provenance-title" id="hudTechTitle">Interactive Play Mode</div>
+          <div class="provenance-text" id="hudExplanation">
+            Click cells and enter numbers with keyboard (1-9) or touch keypad. Press 'Hint' or 'Play Solver' to inspect exact deductive proof steps.
+          </div>
+        </div>
+
+        <div class="solver-controls">
+          <button class="btn-action primary" id="btnPlayPause">▶ Play Solver</button>
+          <button class="btn-action" id="btnPrevStep" title="Previous Step">⏮</button>
+          <button class="btn-action" id="btnNextStep" title="Next Step">⏭</button>
+          <button class="btn-action" id="btnToggleHeatmap">🔥 Heatmap</button>
+          <button class="btn-action" id="btnDownloadReplay" title="Download animated replay SVG">⬇️ SVG Replay</button>
         </div>
       </div>
 
-      <!-- Trajectory & Analytics Card -->
-      <div class="card">
-        <h2 class="panel-title">📊 Dynamic Complexity Analytics</h2>
-        <div class="chart-container">
-          <canvas id="trajectoryCanvas" width="500" height="180"></canvas>
+      <!-- Granular Analytics & Difficulty Trajectory Card -->
+      <div class="analytics-accordion open" id="analyticsAccordion">
+        <div class="accordion-header" id="accordionToggle">
+          <h2 class="section-title">📊 Granular Difficulty &amp; Trajectory</h2>
+          <span style="font-size: 0.9rem; color: var(--primary);" id="accordionChevron">▲ Hide Metrics</span>
         </div>
 
-        <div class="analytics-grid">
-          <div class="stat-box">
-            <div class="stat-label">Min / Max Step Score</div>
-            <div class="stat-val" id="statMinMax">1.45 / 2.25</div>
+        <div class="accordion-content">
+          <!-- Assertion & Difficulty Proportion Breakdown -->
+          <div class="proportion-card">
+            <div class="proportion-header">
+              <span class="proportion-title">Assertion-Solution Link Proportions</span>
+              <span style="font-size: 0.72rem; font-weight: 700; color: var(--primary);" id="propTotalSteps">45 Deduction Steps</span>
+            </div>
+
+            <!-- Segmented Distribution Ribbon Bar -->
+            <div class="proportion-bar" id="proportionBar">
+              <div class="proportion-seg gentle" id="segGentle" style="width: 40%;" title="Gentle / Direct"></div>
+              <div class="proportion-seg moderate" id="segModerate" style="width: 35%;" title="Moderate"></div>
+              <div class="proportion-seg challenging" id="segChallenging" style="width: 20%;" title="Challenging"></div>
+              <div class="proportion-seg bottleneck" id="segBottleneck" style="width: 5%;" title="Bottleneck Chain"></div>
+            </div>
+
+            <!-- Legend with Counts & Percentages -->
+            <div class="proportion-legend">
+              <div class="prop-chip">
+                <div class="prop-chip-header">
+                  <span class="prop-dot gentle"></span>
+                  <span>Gentle</span>
+                </div>
+                <div>
+                  <span class="prop-chip-val" id="cntGentle">18</span>
+                  <span class="prop-chip-pct" id="pctGentle">40%</span>
+                </div>
+              </div>
+
+              <div class="prop-chip">
+                <div class="prop-chip-header">
+                  <span class="prop-dot moderate"></span>
+                  <span>Moderate</span>
+                </div>
+                <div>
+                  <span class="prop-chip-val" id="cntModerate">16</span>
+                  <span class="prop-chip-pct" id="pctModerate">35%</span>
+                </div>
+              </div>
+
+              <div class="prop-chip">
+                <div class="prop-chip-header">
+                  <span class="prop-dot challenging"></span>
+                  <span>Hard</span>
+                </div>
+                <div>
+                  <span class="prop-chip-val" id="cntChallenging">9</span>
+                  <span class="prop-chip-pct" id="pctChallenging">20%</span>
+                </div>
+              </div>
+
+              <div class="prop-chip">
+                <div class="prop-chip-header">
+                  <span class="prop-dot bottleneck"></span>
+                  <span>Extreme</span>
+                </div>
+                <div>
+                  <span class="prop-chip-val" id="cntBottleneck">2</span>
+                  <span class="prop-chip-pct" id="pctBottleneck">5%</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="stat-box">
-            <div class="stat-label">Score Spread</div>
-            <div class="stat-val" id="statSpread">0.80</div>
+
+          <div class="chart-box">
+            <canvas id="trajectoryCanvas" width="500" height="180"></canvas>
           </div>
-          <div class="stat-box">
-            <div class="stat-label">Score Variance / StdDev</div>
-            <div class="stat-val" id="statStdDev">0.3640</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">Suddenness Jump</div>
-            <div class="stat-val" id="statSuddenness">0.8000</div>
+
+          <div class="stats-pills-grid">
+            <div class="metric-card">
+              <div class="metric-label">Granular Tier</div>
+              <div class="metric-value" id="statGranularTier" style="font-size: 0.95rem; color: var(--primary);">Hard (Tier 1)</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Total Assertions</div>
+              <div class="metric-value" id="statTotalAssertions" style="color: var(--success);">142</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Peak Bottleneck</div>
+              <div class="metric-value" id="statMaxAssertions">8 assertions</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Avg Assertions/Step</div>
+              <div class="metric-value" id="statAvgAssertions">3.45 /step</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Score Spread</div>
+              <div class="metric-value" id="statSpread">0.80</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Pacing Flow</div>
+              <div class="metric-value" id="statSuddenness">Balanced</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </main>
 
+  <!-- Victory Celebration Modal -->
+  <div class="modal-backdrop" id="victoryModal">
+    <div class="victory-modal">
+      <div class="victory-badge-icon">🏆</div>
+      <h2 class="victory-title">Puzzle Complete!</h2>
+      <p class="victory-subtitle">Splendid work! You solved this puzzle 100% logically.</p>
+
+      <div class="victory-stats-row">
+        <div class="win-stat">
+          <span class="win-stat-label">Time</span>
+          <span class="win-stat-val" id="winStatTime">03:42</span>
+        </div>
+        <div class="win-stat">
+          <span class="win-stat-label">Difficulty</span>
+          <span class="win-stat-val" id="winStatDiff">Hard</span>
+        </div>
+        <div class="win-stat">
+          <span class="win-stat-label">Mistakes</span>
+          <span class="win-stat-val" id="winStatMistakes">0</span>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 0.6rem;">
+        <button class="btn-action primary" id="btnNextPuzzle" style="flex: 1; justify-content: center; padding: 0.75rem;">
+          ▶ Next Puzzle
+        </button>
+        <button class="btn-action" id="btnWatchReplay" style="flex: 1; justify-content: center; padding: 0.75rem;">
+          🎬 Watch Replay
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Difficulty Change Confirmation Modal -->
+  <div class="modal-backdrop" id="confirmModal">
+    <div class="victory-modal" style="max-width: 400px; padding: 2rem;">
+      <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">🎲</div>
+      <h2 class="victory-title" id="confirmTitle">Start New Game?</h2>
+      <p class="victory-subtitle" id="confirmMessage" style="margin-bottom: 1.5rem;">
+        Switching difficulty to <b id="confirmTargetDiff" style="color: var(--primary); text-transform: uppercase;">Hard</b> will start a fresh puzzle and reset your current progress.
+      </p>
+
+      <div style="display: flex; gap: 0.6rem;">
+        <button class="btn-action primary" id="btnConfirmStart" style="flex: 1; justify-content: center; padding: 0.75rem;">
+          Start New Game
+        </button>
+        <button class="btn-action" id="btnConfirmCancel" style="flex: 1; justify-content: center; padding: 0.75rem;">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shared Universal Engine Loaded Statically (Bundled via npm run build) -->
+  <script src="./engine.js"></script>
+
+  <!-- Client-Side Game Visual & Interaction Engine -->
   <script>
     // ==========================================
-    // Core Sudoku Logical Engine & Rule-Based Mutator
-    // ==========================================
-    class SudokuEngine {
-      static isValid(board, r, c, num) {
-        for (let i = 0; i < 9; i++) {
-          if (board[r][i] === num || board[i][c] === num) return false;
-        }
-        const startR = Math.floor(r / 3) * 3;
-        const startC = Math.floor(c / 3) * 3;
-        for (let row = startR; row < startR + 3; row++) {
-          for (let col = startC; col < startC + 3; col++) {
-            if (board[row][col] === num) return false;
-          }
-        }
-        return true;
-      }
-
-      static shuffle(arr) {
-        for (let i = arr.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [arr[i], arr[j]] = [arr[j], arr[i]];
-        }
-        return arr;
-      }
-
-      static generateSeedBoard() {
-        const board = Array(9).fill(0).map(() => Array(9).fill(0));
-        
-        function solve(b) {
-          for (let r = 0; r < 9; r++) {
-            for (let c = 0; c < 9; c++) {
-              if (b[r][c] === 0) {
-                const nums = SudokuEngine.shuffle([1,2,3,4,5,6,7,8,9]);
-                for (const num of nums) {
-                  if (SudokuEngine.isValid(b, r, c, num)) {
-                    b[r][c] = num;
-                    if (solve(b)) return true;
-                    b[r][c] = 0;
-                  }
-                }
-                return false;
-              }
-            }
-          }
-          return true;
-        }
-
-        solve(board);
-        return board;
-      }
-
-      // Valid Sudoku Isomorphic Transformations (Rule-based mutations)
-      static mutate(puzzle, solution = null) {
-        const p = puzzle.map(r => [...r]);
-        const s = solution ? solution.map(r => [...r]) : null;
-
-        // 1. Bijective Digit Permutation (Relabeling digits 1..9)
-        const digits = SudokuEngine.shuffle([1,2,3,4,5,6,7,8,9]);
-        const mapping = {};
-        for (let i = 1; i <= 9; i++) mapping[i] = digits[i - 1];
-
-        for (let r = 0; r < 9; r++) {
-          for (let c = 0; c < 9; c++) {
-            if (p[r][c] !== 0) p[r][c] = mapping[p[r][c]];
-            if (s && s[r][c] !== 0) s[r][c] = mapping[s[r][c]];
-          }
-        }
-
-        // 2. Row Permutations within each 3-row band
-        for (let band = 0; band < 3; band++) {
-          const rowIndices = SudokuEngine.shuffle([0, 1, 2]);
-          const tempP = p.map(r => [...r]);
-          const tempS = s ? s.map(r => [...r]) : null;
-          for (let i = 0; i < 3; i++) {
-            const fromR = band * 3 + rowIndices[i];
-            const toR = band * 3 + i;
-            p[toR] = [...tempP[fromR]];
-            if (s) s[toR] = [...tempS[fromR]];
-          }
-        }
-
-        // 3. Col Permutations within each 3-col stack
-        for (let stack = 0; stack < 3; stack++) {
-          const colIndices = SudokuEngine.shuffle([0, 1, 2]);
-          const tempP = p.map(r => [...r]);
-          const tempS = s ? s.map(r => [...r]) : null;
-          for (let r = 0; r < 9; r++) {
-            for (let i = 0; i < 3; i++) {
-              const fromC = stack * 3 + colIndices[i];
-              const toC = stack * 3 + i;
-              p[r][toC] = tempP[r][fromC];
-              if (s) s[r][toC] = tempS[r][fromC];
-            }
-          }
-        }
-
-        // 4. Band Swapping (Permute entire 3x9 bands)
-        const bandOrder = SudokuEngine.shuffle([0, 1, 2]);
-        const tempP = p.map(r => [...r]);
-        const tempS = s ? s.map(r => [...r]) : null;
-        for (let b = 0; b < 3; b++) {
-          const fromB = bandOrder[b];
-          for (let r = 0; r < 3; r++) {
-            p[b * 3 + r] = [...tempP[fromB * 3 + r]];
-            if (s) s[b * 3 + r] = [...tempS[fromB * 3 + r]];
-          }
-        }
-
-        // 5. Stack Swapping (Permute entire 9x3 stacks)
-        const stackOrder = SudokuEngine.shuffle([0, 1, 2]);
-        const tempP2 = p.map(r => [...r]);
-        const tempS2 = s ? s.map(r => [...r]) : null;
-        for (let r = 0; r < 9; r++) {
-          for (let st = 0; st < 3; st++) {
-            const fromSt = stackOrder[st];
-            for (let c = 0; c < 3; c++) {
-              p[r][st * 3 + c] = tempP2[r][fromSt * 3 + c];
-              if (s) s[r][st * 3 + c] = tempS2[r][fromSt * 3 + c];
-            }
-          }
-        }
-
-        // 6. Transposition (50% chance)
-        if (Math.random() > 0.5) {
-          const tp = p.map(r => [...r]);
-          const ts = s ? s.map(r => [...r]) : null;
-          for (let r = 0; r < 9; r++) {
-            for (let c = 0; c < 9; c++) {
-              p[r][c] = tp[c][r];
-              if (s) s[r][c] = ts[c][r];
-            }
-          }
-        }
-
-        return { puzzle: p, solution: s };
-      }
-
-      static getCandidates(b, r, c) {
-        if (b[r][c] !== 0) return [];
-        const used = new Set();
-        for (let i = 0; i < 9; i++) {
-          if (b[r][i] !== 0) used.add(b[r][i]);
-          if (b[i][c] !== 0) used.add(b[i][c]);
-        }
-        const startR = Math.floor(r / 3) * 3;
-        const startC = Math.floor(c / 3) * 3;
-        for (let row = startR; row < startR + 3; row++) {
-          for (let col = startC; col < startC + 3; col++) {
-            if (b[row][col] !== 0) used.add(b[row][col]);
-          }
-        }
-        const candidates = [];
-        for (let num = 1; num <= 9; num++) {
-          if (!used.has(num)) candidates.push(num);
-        }
-        return candidates;
-      }
-
-      static analyzeEliminations(b, r, c) {
-        if (b[r][c] !== 0) return { cross_horizontal: 0, cross_vertical: 0, box_3x3: 0 };
-        let h = 0, v = 0, box = 0;
-        const startR = Math.floor(r / 3) * 3;
-        const startC = Math.floor(c / 3) * 3;
-
-        for (let num = 1; num <= 9; num++) {
-          if (SudokuEngine.isValid(b, r, c, num)) continue;
-
-          let inRow = false;
-          for (let i = 0; i < 9; i++) if (b[r][i] === num) inRow = true;
-          if (inRow) h++;
-
-          let inCol = false;
-          for (let i = 0; i < 9; i++) if (b[i][c] === num) inCol = true;
-          if (inCol) v++;
-
-          let inBox = false;
-          for (let row = startR; row < startR + 3; row++) {
-            for (let col = startC; col < startC + 3; col++) {
-              if (b[row][col] === num) inBox = true;
-            }
-          }
-          if (inBox) box++;
-        }
-        return { cross_horizontal: h, cross_vertical: v, box_3x3: box };
-      }
-
-      static findNextDeduction(b) {
-        // 1. Naked Single
-        for (let r = 0; r < 9; r++) {
-          for (let c = 0; c < 9; c++) {
-            if (b[r][c] === 0) {
-              const cands = SudokuEngine.getCandidates(b, r, c);
-              if (cands.length === 1) {
-                const val = cands[0];
-                const reasons = SudokuEngine.analyzeEliminations(b, r, c);
-                const score = 1.0 + (reasons.cross_horizontal + reasons.cross_vertical + reasons.box_3x3) * 0.05;
-                return {
-                  row: r, col: c, val,
-                  technique: "Naked Single",
-                  reasons,
-                  step_score: score,
-                  description: `Naked Single at (${r},${c}): only ${val} fits [row: ${reasons.cross_horizontal}, col: ${reasons.cross_vertical}, box: ${reasons.box_3x3}]`
-                };
-              }
-            }
-          }
-        }
-
-        // 2. Hidden Single in 3x3 Box
-        for (let boxR = 0; boxR < 9; boxR += 3) {
-          for (let boxC = 0; boxC < 9; boxC += 3) {
-            for (let num = 1; num <= 9; num++) {
-              let count = 0, targetR = -1, targetC = -1;
-              for (let r = boxR; r < boxR + 3; r++) {
-                for (let c = boxC; c < boxC + 3; c++) {
-                  if (b[r][c] === 0 && SudokuEngine.isValid(b, r, c, num)) {
-                    count++;
-                    targetR = r;
-                    targetC = c;
-                  }
-                }
-              }
-              if (count === 1) {
-                const reasons = SudokuEngine.analyzeEliminations(b, targetR, targetC);
-                const score = 1.5 + (reasons.cross_horizontal + reasons.cross_vertical + reasons.box_3x3) * 0.05;
-                return {
-                  row: targetR, col: targetC, val: num,
-                  technique: "Hidden Single Box",
-                  reasons,
-                  step_score: score,
-                  description: `Hidden Single in Box at (${targetR},${targetC}): ${num} is unique in box`
-                };
-              }
-            }
-          }
-        }
-
-        // 3. Hidden Single in Row
-        for (let r = 0; r < 9; r++) {
-          for (let num = 1; num <= 9; num++) {
-            let count = 0, targetC = -1;
-            for (let c = 0; c < 9; c++) {
-              if (b[r][c] === 0 && SudokuEngine.isValid(b, r, c, num)) {
-                count++;
-                targetC = c;
-              }
-            }
-            if (count === 1) {
-              const reasons = SudokuEngine.analyzeEliminations(b, r, targetC);
-              const score = 1.8 + (reasons.cross_horizontal + reasons.cross_vertical + reasons.box_3x3) * 0.05;
-              return {
-                row: r, col: targetC, val: num,
-                technique: "Hidden Single Row",
-                reasons,
-                step_score: score,
-                description: `Hidden Single in Row ${r} at (${r},${targetC}): ${num} is unique in row`
-              };
-            }
-          }
-        }
-
-        // 4. Hidden Single in Col
-        for (let c = 0; c < 9; c++) {
-          for (let num = 1; num <= 9; num++) {
-            let count = 0, targetR = -1;
-            for (let r = 0; r < 9; r++) {
-              if (b[r][c] === 0 && SudokuEngine.isValid(b, r, c, num)) {
-                count++;
-                targetR = r;
-              }
-            }
-            if (count === 1) {
-              const reasons = SudokuEngine.analyzeEliminations(b, targetR, c);
-              const score = 1.8 + (reasons.cross_horizontal + reasons.cross_vertical + reasons.box_3x3) * 0.05;
-              return {
-                row: targetR, col: c, val: num,
-                technique: "Hidden Single Col",
-                reasons,
-                step_score: score,
-                description: `Hidden Single in Col ${c} at (${targetR},${c}): ${num} is unique in column`
-              };
-            }
-          }
-        }
-
-        return null;
-      }
-
-      // Solve & dynamically assess difficulty
-      static solveAndAssess(puzzle) {
-        const work = puzzle.map(r => [...r]);
-        const deductions = [];
-        let totalScore = 0;
-
-        while (true) {
-          let filled = true;
-          for (let r = 0; r < 9; r++) {
-            for (let c = 0; c < 9; c++) {
-              if (work[r][c] === 0) { filled = false; break; }
-            }
-            if (!filled) break;
-          }
-          if (filled) break;
-
-          const deduction = SudokuEngine.findNextDeduction(work);
-          if (!deduction) {
-            return { solved: false, deductions, totalScore, rating: "Expert+" };
-          }
-
-          work[deduction.row][deduction.col] = deduction.val;
-          deductions.push(deduction);
-          totalScore += deduction.step_score;
-        }
-
-        let rating = "Easy";
-        if (totalScore >= 115) rating = "Expert";
-        else if (totalScore >= 75) rating = "Hard";
-        else if (totalScore >= 45) rating = "Medium";
-
-        // Calculate analytics
-        const scores = deductions.map(d => d.step_score);
-        const minScore = scores.length ? Math.min(...scores) : 0;
-        const maxScore = scores.length ? Math.max(...scores) : 0;
-        const spread = maxScore - minScore;
-        const mean = scores.length ? totalScore / scores.length : 0;
-        
-        let variance = 0;
-        let suddenness = 0;
-        for (let i = 0; i < scores.length; i++) {
-          variance += Math.pow(scores[i] - mean, 2);
-          if (i > 0) {
-            const jump = Math.abs(scores[i] - scores[i - 1]);
-            if (jump > suddenness) suddenness = jump;
-          }
-        }
-        variance = scores.length ? variance / scores.length : 0;
-        const stdDev = Math.sqrt(variance);
-
-        return {
-          solved: true,
-          deductions,
-          totalScore,
-          rating,
-          metrics: {
-            min: minScore,
-            max: maxScore,
-            spread,
-            stdDev,
-            suddenness
-          }
-        };
-      }
-
-      static generateAndCarve(targetDiff = "hard") {
-        // 1. Generate full board
-        let full = SudokuEngine.generateSeedBoard();
-
-        // 2. Rule-Based Mutation of full board
-        const mut1 = SudokuEngine.mutate(full);
-        full = mut1.puzzle;
-
-        let targetBlanks = 46;
-        if (targetDiff === "easy") targetBlanks = 30 + Math.floor(Math.random() * 6);
-        else if (targetDiff === "medium") targetBlanks = 38 + Math.floor(Math.random() * 6);
-        else if (targetDiff === "hard") targetBlanks = 46 + Math.floor(Math.random() * 6);
-        else if (targetDiff === "expert") targetBlanks = 53 + Math.floor(Math.random() * 5);
-
-        let puzzle = full.map(r => [...r]);
-        const positions = [];
-        for (let r = 0; r < 9; r++) {
-          for (let c = 0; c < 9; c++) positions.push({ r, c });
-        }
-        SudokuEngine.shuffle(positions);
-
-        for (const pos of positions) {
-          if (targetBlanks <= 0) break;
-          const orig = puzzle[pos.r][pos.c];
-          puzzle[pos.r][pos.c] = 0;
-
-          const testResult = SudokuEngine.solveAndAssess(puzzle);
-          if (testResult.solved) {
-            targetBlanks--;
-          } else {
-            puzzle[pos.r][pos.c] = orig;
-          }
-        }
-
-        // 3. Apply rule-based mutations to final carved puzzle & solution simultaneously
-        const mutatedPair = SudokuEngine.mutate(puzzle, full);
-        puzzle = mutatedPair.puzzle;
-        full = mutatedPair.solution;
-
-        // 4. Assess dynamically
-        const assessment = SudokuEngine.solveAndAssess(puzzle);
-
-        return {
-          puzzle,
-          solution: full,
-          deductions: assessment.deductions,
-          rating: assessment.rating,
-          totalScore: assessment.totalScore,
-          metrics: assessment.metrics
-        };
-      }
-    }
-
-    // ==========================================
-    // Application State & Canvas Render Engine
+    // Client-Side Sudoku Game Controller (0 API Requests)
     // ==========================================
     let initialGrid = [];
     let userGrid = [];
-    let notesGrid = Array(9).fill(null).map(() => Array(9).fill(null).map(() => new Set()));
+    let notesGrid = Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set()));
+    let solutionGrid = [];
     let deductions = [];
+    let moveHistory = [];
+
+    let selectedCell = { r: 0, c: 0 };
     let currentStepIdx = 0;
     let isPlayingSolver = false;
     let isNotesMode = false;
     let showHeatmap = false;
-    let selectedCell = { r: 0, c: 2 };
-    let particles = [];
-    let difficultyRating = "Hard";
-    let totalScore = 84.50;
+    let currentDifficulty = 'hard';
 
-    let errorCount = 0;
-    let currentError = null; // { r, c, val, reason, conflictCells: [] }
+    let gameTimeSeconds = 0;
+    let timerInterval = null;
+    let mistakesCount = 0;
+    const maxMistakes = 3;
+
+    let particles = [];
+    let currentConflict = null;
     let boardShake = 0;
     let animPhase = 0;
 
-    function checkDigitValidity(r, c, val) {
-      if (val === 0) return { valid: true };
-
-      // 1. Check Row Duplicates
-      for (let otherC = 0; otherC < 9; otherC++) {
-        if (otherC !== c && userGrid[r][otherC] === val) {
-          return {
-            valid: false,
-            reason: `Digit ${val} already exists in Row ${r + 1} at Column ${otherC + 1}!`,
-            conflictCells: [{ r, c: otherC }]
-          };
-        }
-      }
-
-      // 2. Check Column Duplicates
-      for (let otherR = 0; otherR < 9; otherR++) {
-        if (otherR !== r && userGrid[otherR][c] === val) {
-          return {
-            valid: false,
-            reason: `Digit ${val} already exists in Column ${c + 1} at Row ${otherR + 1}!`,
-            conflictCells: [{ r: otherR, c }]
-          };
-        }
-      }
-
-      // 3. Check 3x3 Box Duplicates
-      const boxStartR = Math.floor(r / 3) * 3;
-      const boxStartC = Math.floor(c / 3) * 3;
-      const boxNum = Math.floor(r / 3) * 3 + Math.floor(c / 3) + 1;
-      for (let br = boxStartR; br < boxStartR + 3; br++) {
-        for (let bc = boxStartC; bc < boxStartC + 3; bc++) {
-          if ((br !== r || bc !== c) && userGrid[br][bc] === val) {
-            return {
-              valid: false,
-              reason: `Digit ${val} already exists in 3x3 Box #${boxNum} at (Row ${br + 1}, Col ${bc + 1})!`,
-              conflictCells: [{ r: br, c: bc }]
-            };
-          }
-        }
-      }
-
-      // 4. Check Ground Truth Mathematical Solution
-      if (currentSolutionGrid.length && currentSolutionGrid[r][c] !== val) {
-        return {
-          valid: false,
-          reason: `Digit ${val} violates the deductive constraints for cell (Row ${r + 1}, Col ${c + 1})!`,
-          conflictCells: []
-        };
-      }
-
-      return { valid: true };
-    }
+    // --- Unsolve / Carving Animation State ---
+    let isUnsolving = false;
+    let unsolveStartTime = 0;
+    const unsolveDuration = 850; // ms
+    let unsolveCarvedCells = []; // array of { r, c, val, dissolveThreshold, spawned }
 
     const boardCanvas = document.getElementById('sudokuCanvas');
     const boardCtx = boardCanvas.getContext('2d');
     const chartCanvas = document.getElementById('trajectoryCanvas');
     const chartCtx = chartCanvas.getContext('2d');
+    const confettiCanvas = document.getElementById('confettiCanvas');
+    const confettiCtx = confettiCanvas.getContext('2d');
 
     function setupHighDPI(canvas, ctx) {
       const rect = canvas.getBoundingClientRect();
@@ -1117,145 +1219,152 @@
     function initCanvases() {
       setupHighDPI(boardCanvas, boardCtx);
       setupHighDPI(chartCanvas, chartCtx);
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
     }
     window.addEventListener('resize', initCanvases);
 
-    let isUnsolvingAnimation = false;
-    let unsolveTimer = null;
+    // --- Timer Management ---
+    function startTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      gameTimeSeconds = 0;
+      updateTimerDisplay();
+      timerInterval = setInterval(() => {
+        if (!isPlayingSolver) {
+          gameTimeSeconds++;
+          updateTimerDisplay();
+        }
+      }, 1000);
+    }
 
-    function animateUnsolvingTransition(solutionBoard, puzzleBoard) {
-      if (unsolveTimer) clearInterval(unsolveTimer);
-      isUnsolvingAnimation = true;
-      isPlayingSolver = false;
-      document.getElementById('btnPlayPause').innerText = '▶ Play Solver';
+    function updateTimerDisplay() {
+      const m = Math.floor(gameTimeSeconds / 60);
+      const s = gameTimeSeconds % 60;
+      const str = `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
+      const el = document.getElementById('gameTimer');
+      if (el) el.innerText = str;
+    }
 
-      currentSolutionGrid = solutionBoard.map(row => [...row]);
-      currentCarvedGrid = puzzleBoard.map(row => [...row]);
+    // --- Theme Switcher ---
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const theme = btn.getAttribute('data-theme');
+        document.documentElement.setAttribute('data-theme', theme);
+        drawTrajectoryChart();
+      });
+    });
 
-      errorCount = 0;
-      currentError = null;
-      boardShake = 0;
-      const errBanner = document.getElementById('errorBanner');
-      if (errBanner) errBanner.style.display = 'none';
-      const valErrors = document.getElementById('valErrors');
-      if (valErrors) valErrors.innerText = '0';
-
-      // Start with fully solved board
-      initialGrid = solutionBoard.map(row => [...row]);
-      userGrid = solutionBoard.map(row => [...row]);
-      notesGrid = Array(9).fill(null).map(() => Array(9).fill(null).map(() => new Set()));
-
-      const hudTech = document.getElementById('hudTechTitle');
-      const hudDesc = document.getElementById('hudExplanation');
-      const uiMode = document.getElementById('ui-mode');
-      if (uiMode) uiMode.innerText = "⚡ Solved Matrix Generated";
-      if (hudTech) hudTech.innerText = "⚡ Full Solved Board Showcase";
-      if (hudDesc) hudDesc.innerText = "Generated full 100% valid matrix. Beginning rhythmic unsolving into clues...";
-
-      // Collect all blank coordinates to dissolve
-      const blanks = [];
+    // --- Remaining Digits Counters ---
+    function updateDigitCounters() {
+      const counts = new Array(10).fill(0);
       for (let r = 0; r < 9; r++) {
         for (let c = 0; c < 9; c++) {
-          if (puzzleBoard[r][c] === 0) {
-            blanks.push({ r, c });
-          }
+          const val = userGrid[r] ? userGrid[r][c] : 0;
+          if (val >= 1 && val <= 9) counts[val]++;
         }
       }
-      SudokuEngine.shuffle(blanks);
-
-      const rect = boardCanvas.getBoundingClientRect();
-      const cellSize = rect.width / 9;
-
-      // Showcase full solved board for 700ms, then rhythmically carve blanks
-      setTimeout(() => {
-        if (uiMode) uiMode.innerText = "⚡ Unsolving into Clues...";
-        if (hudTech) hudTech.innerText = "⚡ Carving Clues with Solvability Invariant...";
-        if (hudDesc) hudDesc.innerText = "Vaporizing cells dynamically while verifying 100% deductive solvability!";
-
-        let idx = 0;
-        unsolveTimer = setInterval(() => {
-          if (idx >= blanks.length) {
-            clearInterval(unsolveTimer);
-            isUnsolvingAnimation = false;
-            initialGrid = puzzleBoard.map(row => [...row]);
-            userGrid = puzzleBoard.map(row => [...row]);
-            currentStepIdx = 0;
-            if (uiMode) uiMode.innerText = "Interactive Play";
-            updateUI();
-            drawTrajectoryChart();
-            return;
-          }
-
-          const b = blanks[idx];
-          userGrid[b.r][b.c] = 0;
-          spawnParticles(b.c * cellSize + cellSize / 2, b.r * cellSize + cellSize / 2, "#f43f5e");
-          idx++;
-        }, 36);
-      }, 700);
+      for (let num = 1; num <= 9; num++) {
+        const left = Math.max(0, 9 - counts[num]);
+        const badge = document.getElementById(`badge-${num}`);
+        const btn = document.querySelector(`.digit-btn[data-val="${num}"]`);
+        if (badge) badge.innerText = left > 0 ? `${left} left` : '✓';
+        if (btn) {
+          if (left === 0) btn.classList.add('completed');
+          else btn.classList.remove('completed');
+        }
+      }
     }
 
-    // Dynamic generation with rule mutation + API fetch or client fallback
-    async function loadNewPuzzle(difficulty = "hard") {
-      try {
-        const res = await fetch(`/api/puzzles/generate?difficulty=${difficulty}`, { method: 'POST' });
-        if (res.ok) {
-          const rec = await res.json();
-          const bStr = rec.board_state;
-          const sStr = rec.solution;
-          const parsedPuzzle = [];
-          const parsedSolution = [];
-          for (let r = 0; r < 9; r++) {
-            parsedPuzzle[r] = [];
-            parsedSolution[r] = [];
-            for (let c = 0; c < 9; c++) {
-              const ch = bStr[r * 9 + c];
-              parsedPuzzle[r][c] = ch === '.' ? 0 : parseInt(ch, 10);
-              const solCh = sStr[r * 9 + c];
-              parsedSolution[r][c] = parseInt(solCh, 10);
-            }
-          }
+    // --- Game Loading & Initialization (100% In-Browser from Bundled Code) ---
+    function loadPuzzle(difficulty = "hard") {
+      currentDifficulty = difficulty;
+      isPlayingSolver = false;
+      pendingDifficulty = null;
+      document.getElementById('btnPlayPause').innerText = '▶ Play Solver';
+      document.getElementById('appModeBadge').innerText = '⚡ Carving...';
 
-          difficultyRating = rec.difficulty_rating;
-          totalScore = rec.total_score;
-          deductions = rec.step_deductions ? JSON.parse(rec.step_deductions) : [];
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        if (b.getAttribute('data-diff') === difficulty) b.classList.add('active');
+        else b.classList.remove('active');
+      });
 
-          if (rec.metrics) {
-            updateMetricsUI(rec.metrics);
-          } else {
-            const assess = SudokuEngine.solveAndAssess(parsedPuzzle);
-            updateMetricsUI(assess.metrics);
-          }
+      // Clear any active modals
+      const victoryEl = document.getElementById('victoryModal');
+      if (victoryEl) victoryEl.classList.remove('active');
+      const confirmEl = document.getElementById('confirmModal');
+      if (confirmEl) confirmEl.classList.remove('active');
 
-          animateUnsolvingTransition(parsedSolution, parsedPuzzle);
-          return;
-        }
-      } catch (err) {
-        console.log("REST API endpoint bypassed, executing client-side rule mutation & dynamic evaluation.");
-      }
+      mistakesCount = 0;
+      document.getElementById('mistakeCounter').innerText = `${mistakesCount}/${maxMistakes}`;
+      document.getElementById('chipMistakes').classList.remove('warning');
+      document.getElementById('conflictBanner').style.display = 'none';
 
-      // Client-side rule mutation + carving + logical assessment
-      const res = SudokuEngine.generateAndCarve(difficulty);
-      difficultyRating = res.rating;
-      totalScore = res.totalScore;
+      moveHistory = [];
+      notesGrid = Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set()));
+      currentConflict = null;
+      boardShake = 0;
+      particles = [];
+      confettiParticles = [];
+      selectedCell = { r: 0, c: 0 };
+
+      // Pure client-side generation using bundled shared engine!
+      const res = window.SudokuEngine.generateAndCarve(difficulty);
+      initialGrid = res.puzzle.map(r => [...r]);
+      userGrid = res.puzzle.map(r => [...r]);
+      solutionGrid = res.solution.map(r => [...r]);
       deductions = res.deductions;
-      updateMetricsUI(res.metrics);
+      currentStepIdx = 0;
 
-      animateUnsolvingTransition(res.solution, res.puzzle);
+      // Prepare Un-solve / Reverse Carving Animation Sequence
+      unsolveCarvedCells = [];
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (initialGrid[r][c] === 0) {
+            unsolveCarvedCells.push({
+              r, c,
+              val: solutionGrid[r][c],
+              dissolveThreshold: 0,
+              spawned: false
+            });
+          }
+        }
+      }
+      // Shuffle unsolve order so carving sweeps organically across the grid
+      const rng = new window.FastRand();
+      rng.shuffle(unsolveCarvedCells);
+      const totalCarved = unsolveCarvedCells.length;
+      unsolveCarvedCells.forEach((cell, idx) => {
+        cell.dissolveThreshold = (idx / totalCarved) * 0.85;
+      });
+
+      isUnsolving = true;
+      unsolveStartTime = performance.now();
+      document.getElementById('hudTechTitle').innerText = '⚡ Reverse Solving & Carving Matrix';
+      document.getElementById('hudExplanation').innerText = `Carving 9x9 solution matrix into ${81 - totalCarved} deterministic clues (${currentDifficulty.toUpperCase()})...`;
+
+      updateMetricsDisplay(res.metrics);
+      updateDigitCounters();
+      updateProportionRibbon();
+      drawTrajectoryChart();
     }
 
-    function updateMetricsUI(metrics) {
-      if (!metrics) return;
-      document.getElementById('statMinMax').innerText = `${metrics.min.toFixed(2)} / ${metrics.max.toFixed(2)}`;
-      document.getElementById('statSpread').innerText = metrics.spread.toFixed(2);
-      document.getElementById('statStdDev').innerText = metrics.stdDev.toFixed(4);
-      document.getElementById('statSuddenness').innerText = metrics.suddenness.toFixed(4);
+    function updateMetricsDisplay(m) {
+      if (!m) return;
+      document.getElementById('statGranularTier').innerText = m.granular_tier || m.granularTier || currentDifficulty;
+      document.getElementById('statTotalAssertions').innerText = `${m.total_assertions || m.totalAssertions || 0} assertions`;
+      document.getElementById('statMaxAssertions').innerText = `${m.max_step_assertions || m.maxStepAssertions || 0} assertions`;
+      document.getElementById('statAvgAssertions').innerText = `${(m.avg_assertions_per_step || m.avgAssertions || 0).toFixed(2)} /step`;
+      document.getElementById('statSpread').innerText = (m.score_spread || m.spread || 0).toFixed(2);
+      document.getElementById('statSuddenness').innerText = m.difficulty_pacing || m.pacing || "Balanced";
     }
 
     // --- Particle System ---
-    function spawnParticles(x, y, color) {
-      for (let i = 0; i < 20; i++) {
+    function spawnParticles(x, y, color = "#e06c3a") {
+      for (let i = 0; i < 18; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = 1.5 + Math.random() * 4;
+        const speed = 1.5 + Math.random() * 3.5;
         particles.push({
           x, y,
           vx: Math.cos(angle) * speed,
@@ -1263,7 +1372,7 @@
           radius: 2 + Math.random() * 2.5,
           color,
           alpha: 1.0,
-          decay: 0.015 + Math.random() * 0.025
+          decay: 0.02 + Math.random() * 0.02
         });
       }
     }
@@ -1278,160 +1387,110 @@
       }
     }
 
+    // --- Board Rendering (Theme-Aware, High-Legibility) ---
     function renderBoard() {
       const rect = boardCanvas.getBoundingClientRect();
       const width = rect.width;
       const height = rect.height;
       const cellSize = width / 9;
+      const now = performance.now();
+      const elapsedUnsolve = isUnsolving ? (now - unsolveStartTime) : 99999;
+      const unsolveProgress = Math.min(1.0, elapsedUnsolve / unsolveDuration);
+
+      if (isUnsolving && unsolveProgress >= 1.0) {
+        isUnsolving = false;
+        document.getElementById('appModeBadge').innerText = 'Play Mode';
+        updateHUD();
+        startTimer();
+      }
 
       boardCtx.clearRect(0, 0, width, height);
 
-      // Camera shake displacement on wrong numbers
       let didShake = false;
       if (boardShake > 0) {
-        const shakeX = Math.sin(animPhase * 50) * boardShake * 8;
-        const shakeY = Math.cos(animPhase * 45) * boardShake * 6;
+        const shakeX = Math.sin(animPhase * 50) * boardShake * 6;
+        const shakeY = Math.cos(animPhase * 45) * boardShake * 4;
         boardCtx.save();
         boardCtx.translate(shakeX, shakeY);
         boardShake = Math.max(0, boardShake - 0.035);
         didShake = true;
       }
 
-      // 1. Background
-      boardCtx.fillStyle = "#090d16";
+      const style = getComputedStyle(document.documentElement);
+      const colorBoardBg = style.getPropertyValue('--board-bg').trim() || '#ffffff';
+      const colorCellAlt = style.getPropertyValue('--cell-bg-alt').trim() || '#fdfbf7';
+      const colorSelected = style.getPropertyValue('--cell-selected').trim() || '#fed7aa';
+      const colorMatch = style.getPropertyValue('--cell-match').trim() || '#ffedd5';
+      const colorConflict = style.getPropertyValue('--cell-conflict').trim() || '#fee2e2';
+      const colorGridLine = style.getPropertyValue('--grid-line').trim() || '#e2d9cb';
+      const colorBoxLine = style.getPropertyValue('--box-line').trim() || '#5c4e3c';
+      const colorGiven = style.getPropertyValue('--digit-given').trim() || '#241c14';
+      const colorUser = style.getPropertyValue('--digit-user').trim() || '#e06c3a';
+      const colorNote = style.getPropertyValue('--digit-note').trim() || '#786c5c';
+      const colorPrimary = style.getPropertyValue('--primary').trim() || '#e06c3a';
+
+      boardCtx.fillStyle = colorBoardBg;
       boardCtx.fillRect(0, 0, width, height);
 
-      // Active solver deduction
-      const activeDeduction = (isPlayingSolver || currentStepIdx > 0) && currentStepIdx <= deductions.length && currentStepIdx > 0
-        ? deductions[currentStepIdx - 1]
-        : null;
+      const selectedVal = selectedCell && userGrid[selectedCell.r] ? userGrid[selectedCell.r][selectedCell.c] : 0;
 
-      // 2. Elimination Heatmap Overlay
-      if (showHeatmap && initialGrid.length) {
-        for (let r = 0; r < 9; r++) {
-          for (let c = 0; c < 9; c++) {
-            if (initialGrid[r][c] === 0) {
-              const d = deductions.find(item => item.row === r && item.col === c);
-              const totalElims = d && d.reasons ? (d.reasons.cross_horizontal + d.reasons.cross_vertical + d.reasons.box_3x3) : 7;
-              const intensity = Math.min(1, Math.max(0.2, totalElims / 12));
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          const x = c * cellSize;
+          const y = r * cellSize;
+          const isAlt = (Math.floor(r / 3) + Math.floor(c / 3)) % 2 === 1;
 
-              boardCtx.fillStyle = `rgba(239, 68, 68, ${intensity * 0.55})`;
-              boardCtx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
-            }
+          boardCtx.fillStyle = isAlt ? colorCellAlt : colorBoardBg;
+
+          if (selectedCell && (selectedCell.r === r || selectedCell.c === c || (Math.floor(selectedCell.r/3) === Math.floor(r/3) && Math.floor(selectedCell.c/3) === Math.floor(c/3)))) {
+            boardCtx.fillStyle = colorMatch;
           }
-        }
-      }
 
-      // 3. Highlight Crossbars & Active Solver Step with Glowing Laser Beams
-      if (activeDeduction) {
-        const pulse = 0.5 + 0.5 * Math.sin(animPhase * 8);
-
-        // Row laser beam
-        boardCtx.fillStyle = "rgba(99, 102, 241, 0.16)";
-        boardCtx.fillRect(0, activeDeduction.row * cellSize, width, cellSize);
-        boardCtx.strokeStyle = "rgba(129, 140, 248, 0.4)";
-        boardCtx.lineWidth = 1.5;
-        boardCtx.beginPath();
-        boardCtx.moveTo(0, activeDeduction.row * cellSize + cellSize / 2);
-        boardCtx.lineTo(width, activeDeduction.row * cellSize + cellSize / 2);
-        boardCtx.stroke();
-
-        // Column laser beam
-        boardCtx.fillStyle = "rgba(99, 102, 241, 0.16)";
-        boardCtx.fillRect(activeDeduction.col * cellSize, 0, cellSize, height);
-        boardCtx.beginPath();
-        boardCtx.moveTo(activeDeduction.col * cellSize + cellSize / 2, 0);
-        boardCtx.lineTo(activeDeduction.col * cellSize + cellSize / 2, height);
-        boardCtx.stroke();
-
-        // 3x3 Box Constraint Highlight
-        const boxR = Math.floor(activeDeduction.row / 3) * 3;
-        const boxC = Math.floor(activeDeduction.col / 3) * 3;
-        boardCtx.fillStyle = "rgba(168, 85, 247, 0.12)";
-        boardCtx.fillRect(boxC * cellSize, boxR * cellSize, cellSize * 3, cellSize * 3);
-        boardCtx.strokeStyle = "rgba(168, 85, 247, 0.45)";
-        boardCtx.lineWidth = 2;
-        boardCtx.strokeRect(boxC * cellSize + 1, boxR * cellSize + 1, cellSize * 3 - 2, cellSize * 3 - 2);
-
-        // Active Cell Radial Glow & Pop
-        boardCtx.fillStyle = `rgba(245, 158, 11, ${0.35 + pulse * 0.35})`;
-        boardCtx.fillRect(activeDeduction.col * cellSize, activeDeduction.row * cellSize, cellSize, cellSize);
-
-        boardCtx.strokeStyle = `rgba(251, 191, 36, ${0.8 + pulse * 0.2})`;
-        boardCtx.lineWidth = 3;
-        boardCtx.strokeRect(activeDeduction.col * cellSize + 2, activeDeduction.row * cellSize + 2, cellSize - 4, cellSize - 4);
-      }
-
-      // 3.5 Error Crosshairs & Conflict Highlights
-      if (currentError) {
-        const errPulse = 0.5 + 0.5 * Math.sin(animPhase * 12);
-
-        // Crimson Row & Col Crosshairs
-        boardCtx.fillStyle = `rgba(239, 68, 68, ${0.20 + errPulse * 0.12})`;
-        boardCtx.fillRect(0, currentError.r * cellSize, width, cellSize);
-        boardCtx.fillRect(currentError.c * cellSize, 0, cellSize, height);
-
-        boardCtx.strokeStyle = `rgba(239, 68, 68, ${0.75 + errPulse * 0.25})`;
-        boardCtx.lineWidth = 2;
-        boardCtx.beginPath();
-        boardCtx.moveTo(0, currentError.r * cellSize + cellSize / 2);
-        boardCtx.lineTo(width, currentError.r * cellSize + cellSize / 2);
-        boardCtx.moveTo(currentError.c * cellSize + cellSize / 2, 0);
-        boardCtx.lineTo(currentError.c * cellSize + cellSize / 2, height);
-        boardCtx.stroke();
-
-        // Crimson Box Constraint
-        const errBoxR = Math.floor(currentError.r / 3) * 3;
-        const errBoxC = Math.floor(currentError.c / 3) * 3;
-        boardCtx.fillStyle = "rgba(239, 68, 68, 0.14)";
-        boardCtx.fillRect(errBoxC * cellSize, errBoxR * cellSize, cellSize * 3, cellSize * 3);
-        boardCtx.strokeStyle = "rgba(239, 68, 68, 0.65)";
-        boardCtx.lineWidth = 2;
-        boardCtx.strokeRect(errBoxC * cellSize + 1, errBoxR * cellSize + 1, cellSize * 3 - 2, cellSize * 3 - 2);
-
-        // Conflicting Partner Cells
-        if (currentError.conflictCells) {
-          for (const cc of currentError.conflictCells) {
-            boardCtx.fillStyle = `rgba(239, 68, 68, ${0.4 + errPulse * 0.3})`;
-            boardCtx.fillRect(cc.c * cellSize, cc.r * cellSize, cellSize, cellSize);
-            boardCtx.strokeStyle = "#f87171";
-            boardCtx.lineWidth = 2.5;
-            boardCtx.strokeRect(cc.c * cellSize + 2, cc.r * cellSize + 2, cellSize - 4, cellSize - 4);
+          if (selectedVal !== 0 && userGrid[r] && userGrid[r][c] === selectedVal) {
+            boardCtx.fillStyle = colorSelected;
           }
-        }
 
-        // Target Error Cell Alert Pulse
-        boardCtx.fillStyle = `rgba(239, 68, 68, ${0.5 + errPulse * 0.4})`;
-        boardCtx.fillRect(currentError.c * cellSize, currentError.r * cellSize, cellSize, cellSize);
-        boardCtx.strokeStyle = "#ef4444";
-        boardCtx.lineWidth = 3.5;
-        boardCtx.strokeRect(currentError.c * cellSize + 1.5, currentError.r * cellSize + 1.5, cellSize - 3, cellSize - 3);
-      }
+          if (currentConflict && ((currentConflict.r === r && currentConflict.c === c) || currentConflict.conflicts.some(cc => cc.r === r && cc.c === c))) {
+            boardCtx.fillStyle = colorConflict;
+          }
 
-      // 4. Highlight Selected Cell & Matching Digits
-      if (selectedCell && userGrid.length) {
-        boardCtx.fillStyle = "rgba(56, 189, 248, 0.2)";
-        boardCtx.fillRect(selectedCell.c * cellSize, selectedCell.r * cellSize, cellSize, cellSize);
-
-        boardCtx.strokeStyle = "#38bdf8";
-        boardCtx.lineWidth = 2;
-        boardCtx.strokeRect(selectedCell.c * cellSize + 1, selectedCell.r * cellSize + 1, cellSize - 2, cellSize - 2);
-
-        const selVal = userGrid[selectedCell.r][selectedCell.c];
-        if (selVal !== 0) {
-          for (let r = 0; r < 9; r++) {
-            for (let c = 0; c < 9; c++) {
-              if ((r !== selectedCell.r || c !== selectedCell.c) && userGrid[r][c] === selVal) {
-                boardCtx.fillStyle = "rgba(56, 189, 248, 0.14)";
-                boardCtx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
+          // Unsolve Carving Flash / Heatmap Overlay
+          if (isUnsolving) {
+            const carvedInfo = unsolveCarvedCells.find(u => u.r === r && u.c === c);
+            if (carvedInfo) {
+              if (unsolveProgress >= carvedInfo.dissolveThreshold && unsolveProgress < carvedInfo.dissolveThreshold + 0.12) {
+                const flash = Math.sin((unsolveProgress - carvedInfo.dissolveThreshold) * Math.PI / 0.12);
+                boardCtx.fillStyle = `rgba(224, 108, 58, ${0.12 + flash * 0.35})`;
               }
             }
+          } else if (showHeatmap && initialGrid.length && initialGrid[r][c] === 0) {
+            const d = deductions.find(item => item.row === r && item.col === c);
+            const totalElims = d && d.reasons ? (d.reasons.cross_horizontal + d.reasons.cross_vertical + d.reasons.box_3x3) : 6;
+            const intensity = Math.min(1, Math.max(0.15, totalElims / 12));
+            boardCtx.fillStyle = `rgba(224, 108, 58, ${intensity * 0.45})`;
           }
+
+          boardCtx.fillRect(x, y, cellSize, cellSize);
         }
       }
 
-      // 5. Grid Lines
-      boardCtx.strokeStyle = "rgba(51, 65, 85, 0.6)";
+      const activeDeduction = !isUnsolving && (isPlayingSolver || currentStepIdx > 0) && currentStepIdx <= deductions.length && currentStepIdx > 0
+        ? deductions[currentStepIdx - 1] : null;
+
+      if (activeDeduction) {
+        const pulse = 0.5 + 0.5 * Math.sin(animPhase * 8);
+        const ar = activeDeduction.row;
+        const ac = activeDeduction.col;
+
+        boardCtx.fillStyle = `rgba(224, 108, 58, ${0.25 + pulse * 0.2})`;
+        boardCtx.fillRect(ac * cellSize, ar * cellSize, cellSize, cellSize);
+
+        boardCtx.strokeStyle = colorPrimary;
+        boardCtx.lineWidth = 3;
+        boardCtx.strokeRect(ac * cellSize + 2, ar * cellSize + 2, cellSize - 4, cellSize - 4);
+      }
+
+      boardCtx.strokeStyle = colorGridLine;
       boardCtx.lineWidth = 1;
       for (let i = 1; i < 9; i++) {
         if (i % 3 !== 0) {
@@ -1439,7 +1498,6 @@
           boardCtx.moveTo(i * cellSize, 0);
           boardCtx.lineTo(i * cellSize, height);
           boardCtx.stroke();
-
           boardCtx.beginPath();
           boardCtx.moveTo(0, i * cellSize);
           boardCtx.lineTo(width, i * cellSize);
@@ -1447,24 +1505,28 @@
         }
       }
 
-      boardCtx.strokeStyle = "#6366f1";
+      boardCtx.strokeStyle = colorBoxLine;
       boardCtx.lineWidth = 2.5;
       for (let i = 0; i <= 9; i += 3) {
         boardCtx.beginPath();
         boardCtx.moveTo(i * cellSize, 0);
         boardCtx.lineTo(i * cellSize, height);
         boardCtx.stroke();
-
         boardCtx.beginPath();
         boardCtx.moveTo(0, i * cellSize);
         boardCtx.lineTo(width, i * cellSize);
         boardCtx.stroke();
       }
 
-      // 6. Draw Digits & Notes
+      if (selectedCell && !isUnsolving) {
+        boardCtx.strokeStyle = colorPrimary;
+        boardCtx.lineWidth = 2.5;
+        boardCtx.strokeRect(selectedCell.c * cellSize + 1.5, selectedCell.r * cellSize + 1.5, cellSize - 3, cellSize - 3);
+      }
+
       boardCtx.textAlign = "center";
       boardCtx.textBaseline = "middle";
-      const fontSize = Math.floor(cellSize * 0.55);
+      const fontSize = Math.floor(cellSize * 0.58);
 
       if (userGrid.length) {
         for (let r = 0; r < 9; r++) {
@@ -1475,51 +1537,53 @@
             const cy = r * cellSize + cellSize / 2;
 
             if (val !== 0) {
-              const isLatest = activeDeduction && activeDeduction.row === r && activeDeduction.col === c;
-              const isErrorCell = currentError && currentError.r === r && currentError.c === c;
-              const isConflictPartner = currentError && currentError.conflictCells && currentError.conflictCells.some(cc => cc.r === r && cc.c === c);
-
-              if (isErrorCell) {
-                boardCtx.font = `bold ${fontSize + 3}px 'Inter', sans-serif`;
-                boardCtx.fillStyle = "#f87171";
-                boardCtx.shadowColor = "rgba(239, 68, 68, 0.95)";
-                boardCtx.shadowBlur = 10;
-                boardCtx.fillText(val.toString(), cx, cy);
-                boardCtx.shadowBlur = 0;
-              } else if (isConflictPartner) {
-                boardCtx.font = `bold ${fontSize + 2}px 'Inter', sans-serif`;
-                boardCtx.fillStyle = "#fca5a5";
-                boardCtx.shadowColor = "rgba(239, 68, 68, 0.8)";
-                boardCtx.shadowBlur = 8;
-                boardCtx.fillText(val.toString(), cx, cy);
-                boardCtx.shadowBlur = 0;
-              } else if (isGiven) {
-                boardCtx.font = `bold ${fontSize}px 'Inter', sans-serif`;
-                boardCtx.fillStyle = "#f8fafc";
-                boardCtx.fillText(val.toString(), cx, cy);
-              } else if (isLatest) {
-                boardCtx.font = `bold ${fontSize + 2}px 'Inter', sans-serif`;
-                boardCtx.fillStyle = "#fbbf24";
-                boardCtx.shadowColor = "rgba(251, 191, 36, 0.8)";
-                boardCtx.shadowBlur = 8;
-                boardCtx.fillText(val.toString(), cx, cy);
-                boardCtx.shadowBlur = 0;
+              const isConflict = currentConflict && currentConflict.r === r && currentConflict.c === c;
+              if (isGiven) {
+                boardCtx.font = `800 ${fontSize}px 'Outfit', sans-serif`;
+                boardCtx.fillStyle = colorGiven;
+              } else if (isConflict) {
+                boardCtx.font = `800 ${fontSize}px 'Outfit', sans-serif`;
+                boardCtx.fillStyle = "#dc2626";
               } else {
-                boardCtx.font = `bold ${fontSize}px 'Inter', sans-serif`;
-                boardCtx.fillStyle = "#38bdf8";
-                boardCtx.fillText(val.toString(), cx, cy);
+                boardCtx.font = `700 ${fontSize}px 'Outfit', sans-serif`;
+                boardCtx.fillStyle = colorUser;
+              }
+              boardCtx.fillText(val.toString(), cx, cy);
+            } else if (isUnsolving) {
+              const carvedInfo = unsolveCarvedCells.find(u => u.r === r && u.c === c);
+              if (carvedInfo) {
+                if (unsolveProgress < carvedInfo.dissolveThreshold) {
+                  boardCtx.font = `700 ${fontSize}px 'Outfit', sans-serif`;
+                  boardCtx.fillStyle = "rgba(224, 108, 58, 0.70)";
+                  boardCtx.fillText(carvedInfo.val.toString(), cx, cy);
+                } else if (unsolveProgress < carvedInfo.dissolveThreshold + 0.12) {
+                  const p = (unsolveProgress - carvedInfo.dissolveThreshold) / 0.12;
+                  const scale = Math.max(0.01, 1.0 - p * 0.65);
+                  const alpha = Math.max(0, 1.0 - p);
+                  if (!carvedInfo.spawned) {
+                    carvedInfo.spawned = true;
+                    spawnParticles(cx, cy, "#e06c3a");
+                  }
+                  boardCtx.save();
+                  boardCtx.translate(cx, cy);
+                  boardCtx.scale(scale, scale);
+                  boardCtx.font = `800 ${fontSize}px 'Outfit', sans-serif`;
+                  boardCtx.fillStyle = `rgba(224, 108, 58, ${alpha})`;
+                  boardCtx.fillText(carvedInfo.val.toString(), 0, 0);
+                  boardCtx.restore();
+                }
               }
             } else {
               const notes = notesGrid[r][c];
               if (notes && notes.size > 0) {
-                boardCtx.font = `600 ${Math.floor(cellSize * 0.22)}px 'Inter', sans-serif`;
-                boardCtx.fillStyle = "#94a3b8";
+                boardCtx.font = `700 ${Math.floor(cellSize * 0.22)}px 'Plus Jakarta Sans', sans-serif`;
+                boardCtx.fillStyle = colorNote;
                 for (const n of notes) {
                   const subR = Math.floor((n - 1) / 3);
                   const subC = (n - 1) % 3;
-                  const noteX = c * cellSize + (subC + 0.5) * (cellSize / 3);
-                  const noteY = r * cellSize + (subR + 0.5) * (cellSize / 3);
-                  boardCtx.fillText(n.toString(), noteX, noteY);
+                  const nx = c * cellSize + (subC + 0.5) * (cellSize / 3);
+                  const ny = r * cellSize + (subR + 0.5) * (cellSize / 3);
+                  boardCtx.fillText(n.toString(), nx, ny);
                 }
               }
             }
@@ -1527,7 +1591,6 @@
         }
       }
 
-      // 7. Particles
       updateParticles();
       for (const p of particles) {
         boardCtx.beginPath();
@@ -1538,99 +1601,480 @@
       }
       boardCtx.globalAlpha = 1.0;
 
-      if (didShake) {
-        boardCtx.restore();
+      if (didShake) boardCtx.restore();
+    }
+
+    // --- Deductive Tier Classification (Difficulty & Assertion Complexity) ---
+    function getDeductionTier(score, assertions, tech = "") {
+      if (tech.includes("Row") || tech.includes("Col") || score >= 2.05 || assertions >= 24) {
+        if (score >= 2.15 || assertions >= 26) {
+          return {
+            id: 'bottleneck',
+            name: 'Extreme Bottleneck',
+            color: '#dc2626',
+            bg: 'rgba(220, 38, 38, 0.12)',
+            stemColor: 'rgba(220, 38, 38, 0.45)'
+          };
+        }
+        return {
+          id: 'challenging',
+          name: 'Hard / High Complexity',
+          color: '#f97316',
+          bg: 'rgba(249, 115, 22, 0.12)',
+          stemColor: 'rgba(249, 115, 22, 0.45)'
+        };
+      } else if (tech.includes("Box") || score >= 1.55 || assertions >= 14) {
+        if (score >= 1.70 || assertions >= 18) {
+          return {
+            id: 'challenging',
+            name: 'Hard / High Complexity',
+            color: '#f97316',
+            bg: 'rgba(249, 115, 22, 0.12)',
+            stemColor: 'rgba(249, 115, 22, 0.45)'
+          };
+        }
+        return {
+          id: 'moderate',
+          name: 'Moderate',
+          color: '#eab308',
+          bg: 'rgba(234, 179, 8, 0.12)',
+          stemColor: 'rgba(234, 179, 8, 0.45)'
+        };
+      } else if (score >= 1.25 || assertions >= 7) {
+        return {
+          id: 'moderate',
+          name: 'Moderate',
+          color: '#eab308',
+          bg: 'rgba(234, 179, 8, 0.12)',
+          stemColor: 'rgba(234, 179, 8, 0.45)'
+        };
+      } else {
+        return {
+          id: 'gentle',
+          name: 'Gentle / Direct',
+          color: '#16a34a',
+          bg: 'rgba(22, 163, 74, 0.12)',
+          stemColor: 'rgba(22, 163, 74, 0.45)'
+        };
       }
     }
 
-    // --- Trajectory Chart Renderer ---
-    function drawTrajectoryChart() {
-      const rect = chartCanvas.getBoundingClientRect();
-      const w = rect.width;
-      const h = rect.height;
-      const padL = 40, padR = 20, padT = 20, padB = 30;
+    function updateProportionRibbon() {
+      if (!deductions || deductions.length === 0) return;
+      const total = deductions.length;
+      let gentle = 0, moderate = 0, challenging = 0, bottleneck = 0;
 
-      chartCtx.clearRect(0, 0, w, h);
-
-      // Background
-      chartCtx.fillStyle = "#090d16";
-      chartCtx.fillRect(0, 0, w, h);
-
-      if (!deductions || deductions.length < 2) return;
-
-      const n = deductions.length;
-      const scores = deductions.map(d => d.step_score);
-      const minS = Math.min(...scores);
-      const maxS = Math.max(...scores);
-      const range = maxS - minS || 1;
-
-      // Draw Grid & Axes
-      chartCtx.strokeStyle = "rgba(148, 163, 184, 0.15)";
-      chartCtx.lineWidth = 1;
-      chartCtx.beginPath();
-      chartCtx.moveTo(padL, padT);
-      chartCtx.lineTo(padL, h - padB);
-      chartCtx.lineTo(w - padR, h - padB);
-      chartCtx.stroke();
-
-      // Plot Trajectory Line
-      const pts = deductions.map((d, i) => {
-        const x = padL + (i / (n - 1)) * (w - padL - padR);
-        const y = h - padB - ((d.step_score - minS) / range) * (h - padT - padB);
-        return { x, y, score: d.step_score };
+      deductions.forEach(d => {
+        const ast = d.assertions || (8 + (d.reasons ? d.reasons.total : 0));
+        const tier = getDeductionTier(d.step_score, ast, d.technique || "").id;
+        if (tier === 'gentle') gentle++;
+        else if (tier === 'moderate') moderate++;
+        else if (tier === 'challenging') challenging++;
+        else if (tier === 'bottleneck') bottleneck++;
       });
 
+      const pGentle = ((gentle / total) * 100).toFixed(0);
+      const pModerate = ((moderate / total) * 100).toFixed(0);
+      const pChallenging = ((challenging / total) * 100).toFixed(0);
+      const pBottleneck = ((bottleneck / total) * 100).toFixed(0);
+
+      document.getElementById('propTotalSteps').innerText = `${total} Deduction Links`;
+
+      document.getElementById('segGentle').style.width = `${pGentle}%`;
+      document.getElementById('segModerate').style.width = `${pModerate}%`;
+      document.getElementById('segChallenging').style.width = `${pChallenging}%`;
+      document.getElementById('segBottleneck').style.width = `${pBottleneck}%`;
+
+      document.getElementById('cntGentle').innerText = gentle;
+      document.getElementById('pctGentle').innerText = `${pGentle}%`;
+
+      document.getElementById('cntModerate').innerText = moderate;
+      document.getElementById('pctModerate').innerText = `${pModerate}%`;
+
+      document.getElementById('cntChallenging').innerText = challenging;
+      document.getElementById('pctChallenging').innerText = `${pChallenging}%`;
+
+      document.getElementById('cntBottleneck').innerText = bottleneck;
+      document.getElementById('pctBottleneck').innerText = `${pBottleneck}%`;
+    }
+
+    // --- Round Feature Spike Graph Renderer ---
+    function drawTrajectoryChart() {
+      const rect = chartCanvas.getBoundingClientRect();
+      const w = rect.width > 0 ? rect.width : (chartCanvas.parentElement ? chartCanvas.parentElement.clientWidth : 460);
+      const h = rect.height > 0 ? rect.height : (chartCanvas.parentElement ? chartCanvas.parentElement.clientHeight : 260);
+      if (w <= 0 || h <= 0) return;
+
+      const dpr = window.devicePixelRatio || 1;
+      const pixelW = Math.round(w * dpr);
+      const pixelH = Math.round(h * dpr);
+
+      if (chartCanvas.width !== pixelW || chartCanvas.height !== pixelH) {
+        chartCanvas.width = pixelW;
+        chartCanvas.height = pixelH;
+      }
+
+      chartCtx.save();
+      chartCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      chartCtx.clearRect(0, 0, w, h);
+
+      if (!deductions || deductions.length < 2) {
+        chartCtx.restore();
+        return;
+      }
+
+      const style = getComputedStyle(document.documentElement);
+      const colorGrid = style.getPropertyValue('--border-subtle').trim() || '#e2e8f0';
+      const colorPrimary = style.getPropertyValue('--primary').trim() || '#e06c3a';
+      const colorTextMuted = style.getPropertyValue('--text-muted').trim() || '#9e9180';
+      const colorTextMain = style.getPropertyValue('--text-main').trim() || '#2d261e';
+      const colorCard = style.getPropertyValue('--surface-card').trim() || '#ffffff';
+
+      const cx = w / 2;
+      const cy = h / 2;
+      const rMax = Math.min(w, h) / 2 - 28;
+      const r0 = 28; // Inner core hub radius
+      const radialSpan = rMax - r0;
+
+      const n = deductions.length;
+      // 1. Concentric Guide Circles & Polar Threshold Rings
+      const ringLevels = [0.25, 0.50, 0.75, 1.0];
+      ringLevels.forEach((lvl, idx) => {
+        const rad = r0 + lvl * radialSpan;
+        chartCtx.beginPath();
+        chartCtx.arc(cx, cy, rad, 0, Math.PI * 2);
+        chartCtx.strokeStyle = (idx === 3) ? 'rgba(220, 38, 38, 0.30)' : 'rgba(150, 140, 130, 0.15)';
+        chartCtx.lineWidth = (idx === 3) ? 1.5 : 1;
+        chartCtx.setLineDash([3, 4]);
+        chartCtx.stroke();
+        chartCtx.setLineDash([]);
+      });
+
+      // 2. Radial Crosshair Guide Axes
+      for (let a = 0; a < 8; a++) {
+        const ang = (a / 8) * Math.PI * 2 - Math.PI / 2;
+        chartCtx.beginPath();
+        chartCtx.moveTo(cx + r0 * Math.cos(ang), cy + r0 * Math.sin(ang));
+        chartCtx.lineTo(cx + rMax * Math.cos(ang), cy + rMax * Math.sin(ang));
+        chartCtx.strokeStyle = 'rgba(150, 140, 130, 0.12)';
+        chartCtx.lineWidth = 1;
+        chartCtx.stroke();
+      }
+
+      // 3. Compute Radial Feature Spike Points with Absolute Difficulty Domain Scaling
+      const pts = deductions.map((d, i) => {
+        const angle = -Math.PI / 2 + (i / n) * (Math.PI * 2);
+        const ast = d.assertions || (8 + (d.reasons ? d.reasons.total : 0));
+        const tier = getDeductionTier(d.step_score, ast, d.technique || "");
+
+        // Absolute cognitive scaling across the global difficulty spectrum:
+        const scoreNorm = Math.max(0, Math.min(1.0, (d.step_score - 1.0) / 1.35));
+        const astNorm = Math.max(0, Math.min(1.0, (ast - 2) / 22));
+        const combinedIntensity = Math.max(0.08, Math.min(1.0, 0.55 * scoreNorm + 0.45 * astNorm));
+
+        const r = r0 + combinedIntensity * radialSpan;
+        const x = cx + r * Math.cos(angle);
+        const y = cy + r * Math.sin(angle);
+        const bx = cx + r0 * Math.cos(angle);
+        const by = cy + r0 * Math.sin(angle);
+        return { x, y, bx, by, r, angle, score: d.step_score, ast, tech: d.technique, tier, idx: i };
+      });
+
+      // 4. Starburst Perimeter Polygon & Translucent Radial Fill
+      const starGrad = chartCtx.createRadialGradient(cx, cy, r0, cx, cy, rMax);
+      starGrad.addColorStop(0, 'rgba(224, 108, 58, 0.04)');
+      starGrad.addColorStop(0.7, 'rgba(224, 108, 58, 0.14)');
+      starGrad.addColorStop(1, 'rgba(220, 38, 38, 0.22)');
+
       chartCtx.beginPath();
-      chartCtx.strokeStyle = "#818cf8";
-      chartCtx.lineWidth = 2.5;
       pts.forEach((pt, i) => {
         if (i === 0) chartCtx.moveTo(pt.x, pt.y);
         else chartCtx.lineTo(pt.x, pt.y);
       });
+      chartCtx.closePath();
+      chartCtx.fillStyle = starGrad;
+      chartCtx.fill();
+
+      // Outer Perimeter Stroke
+      chartCtx.strokeStyle = 'rgba(224, 108, 58, 0.45)';
+      chartCtx.lineWidth = 1.6;
       chartCtx.stroke();
 
-      // Highlight active step
-      if (currentStepIdx > 0 && currentStepIdx <= pts.length) {
-        const activePt = pts[currentStepIdx - 1];
-        chartCtx.fillStyle = "#fbbf24";
+      // 5. Radial Feature Spikes (from Hub core to spike tip)
+      pts.forEach(pt => {
         chartCtx.beginPath();
-        chartCtx.arc(activePt.x, activePt.y, 5, 0, Math.PI * 2);
-        chartCtx.fill();
-        chartCtx.strokeStyle = "#fff";
-        chartCtx.lineWidth = 2;
+        chartCtx.moveTo(pt.bx, pt.by);
+        chartCtx.lineTo(pt.x, pt.y);
+        chartCtx.strokeStyle = pt.tier.color;
+        const spikeWidth = 1.2 + Math.min(2.8, (pt.ast / 24) * 2.2);
+        chartCtx.lineWidth = spikeWidth;
         chartCtx.stroke();
+
+        // Node tip bead
+        chartCtx.beginPath();
+        chartCtx.arc(pt.x, pt.y, 2.4, 0, Math.PI * 2);
+        chartCtx.fillStyle = pt.tier.color;
+        chartCtx.fill();
+      });
+
+      // 6. Cardinal Orientation Badges (12 o'clock Start / 6 o'clock Midway)
+      chartCtx.font = "700 9px 'JetBrains Mono', monospace";
+      chartCtx.fillStyle = colorTextMuted;
+      chartCtx.textAlign = "center";
+      chartCtx.textBaseline = "bottom";
+      chartCtx.fillText("▲ S1 (START)", cx, cy - rMax - 6);
+
+      chartCtx.textBaseline = "top";
+      chartCtx.fillText(`▼ S${Math.round(n / 2)} (MID)`, cx, cy + rMax + 6);
+
+      // 7. Central Hub Core
+      chartCtx.beginPath();
+      chartCtx.arc(cx, cy, r0, 0, Math.PI * 2);
+      chartCtx.fillStyle = colorCard;
+      chartCtx.fill();
+      chartCtx.strokeStyle = colorPrimary;
+      chartCtx.lineWidth = 2.5;
+      chartCtx.stroke();
+
+      const activeIdx = (currentStepIdx > 0 && currentStepIdx <= pts.length) ? (currentStepIdx - 1) : 0;
+      const activePt = pts[activeIdx] || pts[0];
+
+      chartCtx.fillStyle = colorPrimary;
+      chartCtx.font = "800 10px 'Outfit', sans-serif";
+      chartCtx.textAlign = "center";
+      chartCtx.textBaseline = "middle";
+      chartCtx.fillText(currentDifficulty.toUpperCase(), cx, cy - 6);
+
+      chartCtx.fillStyle = colorTextMuted;
+      chartCtx.font = "700 8px 'JetBrains Mono', monospace";
+      chartCtx.fillText(`${n} Steps`, cx, cy + 6);
+
+      // 8. Active Step Orbit Beacon & Radiating Tooltip Badge
+      if (activePt) {
+        const pulse = 5.5 + Math.sin(animPhase * 8) * 1.5;
+
+        // Radiant Outer Ring
+        chartCtx.beginPath();
+        chartCtx.arc(activePt.x, activePt.y, pulse + 4, 0, Math.PI * 2);
+        chartCtx.fillStyle = activePt.tier.bg;
+        chartCtx.fill();
+
+        // Solid Active Node
+        chartCtx.beginPath();
+        chartCtx.arc(activePt.x, activePt.y, pulse, 0, Math.PI * 2);
+        chartCtx.fillStyle = activePt.tier.color;
+        chartCtx.fill();
+
+        // White Center Core
+        chartCtx.beginPath();
+        chartCtx.arc(activePt.x, activePt.y, 2.2, 0, Math.PI * 2);
+        chartCtx.fillStyle = '#ffffff';
+        chartCtx.fill();
+
+        // Dynamic Floating Tooltip Badge
+        const tooltipText = `Step #${activeIdx + 1}: ${activePt.ast} Ast [${activePt.tier.id.toUpperCase()}]`;
+        chartCtx.font = "700 10px 'JetBrains Mono', monospace";
+        const tw = chartCtx.measureText(tooltipText).width + 12;
+
+        const tDist = activePt.r + 20;
+        let tx = cx + tDist * Math.cos(activePt.angle);
+        let ty = cy + tDist * Math.sin(activePt.angle);
+        tx = Math.max(tw / 2 + 8, Math.min(w - tw / 2 - 8, tx));
+        ty = Math.max(14, Math.min(h - 14, ty));
+
+        chartCtx.fillStyle = colorTextMain;
+        chartCtx.beginPath();
+        chartCtx.roundRect(tx - tw / 2, ty - 9, tw, 18, 5);
+        chartCtx.fill();
+
+        chartCtx.fillStyle = '#ffffff';
+        chartCtx.textAlign = "center";
+        chartCtx.textBaseline = "middle";
+        chartCtx.fillText(tooltipText, tx, ty);
+      }
+
+      chartCtx.restore();
+    }
+
+    // --- Digit Input & Validation ---
+    function checkConflict(r, c, val) {
+      if (val === 0) return null;
+      const conflicts = [];
+      for (let otherC = 0; otherC < 9; otherC++) {
+        if (otherC !== c && userGrid[r][otherC] === val) conflicts.push({ r, c: otherC, type: 'Row' });
+      }
+      for (let otherR = 0; otherR < 9; otherR++) {
+        if (otherR !== r && userGrid[otherR][c] === val) conflicts.push({ r: otherR, c, type: 'Column' });
+      }
+      const br = Math.floor(r / 3) * 3;
+      const bc = Math.floor(c / 3) * 3;
+      for (let row = br; row < br + 3; row++) {
+        for (let col = bc; col < bc + 3; col++) {
+          if ((row !== r || col !== c) && userGrid[row][col] === val) {
+            conflicts.push({ r: row, c: col, type: '3x3 Box' });
+          }
+        }
+      }
+      if (conflicts.length > 0) {
+        return {
+          r, c, val,
+          conflicts,
+          reason: `Digit ${val} already exists in this ${conflicts[0].type}!`
+        };
+      }
+      return null;
+    }
+
+    function inputDigit(digit) {
+      if (isUnsolving || !selectedCell || !initialGrid.length || isPlayingSolver) return;
+      const { r, c } = selectedCell;
+      if (initialGrid[r][c] !== 0) return;
+
+      const prevVal = userGrid[r][c];
+      const prevNotes = new Set(notesGrid[r][c]);
+
+      if (isNotesMode) {
+        if (digit === 0) {
+          notesGrid[r][c].clear();
+        } else {
+          if (notesGrid[r][c].has(digit)) notesGrid[r][c].delete(digit);
+          else notesGrid[r][c].add(digit);
+        }
+        moveHistory.push({ r, c, prevVal, newVal: prevVal, prevNotes, newNotes: new Set(notesGrid[r][c]) });
+      } else {
+        userGrid[r][c] = digit;
+        notesGrid[r][c].clear();
+        moveHistory.push({ r, c, prevVal, newVal: digit, prevNotes, newNotes: new Set() });
+
+        const banner = document.getElementById('conflictBanner');
+        const conflictText = document.getElementById('conflictText');
+        const rect = boardCanvas.getBoundingClientRect();
+        const cellSize = rect.width / 9;
+
+        if (digit !== 0) {
+          const conflict = checkConflict(r, c, digit);
+          if (conflict) {
+            mistakesCount++;
+            document.getElementById('mistakeCounter').innerText = `${mistakesCount}/${maxMistakes}`;
+            if (mistakesCount >= maxMistakes) {
+              document.getElementById('chipMistakes').classList.add('warning');
+            }
+            boardShake = 1.0;
+            currentConflict = conflict;
+            banner.style.display = 'flex';
+            conflictText.innerText = conflict.reason;
+            spawnParticles(c * cellSize + cellSize / 2, r * cellSize + cellSize / 2, "#dc2626");
+          } else {
+            currentConflict = null;
+            banner.style.display = 'none';
+            spawnParticles(c * cellSize + cellSize / 2, r * cellSize + cellSize / 2, "#e06c3a");
+
+            if (checkWin()) triggerVictory();
+          }
+        } else {
+          currentConflict = null;
+          banner.style.display = 'none';
+        }
+        updateDigitCounters();
       }
     }
 
-    // --- UI Update & HUD ---
-    function updateUI() {
-      document.getElementById('ui-rating').innerText = difficultyRating;
-      document.getElementById('ui-score').innerText = `Score: ${totalScore.toFixed(2)}`;
+    function undoMove() {
+      if (moveHistory.length === 0) return;
+      const last = moveHistory.pop();
+      userGrid[last.r][last.c] = last.prevVal;
+      notesGrid[last.r][last.c] = new Set(last.prevNotes);
+      selectedCell = { r: last.r, c: last.c };
+      currentConflict = null;
+      document.getElementById('conflictBanner').style.display = 'none';
+      updateDigitCounters();
+    }
 
+    function giveHint() {
+      if (!solutionGrid.length) return;
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (userGrid[r][c] === 0) {
+            selectedCell = { r, c };
+            inputDigit(solutionGrid[r][c]);
+            return;
+          }
+        }
+      }
+    }
+
+    function checkWin() {
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (userGrid[r][c] === 0 || userGrid[r][c] !== solutionGrid[r][c]) return false;
+        }
+      }
+      return true;
+    }
+
+    // --- Victory Confetti & Modal ---
+    let confettiParticles = [];
+
+    function triggerVictory() {
+      if (timerInterval) clearInterval(timerInterval);
+      const m = Math.floor(gameTimeSeconds / 60);
+      const s = gameTimeSeconds % 60;
+      document.getElementById('winStatTime').innerText = `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
+      document.getElementById('winStatDiff').innerText = currentDifficulty.toUpperCase();
+      document.getElementById('winStatMistakes').innerText = `${mistakesCount}/${maxMistakes}`;
+
+      document.getElementById('victoryModal').classList.add('active');
+
+      confettiParticles = [];
+      const colors = ['#e06c3a', '#3b82f6', '#16a34a', '#f59e0b', '#ec4899', '#8b5cf6'];
+      for (let i = 0; i < 120; i++) {
+        confettiParticles.push({
+          x: Math.random() * window.innerWidth,
+          y: -10 - Math.random() * 100,
+          vx: (Math.random() - 0.5) * 4,
+          vy: 2 + Math.random() * 5,
+          size: 6 + Math.random() * 8,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * Math.PI * 2,
+          rSpeed: (Math.random() - 0.5) * 0.2
+        });
+      }
+    }
+
+    function renderConfetti() {
+      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      if (confettiParticles.length === 0) return;
+      for (let i = confettiParticles.length - 1; i >= 0; i--) {
+        const p = confettiParticles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rotation += p.rSpeed;
+
+        confettiCtx.save();
+        confettiCtx.translate(p.x, p.y);
+        confettiCtx.rotate(p.rotation);
+        confettiCtx.fillStyle = p.color;
+        confettiCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+        confettiCtx.restore();
+
+        if (p.y > window.innerHeight + 20) confettiParticles.splice(i, 1);
+      }
+    }
+
+    // --- Solver Provenance Step Navigation ---
+    function updateHUD() {
       const n = deductions.length;
       document.getElementById('hudStepCounter').innerText = `Step ${currentStepIdx} / ${n}`;
-
       if (currentStepIdx === 0) {
-        document.getElementById('hudTechTitle').innerText = isPlayingSolver ? "Solver Ready" : "Interactive Player Active";
+        document.getElementById('hudTechTitle').innerText = isPlayingSolver ? "Solver Ready" : "Interactive Play Mode";
         document.getElementById('hudExplanation').innerText = isPlayingSolver
-          ? "Press Step Forward or Play to watch deduction provenance provenance."
-          : "Click any cell to input digits using keyboard or keypad.";
-        document.getElementById('hudRowElims').innerText = "0";
-        document.getElementById('hudColElims').innerText = "0";
-        document.getElementById('hudBoxElims').innerText = "0";
-        document.getElementById('hudStepScore').innerText = "0.00";
+          ? "Step forward or play to inspect exact deduction proofs."
+          : "Click cells and enter numbers with keyboard (1-9) or touch keypad.";
         return;
       }
-
       const d = deductions[currentStepIdx - 1];
       document.getElementById('hudTechTitle').innerText = d.technique;
       document.getElementById('hudExplanation').innerText = d.description || `Single deduction at (${d.row + 1}, ${d.col + 1}) with value ${d.val}.`;
-
-      const reasons = d.reasons || { cross_horizontal: 0, cross_vertical: 0, box_3x3: 0 };
-      document.getElementById('hudRowElims').innerText = reasons.cross_horizontal.toString();
-      document.getElementById('hudColElims').innerText = reasons.cross_vertical.toString();
-      document.getElementById('hudBoxElims').innerText = reasons.box_3x3.toString();
-      document.getElementById('hudStepScore').innerText = d.step_score.toFixed(2);
     }
 
     function stepForward() {
@@ -1638,11 +2082,11 @@
         const d = deductions[currentStepIdx];
         userGrid[d.row][d.col] = d.val;
         currentStepIdx++;
-
         const rect = boardCanvas.getBoundingClientRect();
         const cellSize = rect.width / 9;
-        spawnParticles(d.col * cellSize + cellSize / 2, d.row * cellSize + cellSize / 2, "#fbbf24");
-        updateUI();
+        spawnParticles(d.col * cellSize + cellSize / 2, d.row * cellSize + cellSize / 2, "#e06c3a");
+        updateHUD();
+        updateDigitCounters();
         drawTrajectoryChart();
       } else {
         isPlayingSolver = false;
@@ -1655,223 +2099,19 @@
         const d = deductions[currentStepIdx - 1];
         userGrid[d.row][d.col] = initialGrid[d.row][d.col];
         currentStepIdx--;
-        updateUI();
+        updateHUD();
+        updateDigitCounters();
         drawTrajectoryChart();
       }
     }
 
-    // --- Main Loop ---
-    let lastStepTime = 0;
-
-    function mainLoop(now) {
-      animPhase = now / 1000;
-      const speedVal = parseInt(document.getElementById('speedSlider').value, 10);
-      const stepDelay = Math.max(70, 750 - speedVal * 70);
-
-      if (isPlayingSolver && now - lastStepTime > stepDelay) {
-        stepForward();
-        lastStepTime = now;
-      }
-
-      renderBoard();
-      requestAnimationFrame(mainLoop);
-    }
-
-    // --- Input Handlers ---
-    boardCanvas.addEventListener('click', (e) => {
-      const rect = boardCanvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const cellSize = rect.width / 9;
-      const c = Math.floor(x / cellSize);
-      const r = Math.floor(y / cellSize);
-
-      if (r >= 0 && r < 9 && c >= 0 && c < 9) {
-        selectedCell = { r, c };
-      }
-    });
-
-    function setDigit(digit) {
-      if (!selectedCell || !initialGrid.length || isUnsolvingAnimation) return;
-      const { r, c } = selectedCell;
-      if (initialGrid[r][c] !== 0) return;
-
-      if (isNotesMode) {
-        if (digit === 0) {
-          notesGrid[r][c].clear();
-        } else {
-          if (notesGrid[r][c].has(digit)) notesGrid[r][c].delete(digit);
-          else notesGrid[r][c].add(digit);
-        }
-      } else {
-        userGrid[r][c] = digit;
-        const rect = boardCanvas.getBoundingClientRect();
-        const cellSize = rect.width / 9;
-        const banner = document.getElementById('errorBanner');
-        const reasonText = document.getElementById('errorReasonText');
-        const valErrors = document.getElementById('valErrors');
-
-        if (digit !== 0) {
-          const check = checkDigitValidity(r, c, digit);
-          if (!check.valid) {
-            errorCount++;
-            if (valErrors) valErrors.innerText = errorCount;
-            boardShake = 1.0;
-            currentError = { r, c, val: digit, reason: check.reason, conflictCells: check.conflictCells };
-            if (banner) {
-              banner.style.display = 'flex';
-              if (reasonText) reasonText.innerText = check.reason;
-            }
-            spawnParticles(c * cellSize + cellSize / 2, r * cellSize + cellSize / 2, "#ef4444");
-            spawnParticles(c * cellSize + cellSize / 2, r * cellSize + cellSize / 2, "#dc2626");
-          } else {
-            // Valid digit
-            if (currentError && currentError.r === r && currentError.c === c) {
-              currentError = null;
-              if (banner) banner.style.display = 'none';
-            }
-            spawnParticles(c * cellSize + cellSize / 2, r * cellSize + cellSize / 2, "#38bdf8");
-
-            if (checkWinCondition()) {
-              triggerPostWinAct();
-            }
-          }
-        } else {
-          // Cleared cell
-          if (currentError && currentError.r === r && currentError.c === c) {
-            currentError = null;
-            if (banner) banner.style.display = 'none';
-          }
-        }
-      }
-    }
-
-    function checkWinCondition() {
-      if (!userGrid.length || isUnsolvingAnimation) return false;
-      for (let r = 0; r < 9; r++) {
-        for (let c = 0; c < 9; c++) {
-          if (userGrid[r][c] === 0) return false;
-        }
-      }
-
-      // Validate constraints
-      for (let i = 0; i < 9; i++) {
-        const rowSet = new Set();
-        const colSet = new Set();
-        for (let j = 0; j < 9; j++) {
-          rowSet.add(userGrid[i][j]);
-          colSet.add(userGrid[j][i]);
-        }
-        if (rowSet.size !== 9 || colSet.size !== 9) return false;
-      }
-      for (let br = 0; br < 9; br += 3) {
-        for (let bc = 0; bc < 9; bc += 3) {
-          const boxSet = new Set();
-          for (let r = br; r < br + 3; r++) {
-            for (let c = bc; c < bc + 3; c++) {
-              boxSet.add(userGrid[r][c]);
-            }
-          }
-          if (boxSet.size !== 9) return false;
-        }
-      }
-      return true;
-    }
-
-    function triggerPostWinAct() {
-      const rect = boardCanvas.getBoundingClientRect();
-      for (let i = 0; i < 60; i++) {
-        const colors = ['#fbbf24', '#38bdf8', '#10b981', '#ec4899', '#818cf8'];
-        spawnParticles(Math.random() * rect.width, Math.random() * rect.height, colors[Math.floor(Math.random() * colors.length)]);
-      }
-
-      const hudTech = document.getElementById('hudTechTitle');
-      const hudDesc = document.getElementById('hudExplanation');
-      const uiMode = document.getElementById('ui-mode');
-      if (uiMode) uiMode.innerText = "🏆 VICTORY!";
-      if (hudTech) hudTech.innerText = "🏆 Puzzle Solved! Starting Post-Win Solver Replay...";
-      if (hudDesc) hudDesc.innerText = "Victory lap: stepping through the exact logical deduction provenance that proves this puzzle!";
-
-      setTimeout(() => {
-        userGrid = initialGrid.map(row => [...row]);
-        currentStepIdx = 0;
-        isPlayingSolver = true;
-        document.getElementById('btnPlayPause').innerText = '⏸ Pause Replay';
-        if (uiMode) uiMode.innerText = '🏆 Post-Win Provenance Replay';
-        updateUI();
-        drawTrajectoryChart();
-      }, 1200);
-    }
-
-    window.addEventListener('keydown', (e) => {
-      if (e.key >= '1' && e.key <= '9') {
-        setDigit(parseInt(e.key, 10));
-      } else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') {
-        setDigit(0);
-      } else if (e.key === 'ArrowUp' && selectedCell && selectedCell.r > 0) {
-        selectedCell.r--;
-      } else if (e.key === 'ArrowDown' && selectedCell && selectedCell.r < 8) {
-        selectedCell.r++;
-      } else if (e.key === 'ArrowLeft' && selectedCell && selectedCell.c > 0) {
-        selectedCell.c--;
-      } else if (e.key === 'ArrowRight' && selectedCell && selectedCell.c < 8) {
-        selectedCell.c++;
-      }
-    });
-
-    document.querySelectorAll('.key-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const val = parseInt(btn.getAttribute('data-val'), 10);
-        setDigit(val);
-      });
-    });
-
-    document.getElementById('btnPlayPause').addEventListener('click', () => {
-      isPlayingSolver = !isPlayingSolver;
-      document.getElementById('btnPlayPause').innerText = isPlayingSolver ? '⏸ Pause' : '▶ Play Solver';
-      document.getElementById('ui-mode').innerText = isPlayingSolver ? 'Logical Solver' : 'Interactive Play';
-    });
-
-    document.getElementById('btnNextStep').addEventListener('click', () => {
-      isPlayingSolver = false;
-      document.getElementById('btnPlayPause').innerText = '▶ Play Solver';
-      stepForward();
-    });
-
-    document.getElementById('btnPrevStep').addEventListener('click', () => {
-      isPlayingSolver = false;
-      document.getElementById('btnPlayPause').innerText = '▶ Play Solver';
-      stepBackward();
-    });
-
-    document.getElementById('btnReset').addEventListener('click', () => {
-      isPlayingSolver = false;
-      document.getElementById('btnPlayPause').innerText = '▶ Play Solver';
-      userGrid = initialGrid.map(row => [...row]);
-      notesGrid = Array(9).fill(null).map(() => Array(9).fill(null).map(() => new Set()));
-      currentStepIdx = 0;
-      updateUI();
-      drawTrajectoryChart();
-    });
-
-    document.getElementById('btnToggleHeatmap').addEventListener('click', (e) => {
-      showHeatmap = !showHeatmap;
-      e.currentTarget.classList.toggle('btn-active', showHeatmap);
-    });
-
-    document.getElementById('btnToggleNotes').addEventListener('click', (e) => {
-      isNotesMode = !isNotesMode;
-      e.currentTarget.classList.toggle('btn-active', isNotesMode);
-    });
-
-    let currentSolutionGrid = [];
-    let currentCarvedGrid = [];
-
-    function generateReplaySVG(solution, carved, steps, rating, totalScore) {
+    // --- Client-Side SVG Replay Download Generator ---
+    function downloadSVGReplay() {
+      if (!solutionGrid.length || !initialGrid.length) return;
       const cellSize = 60;
       const boardSize = cellSize * 9;
       const totalHeight = boardSize + 75;
-      const n = steps.length;
+      const n = deductions.length;
 
       const showcaseSec = 0.8;
       const unsolveCarveSec = 2.7;
@@ -1888,42 +2128,38 @@
       const blanks = [];
       for (let r = 0; r < 9; r++) {
         for (let c = 0; c < 9; c++) {
-          if (carved[r][c] === 0) {
-            blanks.push({ r, c, val: solution[r][c] });
-          }
+          if (initialGrid[r][c] === 0) blanks.push({ r, c, val: solutionGrid[r][c] });
         }
       }
 
       let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${boardSize} ${totalHeight}" width="${boardSize}" height="${totalHeight}">\n<style>\n`;
-      svg += `  .text-given { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 33px; text-anchor: middle; dominant-baseline: central; fill: #f9fafb; }\n`;
-      svg += `  .text-unsolve { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 33px; text-anchor: middle; dominant-baseline: central; fill: #38bdf8; }\n`;
-      svg += `  .text-step { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 33px; text-anchor: middle; dominant-baseline: central; fill: #818cf8; }\n`;
-      svg += `  .status-text { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 13px; fill: #f3f4f6; }\n`;
-      svg += `  .sub-status { font-family: 'Inter', system-ui, sans-serif; font-weight: 400; font-size: 11px; fill: #9ca3af; }\n`;
-      svg += `  .status-unsolve { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 13px; fill: #38bdf8; }\n`;
-      svg += `  .status-victory { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 13px; fill: #fbbf24; }\n`;
+      svg += `  .text-given { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 33px; text-anchor: middle; dominant-baseline: central; fill: #241c14; }\n`;
+      svg += `  .text-unsolve { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 33px; text-anchor: middle; dominant-baseline: central; fill: #38bdf8; }\n`;
+      svg += `  .text-step { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 33px; text-anchor: middle; dominant-baseline: central; fill: #e06c3a; }\n`;
+      svg += `  .status-text { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 13px; fill: #241c14; }\n`;
+      svg += `  .sub-status { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 400; font-size: 11px; fill: #736756; }\n`;
+      svg += `  .status-unsolve { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 13px; fill: #38bdf8; }\n`;
+      svg += `  .status-victory { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 13px; fill: #16a34a; }\n`;
 
       const numBlanks = blanks.length || 1;
       blanks.forEach((b, i) => {
         const startPct = showcasePct + (i / numBlanks) * (unsolveCarveSec / totalSec) * 100 * 0.88;
         const endPct = Math.min(unsolvePct, startPct + (unsolveCarveSec / totalSec) * 100 * 0.18);
-        svg += `@keyframes anim-unsolve-val-${b.r}-${b.c} { 0%, ${startPct.toFixed(2)}% { opacity: 1; transform: scale(1); } ${((startPct+endPct)/2).toFixed(2)}% { opacity: 0.9; transform: scale(1.3); fill: #f43f5e; } ${endPct.toFixed(2)}%, 100% { opacity: 0; transform: scale(0.2); } }\n`;
-        svg += `@keyframes anim-unsolve-bg-${b.r}-${b.c} { 0%, ${startPct.toFixed(2)}% { fill: #0d1322; } ${((startPct+endPct)/2).toFixed(2)}% { fill: rgba(244, 63, 94, 0.45); } ${endPct.toFixed(2)}%, 100% { fill: #0d1322; } }\n`;
+        svg += `@keyframes anim-unsolve-val-${b.r}-${b.c} { 0%, ${startPct.toFixed(2)}% { opacity: 1; transform: scale(1); } ${((startPct+endPct)/2).toFixed(2)}% { opacity: 0.9; transform: scale(1.3); fill: #dc2626; } ${endPct.toFixed(2)}%, 100% { opacity: 0; transform: scale(0.2); } }\n`;
+        svg += `@keyframes anim-unsolve-bg-${b.r}-${b.c} { 0%, ${startPct.toFixed(2)}% { fill: #ffffff; } ${((startPct+endPct)/2).toFixed(2)}% { fill: rgba(220, 38, 38, 0.3); } ${endPct.toFixed(2)}%, 100% { fill: #ffffff; } }\n`;
         svg += `.unsolve-val-${b.r}-${b.c} { animation: anim-unsolve-val-${b.r}-${b.c} ${totalSec.toFixed(1)}s infinite; transform-origin: ${b.c*cellSize+cellSize/2}px ${b.r*cellSize+cellSize/2}px; }\n`;
         svg += `.unsolve-bg-${b.r}-${b.c} { animation: anim-unsolve-bg-${b.r}-${b.c} ${totalSec.toFixed(1)}s infinite; }\n`;
       });
 
-      steps.forEach((d, i) => {
+      deductions.forEach((d, i) => {
         const startPct = unsolvePct + (i / n) * (playthroughPct - unsolvePct);
         const endPct = unsolvePct + ((i + 1) / n) * (playthroughPct - unsolvePct);
         const peakPct = startPct + (endPct - startPct) * 0.4;
-        svg += `@keyframes anim-replay-step-${i} { 0%, ${startPct.toFixed(2)}% { opacity: 0; transform: scale(0.2); } ${peakPct.toFixed(2)}% { opacity: 1; transform: scale(1.35); fill: #fbbf24; } ${endPct.toFixed(2)}%, 100% { opacity: 1; transform: scale(1); fill: #818cf8; } }\n`;
-        svg += `@keyframes anim-replay-bg-${i} { 0%, ${startPct.toFixed(2)}% { fill: #0d1322; } ${peakPct.toFixed(2)}% { fill: rgba(245, 158, 11, 0.6); } ${endPct.toFixed(2)}%, 100% { fill: rgba(99, 102, 241, 0.2); } }\n`;
-        svg += `@keyframes anim-beam-${i} { 0%, ${startPct.toFixed(2)}% { opacity: 0; } ${(startPct + 0.01).toFixed(2)}%, ${endPct.toFixed(2)}% { opacity: 1; } ${(endPct + 0.01).toFixed(2)}%, 100% { opacity: 0; } }\n`;
+        svg += `@keyframes anim-replay-step-${i} { 0%, ${startPct.toFixed(2)}% { opacity: 0; transform: scale(0.2); } ${peakPct.toFixed(2)}% { opacity: 1; transform: scale(1.35); fill: #e06c3a; } ${endPct.toFixed(2)}%, 100% { opacity: 1; transform: scale(1); fill: #e06c3a; } }\n`;
+        svg += `@keyframes anim-replay-bg-${i} { 0%, ${startPct.toFixed(2)}% { fill: #ffffff; } ${peakPct.toFixed(2)}% { fill: rgba(224, 108, 58, 0.4); } ${endPct.toFixed(2)}%, 100% { fill: rgba(224, 108, 58, 0.15); } }\n`;
         svg += `@keyframes anim-replay-status-${i} { 0%, ${startPct.toFixed(2)}% { opacity: 0; } ${(startPct + 0.01).toFixed(2)}%, ${endPct.toFixed(2)}% { opacity: 1; } ${(endPct + 0.01).toFixed(2)}%, 100% { opacity: 0; } }\n`;
         svg += `.replay-step-val-${i} { animation: anim-replay-step-${i} ${totalSec.toFixed(1)}s infinite; transform-origin: ${d.col*cellSize+cellSize/2}px ${d.row*cellSize+cellSize/2}px; }\n`;
         svg += `.replay-step-bg-${i} { animation: anim-replay-bg-${i} ${totalSec.toFixed(1)}s infinite; }\n`;
-        svg += `.replay-beam-${i} { animation: anim-beam-${i} ${totalSec.toFixed(1)}s infinite; }\n`;
         svg += `.replay-step-status-${i} { animation: anim-replay-status-${i} ${totalSec.toFixed(1)}s infinite; }\n`;
       });
 
@@ -1933,40 +2169,24 @@
       svg += `@keyframes anim-status-victory-phase { 0%, ${playthroughPct.toFixed(2)}% { opacity: 0; } ${(playthroughPct+0.05).toFixed(2)}%, 100% { opacity: 1; } }\n`;
       svg += `.status-phase-victory { animation: anim-status-victory-phase ${totalSec.toFixed(1)}s infinite; }\n`;
 
-      svg += `</style>\n`;
-      svg += `<rect width="${boardSize}" height="${totalHeight}" fill="#090d16"/>\n`;
+      svg += `</style>\n<rect width="${boardSize}" height="${totalHeight}" fill="#faf7f2"/>\n`;
 
       for (let r = 0; r < 9; r++) {
         for (let c = 0; c < 9; c++) {
           const x = c * cellSize;
           const y = r * cellSize;
-          const bg = (Math.floor(r/3) + Math.floor(c/3)) % 2 === 1 ? '#111827' : '#0d1322';
-          if (carved[r][c] !== 0) {
+          const bg = (Math.floor(r/3) + Math.floor(c/3)) % 2 === 1 ? '#f8f5ee' : '#ffffff';
+          if (initialGrid[r][c] !== 0) {
             svg += `<rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" fill="${bg}"/>\n`;
-            svg += `<text x="${x + cellSize/2}" y="${y + cellSize/2}" class="text-given">${carved[r][c]}</text>\n`;
+            svg += `<text x="${x + cellSize/2}" y="${y + cellSize/2}" class="text-given">${initialGrid[r][c]}</text>\n`;
           } else {
             svg += `<rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" fill="${bg}" class="unsolve-bg-${r}-${c}"/>\n`;
-            svg += `<text x="${x + cellSize/2}" y="${y + cellSize/2}" class="text-unsolve unsolve-val-${r}-${c}">${solution[r][c]}</text>\n`;
+            svg += `<text x="${x + cellSize/2}" y="${y + cellSize/2}" class="text-unsolve unsolve-val-${r}-${c}">${solutionGrid[r][c]}</text>\n`;
           }
         }
       }
 
-      // Laser Crosshairs & Box Scanning Beams
-      steps.forEach((d, i) => {
-        const x = d.col * cellSize;
-        const y = d.row * cellSize;
-        const boxR = Math.floor(d.row / 3) * 3 * cellSize;
-        const boxC = Math.floor(d.col / 3) * 3 * cellSize;
-        svg += `<g class="replay-beam-${i}">\n`;
-        svg += `  <rect x="0" y="${y}" width="${boardSize}" height="${cellSize}" fill="rgba(99, 102, 241, 0.12)"/>\n`;
-        svg += `  <line x1="0" y1="${y + cellSize/2}" x2="${boardSize}" y2="${y + cellSize/2}" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>\n`;
-        svg += `  <rect x="${x}" y="0" width="${cellSize}" height="${boardSize}" fill="rgba(99, 102, 241, 0.12)"/>\n`;
-        svg += `  <line x1="${x + cellSize/2}" y1="0" x2="${x + cellSize/2}" y2="${boardSize}" stroke="rgba(99, 102, 241, 0.35)" stroke-width="1.5"/>\n`;
-        svg += `  <rect x="${boxC}" y="${boxR}" width="${cellSize*3}" height="${cellSize*3}" fill="rgba(168, 85, 247, 0.10)" stroke="rgba(168, 85, 247, 0.4)" stroke-width="1.5"/>\n`;
-        svg += `</g>\n`;
-      });
-
-      steps.forEach((d, i) => {
+      deductions.forEach((d, i) => {
         const x = d.col * cellSize;
         const y = d.row * cellSize;
         svg += `<rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" class="replay-step-bg-${i}"/>\n`;
@@ -1976,92 +2196,202 @@
       for (let i = 1; i < 9; i++) {
         if (i % 3 !== 0) {
           const pos = i * cellSize;
-          svg += `<line x1="${pos}" y1="0" x2="${pos}" y2="${boardSize}" stroke="#1f293d" stroke-width="1"/>\n`;
-          svg += `<line x1="0" y1="${pos}" x2="${boardSize}" y2="${pos}" stroke="#1f293d" stroke-width="1"/>\n`;
+          svg += `<line x1="${pos}" y1="0" x2="${pos}" y2="${boardSize}" stroke="#e6dfd3" stroke-width="1"/>\n`;
+          svg += `<line x1="0" y1="${pos}" x2="${boardSize}" y2="${pos}" stroke="#e6dfd3" stroke-width="1"/>\n`;
         }
       }
       for (let i = 0; i <= 9; i += 3) {
         const pos = i * cellSize;
         const w = (i === 0 || i === 9) ? 4 : 3;
-        svg += `<line x1="${pos}" y1="0" x2="${pos}" y2="${boardSize}" stroke="#6366f1" stroke-width="${w}"/>\n`;
-        svg += `<line x1="0" y1="${pos}" x2="${boardSize}" y2="${pos}" stroke="#6366f1" stroke-width="${w}"/>\n`;
+        svg += `<line x1="${pos}" y1="0" x2="${pos}" y2="${boardSize}" stroke="#5c4e3c" stroke-width="${w}"/>\n`;
+        svg += `<line x1="0" y1="${pos}" x2="${boardSize}" y2="${pos}" stroke="#5c4e3c" stroke-width="${w}"/>\n`;
       }
 
-      svg += `<rect x="0" y="${boardSize}" width="${boardSize}" height="75" fill="#0d1322" stroke="#1f293d" stroke-width="1"/>\n`;
-      svg += `<g class="status-phase-unsolve">\n`;
-      svg += `  <text x="16" y="${boardSize + 26}" class="status-unsolve">⚡ Phase 1: Rapid Unsolving &amp; Carving</text>\n`;
-      svg += `  <text x="16" y="${boardSize + 48}" class="sub-status">Carving solved board into ${81 - blanks.length} clues (Difficulty: ${rating})...</text>\n`;
-      svg += `</g>\n`;
+      svg += `<rect x="0" y="${boardSize}" width="${boardSize}" height="75" fill="#f8f5ee" stroke="#e6dfd3" stroke-width="1"/>\n`;
+      svg += `<g class="status-phase-unsolve">\n<text x="16" y="${boardSize + 26}" class="status-unsolve">⚡ Phase 1: Rapid Unsolving &amp; Carving</text>\n<text x="16" y="${boardSize + 48}" class="sub-status">Carving solved board into ${81 - blanks.length} clues (${currentDifficulty.toUpperCase()})...</text>\n</g>\n`;
 
-      steps.forEach((d, i) => {
-        const h = (d.reasons && d.reasons.cross_horizontal) || 0;
-        const v = (d.reasons && d.reasons.cross_vertical) || 0;
-        const b = (d.reasons && d.reasons.box_3x3) || 0;
-        svg += `<g class="replay-step-status-${i}">\n`;
-        svg += `  <text x="16" y="${boardSize + 26}" class="status-text">Step ${i+1} / ${n}: [${d.technique}] at (${d.row},${d.col}) = ${d.val}</text>\n`;
-        svg += `  <text x="16" y="${boardSize + 48}" class="sub-status">${d.description || ''} (Score: ${(d.step_score||0).toFixed(2)} | Reasons: ⬌${h} ⬍${v} ▦${b})</text>\n`;
-        svg += `</g>\n`;
+      deductions.forEach((d, i) => {
+        svg += `<g class="replay-step-status-${i}">\n<text x="16" y="${boardSize + 26}" class="status-text">Step ${i+1} / ${n}: [${d.technique}] at (${d.row+1},${d.col+1}) = ${d.val}</text>\n<text x="16" y="${boardSize + 48}" class="sub-status">${d.description || ''} (Score: ${(d.step_score||0).toFixed(2)})</text>\n</g>\n`;
       });
 
-      svg += `<g class="status-phase-victory">\n`;
-      svg += `  <text x="16" y="${boardSize + 26}" class="status-victory">🏆 Victory: Puzzle 100% Logically Proven</text>\n`;
-      svg += `  <text x="16" y="${boardSize + 48}" class="sub-status">Rating: ${rating} | Score: ${totalScore.toFixed(2)} | Solved in ${n} steps</text>\n`;
-      svg += `</g>\n`;
-
+      svg += `<g class="status-phase-victory">\n<text x="16" y="${boardSize + 26}" class="status-victory">🏆 Victory: Puzzle 100% Logically Proven</text>\n<text x="16" y="${boardSize + 48}" class="sub-status">Difficulty: ${currentDifficulty.toUpperCase()} | Solved in ${n} steps</text>\n</g>\n`;
       svg += `</svg>`;
-      return svg;
-    }
 
-    function triggerDownloadReplaySVG() {
-      if (!currentSolutionGrid.length || !currentCarvedGrid.length) return;
-      const svgText = generateReplaySVG(currentSolutionGrid, currentCarvedGrid, deductions, difficultyRating, totalScore);
-      const blob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
+      const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `undoku_replay_${difficultyRating.toLowerCase()}_${Math.round(totalScore)}.svg`;
+      a.download = `undoku_replay_${currentDifficulty}_${Date.now()}.svg`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }
 
-    document.getElementById('btnClearCell').addEventListener('click', () => {
-      setDigit(0);
-    });
-
-    let currentSelectedDifficulty = 'hard';
-
-    function setDifficulty(diff) {
-      currentSelectedDifficulty = diff;
-      document.querySelectorAll('.btn-diff').forEach(btn => {
-        if (btn.getAttribute('data-diff') === diff) {
-          btn.classList.add('active');
-        } else {
-          btn.classList.remove('active');
-        }
-      });
-      loadNewPuzzle(diff);
+    // --- Animation Loop ---
+    let lastStepTime = 0;
+    function mainLoop(now) {
+      animPhase = now / 1000;
+      if (isPlayingSolver && now - lastStepTime > 320) {
+        stepForward();
+        lastStepTime = now;
+      }
+      renderBoard();
+      renderConfetti();
+      drawTrajectoryChart();
+      requestAnimationFrame(mainLoop);
     }
 
-    document.querySelectorAll('.btn-diff').forEach(btn => {
+    // --- Event Listeners ---
+    boardCanvas.addEventListener('click', (e) => {
+      if (isUnsolving) return;
+      const rect = boardCanvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const cellSize = rect.width / 9;
+      const c = Math.floor(x / cellSize);
+      const r = Math.floor(y / cellSize);
+      if (r >= 0 && r < 9 && c >= 0 && c < 9) {
+        selectedCell = { r, c };
+      }
+    });
+
+    document.querySelectorAll('.digit-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const diff = btn.getAttribute('data-diff');
-        setDifficulty(diff);
+        const val = parseInt(btn.getAttribute('data-val'), 10);
+        inputDigit(val);
       });
+    });
+
+    // --- Difficulty Change Confirmation Dialogue ---
+    let pendingDifficulty = null;
+
+    function requestDifficultyChange(targetDiff) {
+      pendingDifficulty = targetDiff;
+      const titleEl = document.getElementById('confirmTitle');
+      if (titleEl) titleEl.innerText = `Start New ${targetDiff.toUpperCase()} Game?`;
+      const msgEl = document.getElementById('confirmMessage');
+      if (msgEl) {
+        msgEl.innerHTML = `Switching difficulty to <b id="confirmTargetDiff" style="color: var(--primary); text-transform: uppercase;">${targetDiff}</b> will start a fresh puzzle and reset your current progress.`;
+      }
+      const modalEl = document.getElementById('confirmModal');
+      if (modalEl) modalEl.classList.add('active');
+    }
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetDiff = btn.getAttribute('data-diff');
+        requestDifficultyChange(targetDiff);
+      });
+    });
+
+    document.getElementById('btnConfirmStart').addEventListener('click', () => {
+      document.getElementById('confirmModal').classList.remove('active');
+      const target = pendingDifficulty || currentDifficulty;
+      pendingDifficulty = null;
+      loadPuzzle(target);
+    });
+
+    document.getElementById('btnConfirmCancel').addEventListener('click', () => {
+      document.getElementById('confirmModal').classList.remove('active');
+      pendingDifficulty = null;
+    });
+
+    document.getElementById('confirmModal').addEventListener('click', (e) => {
+      if (e.target.id === 'confirmModal') {
+        document.getElementById('confirmModal').classList.remove('active');
+        pendingDifficulty = null;
+      }
+    });
+
+    document.getElementById('btnToggleNotes').addEventListener('click', () => {
+      isNotesMode = !isNotesMode;
+      document.getElementById('btnToggleNotes').classList.toggle('active', isNotesMode);
+      document.getElementById('labelNotes').innerText = isNotesMode ? "Notes (ON)" : "Notes (OFF)";
+    });
+
+    document.getElementById('btnErase').addEventListener('click', () => inputDigit(0));
+    document.getElementById('btnUndo').addEventListener('click', undoMove);
+    document.getElementById('btnHint').addEventListener('click', giveHint);
+    document.getElementById('btnNewGame').addEventListener('click', () => requestDifficultyChange(currentDifficulty));
+
+    document.getElementById('btnPlayPause').addEventListener('click', () => {
+      if (isUnsolving) return;
+      isPlayingSolver = !isPlayingSolver;
+      document.getElementById('btnPlayPause').innerText = isPlayingSolver ? '⏸ Pause' : '▶ Play Solver';
+      document.getElementById('appModeBadge').innerText = isPlayingSolver ? 'Solver Mode' : 'Play Mode';
+    });
+
+    document.getElementById('btnNextStep').addEventListener('click', () => {
+      if (isUnsolving) return;
+      isPlayingSolver = false;
+      document.getElementById('btnPlayPause').innerText = '▶ Play Solver';
+      stepForward();
+    });
+
+    document.getElementById('btnPrevStep').addEventListener('click', () => {
+      if (isUnsolving) return;
+      isPlayingSolver = false;
+      document.getElementById('btnPlayPause').innerText = '▶ Play Solver';
+      stepBackward();
+    });
+
+    document.getElementById('btnToggleHeatmap').addEventListener('click', (e) => {
+      showHeatmap = !showHeatmap;
+      e.currentTarget.classList.toggle('active', showHeatmap);
     });
 
     document.getElementById('btnDownloadReplay').addEventListener('click', () => {
-      triggerDownloadReplaySVG();
+      downloadSVGReplay();
     });
 
-    document.getElementById('btnRandomGen').addEventListener('click', () => {
-      loadNewPuzzle(currentSelectedDifficulty);
+    document.getElementById('accordionToggle').addEventListener('click', () => {
+      const acc = document.getElementById('analyticsAccordion');
+      acc.classList.toggle('open');
+      document.getElementById('accordionChevron').innerText = acc.classList.contains('open') ? '▲ Hide Metrics' : '▼ Show Metrics';
+      if (acc.classList.contains('open')) drawTrajectoryChart();
     });
 
-    // Initial load
+    document.getElementById('btnNextPuzzle').addEventListener('click', () => {
+      document.getElementById('victoryModal').classList.remove('active');
+      loadPuzzle(currentDifficulty);
+    });
+
+    document.getElementById('btnWatchReplay').addEventListener('click', () => {
+      document.getElementById('victoryModal').classList.remove('active');
+      userGrid = initialGrid.map(r => [...r]);
+      currentStepIdx = 0;
+      isPlayingSolver = true;
+      document.getElementById('btnPlayPause').innerText = '⏸ Pause';
+      document.getElementById('appModeBadge').innerText = 'Replay Mode';
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (isUnsolving) return;
+      if (e.key >= '1' && e.key <= '9') {
+        inputDigit(parseInt(e.key, 10));
+      } else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') {
+        inputDigit(0);
+      } else if (e.key === 'n' || e.key === 'N') {
+        document.getElementById('btnToggleNotes').click();
+      } else if (e.key === 'h' || e.key === 'H') {
+        giveHint();
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        undoMove();
+      } else if (e.key === 'ArrowUp' && selectedCell && selectedCell.r > 0) {
+        selectedCell.r--;
+      } else if (e.key === 'ArrowDown' && selectedCell && selectedCell.r < 8) {
+        selectedCell.r++;
+      } else if (e.key === 'ArrowLeft' && selectedCell && selectedCell.c > 0) {
+        selectedCell.c--;
+      } else if (e.key === 'ArrowRight' && selectedCell && selectedCell.c < 8) {
+        selectedCell.c++;
+      }
+    });
+
+    // Initial Startup
     initCanvases();
-    setDifficulty('hard');
+    loadPuzzle('hard');
     requestAnimationFrame(mainLoop);
   </script>
 </body>
