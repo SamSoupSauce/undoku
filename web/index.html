@@ -548,6 +548,57 @@
     
     
     
+    
+    /* ==========================================================================
+       Theme: Polar Frost (Glacial Iceberg & Crystalline Aqua Glow)
+       ========================================================================== */
+    [data-theme="frost"] {
+      --bg-gradient: linear-gradient(145deg, #030d1a 0%, #01060e 100%);
+      --surface-card: #081a2e;
+      --surface-subtle: #051221;
+      --surface-elevated: #0c2542;
+      --border-subtle: #133961;
+      --border-strong: #38bdf8;
+      
+      --text-main: #ffffff;
+      --text-secondary: #e0f2fe;
+      --text-muted: #7dd3fc;
+      
+      --primary: #38bdf8;
+      --primary-hover: #0284c7;
+      --primary-light: rgba(56, 189, 248, 0.22);
+      --primary-glow: rgba(56, 189, 248, 0.50);
+      
+      --accent: #67e8f9;
+      --accent-light: rgba(103, 232, 249, 0.22);
+      --accent-glow: rgba(103, 232, 249, 0.45);
+      
+      --success: #34d399;
+      --success-light: rgba(52, 211, 153, 0.22);
+      --warning: #facc15;
+      --danger: #f43f5e;
+      --danger-light: rgba(244, 63, 94, 0.22);
+      --danger-glow: rgba(244, 63, 94, 0.45);
+      
+      --board-bg: #030a14;
+      --cell-bg-alt: #061526;
+      --cell-hover: rgba(56, 189, 248, 0.25);
+      --cell-selected: rgba(56, 189, 248, 0.45);
+      --cell-match: rgba(103, 232, 249, 0.15);
+      --cell-conflict: rgba(244, 63, 94, 0.45);
+      
+      --grid-line: #0e2b4a;
+      --box-line: #38bdf8;
+      
+      --digit-given: #ffffff;
+      --digit-user: #a5f3fc;
+      --digit-note: #38bdf8;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.8);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.95);
+    }
+
     /* ==========================================================================
        Theme: Starlight Cosmos (Deep Celestial Void & Pulsar Cyan Glow)
        ========================================================================== */
@@ -2148,6 +2199,7 @@
       <div class="brand-logo" id="brandLogoBtn" style="cursor: pointer;" title="Return to Dashboard Hub">
         🧩 Undoku<span class="accent-dot">.</span>
       </div>
+      <span class="brand-badge" id="appModeBadge">Play Mode</span>
       <div class="app-nav-tabs">
         <button class="nav-tab-btn active" id="navBtnHome">
           <span>🏠</span> Hub
@@ -2183,6 +2235,7 @@
           <option value="solar">🔥 Solar Flare</option>
           <option value="forest">🌿 Emerald Forest</option>
           <option value="cosmos">🪐 Starlight Cosmos</option>
+          <option value="frost">❄️ Polar Frost</option>
         </select>
       </div>
 
@@ -3160,7 +3213,7 @@
       pendingTopologyKey = currentTopologyKey;
       closeRadialRing();
       document.getElementById("btnPlayPause").innerText = "▶ Play Solver";
-      document.getElementById("appModeBadge").innerText = "⚡ Carving...";
+      const b1 = document.getElementById("appModeBadge"); if (b1) b1.innerText = "⚡ Carving...";
 
       const diffBadgeEl = document.getElementById("currentDiffBadge");
       if (diffBadgeEl) {
@@ -3358,7 +3411,7 @@
 
       if (isUnsolving && unsolveProgress >= 1.0) {
         isUnsolving = false;
-        document.getElementById("appModeBadge").innerText = "Play Mode";
+        const b2 = document.getElementById("appModeBadge"); if (b2) b2.innerText = "Play Mode";
         updateHUD();
         startTimer();
       }
@@ -4571,7 +4624,7 @@
       closeRadialRing();
       isPlayingSolver = !isPlayingSolver;
       document.getElementById("btnPlayPause").innerText = isPlayingSolver ? "⏸ Pause" : "▶ Play Solver";
-      document.getElementById("appModeBadge").innerText = isPlayingSolver ? "Solver Mode" : "Play Mode";
+      const b3 = document.getElementById("appModeBadge"); if (b3) b3.innerText = isPlayingSolver ? "Solver Mode" : "Play Mode";
     });
 
     document.getElementById("btnNextStep").addEventListener("click", () => {
@@ -4617,7 +4670,7 @@
       currentStepIdx = 0;
       isPlayingSolver = true;
       document.getElementById("btnPlayPause").innerText = "⏸ Pause";
-      document.getElementById("appModeBadge").innerText = "Replay Mode";
+      const b4 = document.getElementById("appModeBadge"); if (b4) b4.innerText = "Replay Mode";
     });
 
     window.addEventListener("keydown", (e) => {
