@@ -678,6 +678,57 @@
     
     
     
+    
+    /* ==========================================================================
+       Theme: Prismatic Quartz (Crystalline Obsidian Void & Rainbow Crystal Glow)
+       ========================================================================== */
+    [data-theme="quartz_prism"] {
+      --bg-gradient: linear-gradient(145deg, #0c0614 0%, #030106 100%);
+      --surface-card: #180c29;
+      --surface-subtle: #10081c;
+      --surface-elevated: #24133d;
+      --border-subtle: #41226d;
+      --border-strong: #e879f9;
+      
+      --text-main: #ffffff;
+      --text-secondary: #fdf4ff;
+      --text-muted: #f0abfc;
+      
+      --primary: #e879f9;
+      --primary-hover: #d946ef;
+      --primary-light: rgba(232, 121, 249, 0.22);
+      --primary-glow: rgba(232, 121, 249, 0.50);
+      
+      --accent: #38bdf8;
+      --accent-light: rgba(56, 189, 248, 0.22);
+      --accent-glow: rgba(56, 189, 248, 0.45);
+      
+      --success: #34d399;
+      --success-light: rgba(52, 211, 153, 0.22);
+      --warning: #fde047;
+      --danger: #f43f5e;
+      --danger-light: rgba(244, 63, 94, 0.22);
+      --danger-glow: rgba(244, 63, 94, 0.45);
+      
+      --board-bg: #08030d;
+      --cell-bg-alt: #130920;
+      --cell-hover: rgba(232, 121, 249, 0.25);
+      --cell-selected: rgba(232, 121, 249, 0.45);
+      --cell-match: rgba(56, 189, 248, 0.15);
+      --cell-conflict: rgba(244, 63, 94, 0.45);
+      
+      --grid-line: #291547;
+      --box-line: #e879f9;
+      
+      --digit-given: #ffffff;
+      --digit-user: #fae8ff;
+      --digit-note: #38bdf8;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.8);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.95);
+    }
+
     /* ==========================================================================
        Theme: Cyber Diamond Holo (Diamond Obsidian Void & Iridescent Cyan Glow)
        ========================================================================== */
@@ -3235,6 +3286,7 @@
           <option value="viper">🐍 Cyber Viper</option>
           <option value="plasma">⚡ Neon Plasma</option>
           <option value="diamond">💎 Cyber Diamond</option>
+          <option value="quartz_prism">🔮 Prismatic Quartz</option>
         </select>
       </div>
 
@@ -6976,12 +7028,14 @@
 
 
 
+
     // ==========================================================================
-    // MULTIPLAYER FUNCTION 2: PEER IDENTITY, DUAL BROADCAST/STORAGE P2P PIPE
+    // MULTIPLAYER FUNCTION 2: REAL-TIME MATCH START SYNC & DUAL P2P PIPELINE
     // ==========================================================================
     const LOCAL_PEER_ID = "peer_" + Math.random().toString(36).substring(2, 9) + "_" + Date.now().toString(36);
     let isVersusMode = false;
     let versusBroadcastChannel = null;
+    let versusLobbyPollInterval = null;
     let versusMatch = {
       roomId: "VS-9X4A",
       seed: 12345678,
@@ -7066,25 +7120,29 @@
       return { totalPoints, basePoints, technique };
     }
 
-    // --- Dual P2P Message Dispatcher (BroadcastChannel + LocalStorage Event Pipe) ---
+    // --- Dual P2P Message Dispatcher with Nonce & Storage Event Guaranteed Trigger ---
     function sendVersusMessage(msg) {
       msg.senderId = LOCAL_PEER_ID;
+      msg.roomId = versusMatch.roomId;
       msg.timestamp = Date.now();
+      msg.nonce = Math.random().toString(36).substring(2, 9);
 
-      // 1. BroadcastChannel (Modern same-origin tabs)
+      // 1. BroadcastChannel
       if (versusBroadcastChannel) {
         try { versusBroadcastChannel.postMessage(msg); } catch (e) {}
       }
 
-      // 2. LocalStorage Event (Universal fallback across all tabs and windows)
+      // 2. LocalStorage Event (Universal fallback with unique key to guarantee storage event trigger)
       try {
-        const key = "undoku_p2p_channel_" + versusMatch.roomId;
-        localStorage.setItem(key, JSON.stringify(msg));
+        const uniqueKey = "undoku_p2p_msg_" + Date.now() + "_" + msg.nonce;
+        localStorage.setItem(uniqueKey, JSON.stringify(msg));
+        // Also update canonical state key
+        localStorage.setItem("undoku_p2p_channel_" + versusMatch.roomId, JSON.stringify(msg));
       } catch (e) {}
     }
 
     function handleVersusIncomingMessage(msg) {
-      if (!msg || !msg.type || msg.senderId === LOCAL_PEER_ID) return;
+      if (!msg || !msg.type || msg.senderId === LOCAL_PEER_ID || msg.roomId !== versusMatch.roomId) return;
 
       if (msg.type === "PEER_JOIN") {
         if (versusMatch.isHost) {
@@ -7098,7 +7156,6 @@
             roomBadge.innerText = "🟢 CHALLENGER READY";
             roomBadge.className = "hud-mode-pill paper";
           }
-          showVersusToast("👤", `${versusMatch.p2Nick} joined the room!`, 2500);
 
           // Acknowledge challenger with host state
           sendVersusMessage({
@@ -7123,7 +7180,10 @@
           if (gStatus) gStatus.innerText = "⏳ Waiting for Host to start match...";
         }
       } else if (msg.type === "MATCH_START") {
+        if (versusMatch.hasStarted) return; // Prevent double-trigger
+
         // Host triggered start -> launch challenger synchronously
+        if (versusLobbyPollInterval) clearInterval(versusLobbyPollInterval);
         const roomModal = document.getElementById("versusRoomModal");
         if (roomModal) roomModal.classList.remove("active");
 
@@ -7182,10 +7242,10 @@
         console.warn("BroadcastChannel init:", e);
       }
 
-      // Storage event listener fallback
+      // Storage event listener fallback (watches for any undoku_p2p_ key updates)
       window.removeEventListener("storage", window._vsStorageListener);
       window._vsStorageListener = (e) => {
-        if (e.key === "undoku_p2p_channel_" + roomCode && e.newValue) {
+        if (e.key && e.key.startsWith("undoku_p2p_") && e.newValue) {
           try {
             const data = JSON.parse(e.newValue);
             handleVersusIncomingMessage(data);
@@ -7193,6 +7253,33 @@
         }
       };
       window.addEventListener("storage", window._vsStorageListener);
+
+      // Active Lobby Poller: Ensures challenger notices match start even if backgrounded
+      if (versusLobbyPollInterval) clearInterval(versusLobbyPollInterval);
+      versusLobbyPollInterval = setInterval(() => {
+        if (versusMatch.hasStarted) {
+          clearInterval(versusLobbyPollInterval);
+          return;
+        }
+
+        // Check if Host has posted active match start to persistent storage
+        try {
+          const matchStartRecord = localStorage.getItem("undoku_match_active_" + roomCode);
+          if (matchStartRecord) {
+            const parsed = JSON.parse(matchStartRecord);
+            if (parsed && parsed.type === "MATCH_START") {
+              handleVersusIncomingMessage(parsed);
+              return;
+            }
+          }
+        } catch (e) {}
+
+        // Send ping if not host
+        if (!versusMatch.isHost) {
+          const myNick = getSavedNickname();
+          sendVersusMessage({ type: "PEER_JOIN", nick: myNick });
+        }
+      }, 400);
     }
 
     function getSavedNickname() {
@@ -7366,7 +7453,6 @@
       // Setup persistent P2P channel
       setupVersusP2PChannel(roomCode);
       if (!isHost) {
-        // Send join announce immediately
         sendVersusMessage({ type: "PEER_JOIN", nick: myNick });
       }
 
@@ -7400,14 +7486,14 @@
       if (btnStart) {
         btnStart.onclick = () => {
           if (!versusMatch.isHost) return;
+          if (versusLobbyPollInterval) clearInterval(versusLobbyPollInterval);
           if (roomModal) roomModal.classList.remove("active");
 
           isVersusMode = true;
           versusMatch.hasStarted = true;
           const payload = ShareManager.generatePayload(game);
 
-          // Broadcast MATCH_START to challenger
-          sendVersusMessage({
+          const startMsg = {
             type: "MATCH_START",
             p1Nick: versusMatch.p1Nick,
             p2Nick: versusMatch.p2Nick,
@@ -7415,7 +7501,15 @@
             seed: versusMatch.seed,
             topologyKey: versusMatch.topologyKey,
             difficulty: versusMatch.difficulty
-          });
+          };
+
+          // Save to localStorage for instant polling pickup
+          try {
+            localStorage.setItem("undoku_match_active_" + roomCode, JSON.stringify({ ...startMsg, roomId: roomCode, senderId: LOCAL_PEER_ID }));
+          } catch (e) {}
+
+          // Broadcast MATCH_START to challenger
+          sendVersusMessage(startMsg);
 
           loadGameFromRecord(game);
           updateVersusHUD();
@@ -7428,6 +7522,7 @@
       const btnCancel = document.getElementById("btnVsRoomCancel");
       if (btnCancel) {
         btnCancel.onclick = () => {
+          if (versusLobbyPollInterval) clearInterval(versusLobbyPollInterval);
           if (roomModal) roomModal.classList.remove("active");
         };
       }
