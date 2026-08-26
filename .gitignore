@@ -23,6 +23,7 @@ undoku
 *.out
 *.test
 coverage.*
+exports/
 render/test_exports/
 
 # Environment files

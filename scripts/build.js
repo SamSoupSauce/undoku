@@ -38,13 +38,6 @@ if (fs.existsSync(wikiDistDir)) {
   fs.cpSync(wikiDistDir, destWikiDir, { recursive: true });
 }
 
-// Copy SVG Vector Exports if present
-const exportsDir = path.join(rootDir, 'exports');
-if (fs.existsSync(exportsDir)) {
-  const destExportsDir = path.join(siteDistDir, 'exports');
-  fs.cpSync(exportsDir, destExportsDir, { recursive: true });
-}
-
 // Write .nojekyll for static hosts (GitHub Pages)
 fs.writeFileSync(path.join(siteDistDir, '.nojekyll'), '');
 
