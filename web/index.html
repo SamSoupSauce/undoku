@@ -4606,6 +4606,7 @@
     // --- Live Dynamic Solver Engine ---
     function recalculateLiveSolver() {
       if (isUnsolving || !userGrid.length || isPlayingSolver) return;
+      if (isVersusMode) return; // No live solver hints in Versus mode
       const N = currentTopology.N;
 
       let blanks = 0;
@@ -5308,6 +5309,7 @@
     }
 
     function giveHint() {
+      if (isVersusMode) { showVersusToast("🚫", "Hints disabled in Versus mode!", 1800); return; }
       if (currentGameMode === "like_paper" || !currentAllowHints) return;
       if (currentHintCap > 0 && currentHintsRemaining <= 0) return;
       if (!solutionGrid.length) return;
@@ -5910,6 +5912,7 @@
 
     document.getElementById("btnPlayPause").addEventListener("click", () => {
       if (isUnsolving) return;
+      if (isVersusMode) { showVersusToast("🚫", "Solver disabled in Versus mode!", 1800); return; }
       closeRadialRing();
       isPlayingSolver = !isPlayingSolver;
       document.getElementById("btnPlayPause").innerText = isPlayingSolver ? "⏸ Pause" : "▶ Play Solver";
@@ -5918,6 +5921,7 @@
 
     document.getElementById("btnNextStep").addEventListener("click", () => {
       if (isUnsolving) return;
+      if (isVersusMode) { showVersusToast("🚫", "Solver disabled in Versus mode!", 1800); return; }
       closeRadialRing();
       isPlayingSolver = false;
       document.getElementById("btnPlayPause").innerText = "▶ Play Solver";
@@ -7034,6 +7038,97 @@
 
 
     // ==========================================================================
+    // ANTI-CHEAT: INPUT ENTROPY SAMPLING
+    // Tracks mouse/touch jitter to detect inhuman / bot-level precision.
+    // Legitimate human input has measurable variance in position and timing.
+    // ==========================================================================
+    const inputEntropy = {
+      samples: [],        // { dx, dy, dt } movement deltas
+      clickTimes: [],     // ms timestamps of clicks/taps
+      maxSamples: 200,    // rolling window
+
+      // Add a pointer movement sample
+      record(x, y, t) {
+        const prev = this.samples[this.samples.length - 1];
+        if (prev) {
+          const dx = x - prev._x;
+          const dy = y - prev._y;
+          const dt = t - prev._t;
+          if (dt > 0 && dt < 500) { // ignore huge gaps (user paused)
+            this.samples.push({ dx, dy, dt, _x: x, _y: y, _t: t });
+          } else {
+            this.samples.push({ dx: 0, dy: 0, dt: 0, _x: x, _y: y, _t: t });
+          }
+        } else {
+          this.samples.push({ dx: 0, dy: 0, dt: 0, _x: x, _y: y, _t: t });
+        }
+        if (this.samples.length > this.maxSamples) this.samples.shift();
+      },
+
+      recordClick(t) {
+        this.clickTimes.push(t);
+        if (this.clickTimes.length > 50) this.clickTimes.shift();
+      },
+
+      // Returns variance of an array of numbers
+      variance(arr) {
+        if (arr.length < 2) return 0;
+        const mean = arr.reduce((a, b) => a + b, 0) / arr.length;
+        return arr.reduce((s, v) => s + (v - mean) ** 2, 0) / arr.length;
+      },
+
+      // Returns a 0–1 "humanness" score. <0.15 = suspicious.
+      score() {
+        const usable = this.samples.filter(s => s.dt > 0);
+        if (usable.length < 20) return 1; // not enough data yet
+
+        const dxVar = this.variance(usable.map(s => s.dx));
+        const dyVar = this.variance(usable.map(s => s.dy));
+        const dtVar = this.variance(usable.map(s => s.dt));
+
+        // Normalise against expected human ranges
+        const spatialScore = Math.min(1, (dxVar + dyVar) / 40);
+        const timingScore  = Math.min(1, dtVar / 200);
+
+        // Inter-click timing variance (humans are imprecise)
+        let clickScore = 0.5;
+        if (this.clickTimes.length >= 4) {
+          const gaps = [];
+          for (let i = 1; i < this.clickTimes.length; i++) {
+            gaps.push(this.clickTimes[i] - this.clickTimes[i - 1]);
+          }
+          clickScore = Math.min(1, this.variance(gaps) / 10000);
+        }
+
+        return (spatialScore * 0.4 + timingScore * 0.3 + clickScore * 0.3);
+      },
+
+      // Call at the end of a turn; returns flagged=true if input looks inhuman
+      auditTurn() {
+        const s = this.score();
+        const suspicious = s < 0.12;
+        return { score: s, suspicious };
+      },
+
+      reset() {
+        this.samples = [];
+        this.clickTimes = [];
+      }
+    };
+
+    // Wire pointer-move sampling (mousemove + touchmove on document)
+    document.addEventListener("mousemove", (e) => {
+      inputEntropy.record(e.clientX, e.clientY, performance.now());
+    }, { passive: true });
+    document.addEventListener("touchmove", (e) => {
+      if (e.touches.length > 0) {
+        inputEntropy.record(e.touches[0].clientX, e.touches[0].clientY, performance.now());
+      }
+    }, { passive: true });
+    document.addEventListener("click", () => inputEntropy.recordClick(performance.now()), { passive: true });
+    document.addEventListener("touchend", () => inputEntropy.recordClick(performance.now()), { passive: true });
+
+    // ==========================================================================
     // MULTIPLAYER FUNCTION 2: REAL-TIME MATCH START SYNC & DUAL P2P PIPELINE
     // ==========================================================================
     const LOCAL_PEER_ID = "peer_" + Math.random().toString(36).substring(2, 9) + "_" + Date.now().toString(36);
@@ -7120,8 +7215,10 @@
         }
       } catch (e) {}
 
-      const speedMultiplier = Math.max(1.0, 1.5 - (thinkingTimeSec * 0.04));
-      const totalPoints = Math.round(basePoints * speedMultiplier);
+      // Pure inverse-time: faster recognition = more points, no artificial cap.
+      // Floor at 0.1s to prevent divide-by-zero on programmatic instant clicks.
+      const safeSec = Math.max(0.1, thinkingTimeSec);
+      const totalPoints = Math.round(basePoints / safeSec);
       return { totalPoints, basePoints, technique };
     }
 
@@ -7174,7 +7271,16 @@
       const elapsed = stopVersusThinkingClock();
       sendVersusMessage({ type: "STOP_TIMER" });
 
-      // Score the move by technique difficulty
+      // Audit input entropy before resetting the sampler for this turn
+      const { score: entropyScore, suspicious } = inputEntropy.auditTurn();
+      inputEntropy.reset(); // fresh window for next turn
+
+      if (suspicious) {
+        console.warn(`[AntiCheat] Suspicious input entropy score: ${entropyScore.toFixed(3)} — possible bot/auto-solve`);
+        showVersusToast("⚠️", "Suspicious input detected! Move flagged.", 3000);
+      }
+
+      // Score the move by technique difficulty (pure inverse-time, no cap)
       const { totalPoints, technique } = calculateMoveDifficultyScore(r, c, val, elapsed);
       if (versusMatch.activeTurn === 1) {
         versusMatch.p1Score += totalPoints;
@@ -7195,12 +7301,14 @@
       versusMatch.activeTurn = (versusMatch.activeTurn === 1) ? 2 : 1;
       updateVersusHUD();
 
-      // Broadcast move diff over dual P2P pipeline
+      // Broadcast move diff + entropy audit over dual P2P pipeline
       sendVersusMessage({
         type: "MOVE_PLACED",
         r, c, val,
         points: totalPoints,
         technique,
+        entropyScore: Math.round(entropyScore * 1000) / 1000,
+        suspicious,
         match: {
           p1Score: versusMatch.p1Score,
           p2Score: versusMatch.p2Score,
@@ -7212,7 +7320,8 @@
 
       if (!versusMatch.isFinished) {
         const nextNick = (versusMatch.activeTurn === 1 ? versusMatch.p1Nick : versusMatch.p2Nick);
-        showVersusToast("⚡", `${technique} (+${totalPoints} pts)! Turn passed to ${nextNick}.`, 2000);
+        const flag = suspicious ? " ⚠️" : "";
+        showVersusToast("⚡", `${technique} (+${totalPoints} pts)! Turn passed to ${nextNick}.${flag}`, 2000);
       }
     }
 
@@ -7323,9 +7432,11 @@
         }
         updateVersusHUD();
         const opponentNick = (versusMatch.localPlayer === 1 ? versusMatch.p2Nick : versusMatch.p1Nick);
-        showVersusToast("🎯", `${opponentNick} placed ${msg.val} (+${msg.points} pts). YOUR TURN!`, 2500);
-        // Start local thinking clock only if it's our turn
+        const opponentFlag = msg.suspicious ? " ⚠️ (flagged)" : "";
+        showVersusToast("🎯", `${opponentNick} placed ${msg.val} (+${msg.points} pts).${opponentFlag} YOUR TURN!`, 2500);
+        // Start local thinking clock and fresh entropy window for our turn
         if (versusMatch.activeTurn === versusMatch.localPlayer) {
+          inputEntropy.reset();
           startVersusThinkingClock();
         }
         return;
