@@ -173,8 +173,9 @@
     }
 
     .app-header {
-      width: 100%;
-      max-width: 1080px;
+      width: 75vw;
+      min-width: 75vw;
+      max-width: 1200px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -276,18 +277,22 @@
     }
 
     .game-arena {
-      width: 100%;
-      max-width: 1080px;
-      display: grid;
-      grid-template-columns: 540px 1fr;
+      width: 75vw;
+      min-width: 75vw;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
       gap: 1.75rem;
-      align-items: start;
+      align-items: stretch;
     }
 
-    @media (max-width: 1024px) {
+    @media (max-width: 960px) {
+      .app-header,
       .game-arena {
-        grid-template-columns: 1fr;
-        max-width: 540px;
+        width: 90vw;
+        min-width: 90vw;
+        max-width: 90vw;
       }
     }
 
@@ -304,36 +309,256 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1rem;
+      margin: 0 auto 1rem;
+      max-width: 540px;
+      width: 100%;
       flex-wrap: wrap;
       gap: 0.6rem;
     }
 
-    .difficulty-tabs {
+    .hud-diff-chip {
       display: flex;
+      align-items: center;
+      gap: 0.4rem;
       background: var(--surface-subtle);
       border: 1px solid var(--border-subtle);
+      padding: 0.4rem 0.85rem;
       border-radius: 12px;
-      padding: 0.25rem;
-      gap: 0.25rem;
-    }
-
-    .tab-btn {
-      background: transparent;
-      border: none;
-      padding: 0.4rem 0.8rem;
-      border-radius: 8px;
       font-size: 0.82rem;
       font-weight: 700;
-      color: var(--text-secondary);
-      cursor: pointer;
-      transition: all 0.2s ease;
+      color: var(--text-main);
     }
 
-    .tab-btn.active {
+    .hud-diff-label {
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--primary);
+    }
+
+    .btn-new-game-row {
+      width: 100%;
+      max-width: 540px;
+      margin: 0 auto 1.15rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
       background: var(--primary);
       color: #ffffff;
-      box-shadow: 0 2px 8px var(--primary-glow);
+      border: 1px solid var(--primary);
+      padding: 0.85rem 1.25rem;
+      border-radius: 14px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      box-shadow: 0 4px 14px var(--primary-glow);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-new-game-row:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px var(--primary-glow);
+    }
+
+    .btn-new-game-row:active {
+      transform: translateY(0);
+    }
+
+    .btn-hint-row {
+      width: 100%;
+      max-width: 540px;
+      margin: 0 auto 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 0.75rem 1.25rem;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-hint-row:hover:not(:disabled) {
+      background: var(--surface-elevated);
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-hint-row:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-hint-row:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      border-color: var(--border-subtle);
+      transform: none;
+      box-shadow: none;
+    }
+
+    .diff-selection-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      text-align: left;
+    }
+
+    .diff-select-item {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      width: 100%;
+    }
+
+    .diff-select-item:hover {
+      background: var(--surface-elevated);
+      border-color: var(--primary);
+      transform: translateX(4px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .diff-select-badge {
+      font-size: 0.8rem;
+      font-weight: 800;
+      padding: 0.35rem 0.65rem;
+      border-radius: 8px;
+      white-space: nowrap;
+      min-width: 105px;
+      text-align: center;
+    }
+
+    .diff-select-badge.easy { background: rgba(22, 163, 74, 0.15); color: #16a34a; }
+    .diff-select-badge.medium { background: rgba(234, 179, 8, 0.15); color: #ca8a04; }
+    .diff-select-badge.hard { background: rgba(249, 115, 22, 0.15); color: #ea580c; }
+    .diff-select-badge.extreme { background: rgba(220, 38, 38, 0.15); color: #dc2626; }
+    .diff-select-badge.impossible { background: rgba(147, 51, 234, 0.15); color: #9333ea; }
+
+    .diff-select-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .diff-select-name {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .diff-select-sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .hud-mode-pill {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+    }
+
+    .hud-mode-pill.assisted {
+      background: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
+    }
+
+    .hud-mode-pill.paper {
+      background: rgba(224, 108, 58, 0.15);
+      color: var(--primary);
+    }
+
+    .mode-selection-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      text-align: left;
+    }
+
+    .mode-select-card {
+      display: flex;
+      flex-direction: column;
+      background: var(--surface-subtle);
+      border: 2px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .mode-select-card:hover {
+      border-color: var(--border-strong);
+      background: var(--surface-elevated);
+      transform: translateY(-1px);
+    }
+
+    .mode-select-card.active {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      box-shadow: 0 0 0 1px var(--primary), var(--shadow-sm);
+    }
+
+    .mode-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .mode-card-icon {
+      font-size: 1.25rem;
+    }
+
+    .mode-card-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text-main);
+      flex: 1;
+    }
+
+    .mode-card-pill {
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+    }
+
+    .mode-card-pill.assisted {
+      background: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
+    }
+
+    .mode-card-pill.paper {
+      background: rgba(224, 108, 58, 0.15);
+      color: var(--primary);
+    }
+
+    .mode-card-desc {
+      font-size: 0.76rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      margin: 0;
     }
 
     .hud-metrics {
@@ -374,19 +599,136 @@
     .board-wrapper {
       position: relative;
       width: 100%;
+      max-width: 540px;
+      margin: 0 auto 1.25rem;
       aspect-ratio: 1;
       border-radius: 16px;
-      overflow: hidden;
+      overflow: visible;
       box-shadow: inset 0 0 0 1px var(--border-strong), var(--shadow-md);
       background: var(--board-bg);
-      margin-bottom: 1.25rem;
     }
 
     #sudokuCanvas {
       width: 100%;
       height: 100%;
       display: block;
+      border-radius: 16px;
       cursor: pointer;
+    }
+
+    /* Radial Number Ring Dial Overlay */
+    .radial-ring-overlay {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      margin-left: -100px;
+      margin-top: -100px;
+      pointer-events: auto;
+      z-index: 50;
+      animation: popInRadialRing 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popInRadialRing {
+      0% { transform: scale(0.35); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .radial-bubbles-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      transform-origin: 100px 100px;
+    }
+
+    .radial-close-btn {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 38px;
+      height: 38px;
+      margin-left: -19px;
+      margin-top: -19px;
+      border-radius: 50%;
+      background: rgba(220, 38, 38, 0.90);
+      color: #ffffff;
+      border: 2px solid rgba(255, 255, 255, 0.90);
+      font-size: 1.15rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.40);
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 60;
+      user-select: none;
+    }
+
+    .radial-close-btn:hover {
+      background: #ef4444;
+      transform: scale(1.15);
+      box-shadow: 0 6px 18px rgba(220, 38, 38, 0.65);
+    }
+
+    .radial-close-btn:active {
+      transform: scale(0.92);
+    }
+
+    .radial-bubble-btn {
+      position: absolute;
+      width: 42px;
+      height: 42px;
+      margin-left: -21px;
+      margin-top: -21px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.88);
+      border: 2px solid var(--primary);
+      color: #111111;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.25rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+      transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+      user-select: none;
+      pointer-events: auto;
+    }
+
+    .radial-bubble-text {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      transform-origin: center center;
+    }
+
+    [data-theme="dark"] .radial-bubble-btn,
+    [data-theme="terminal"] .radial-bubble-btn,
+    [data-theme="midnight"] .radial-bubble-btn {
+      background: rgba(26, 20, 16, 0.88);
+      color: #ffffff;
+      border: 2px solid var(--primary);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.65), 0 0 10px var(--primary-glow);
+    }
+
+    .radial-bubble-btn:hover {
+      background: var(--primary);
+      color: #ffffff !important;
+      transform: scale(1.22);
+      box-shadow: 0 6px 20px var(--primary-glow);
+      z-index: 55;
+    }
+
+    .radial-bubble-btn:active {
+      transform: scale(0.92);
     }
 
     .conflict-banner {
@@ -397,7 +739,9 @@
       border: 1px solid var(--danger);
       border-radius: 10px;
       padding: 0.6rem 0.9rem;
-      margin-bottom: 1rem;
+      max-width: 540px;
+      width: 100%;
+      margin: 0 auto 1rem;
       color: var(--danger);
       font-size: 0.82rem;
       font-weight: 600;
@@ -414,7 +758,9 @@
       display: flex;
       justify-content: space-between;
       gap: 0.5rem;
-      margin-bottom: 1rem;
+      margin: 0 auto 1rem;
+      max-width: 540px;
+      width: 100%;
     }
 
     .tool-btn {
@@ -461,6 +807,9 @@
       display: grid;
       grid-template-columns: repeat(9, 1fr);
       gap: 0.4rem;
+      max-width: 540px;
+      width: 100%;
+      margin: 0 auto;
     }
 
     .digit-btn {
@@ -506,18 +855,16 @@
       margin-top: -2px;
     }
 
-    .side-stack {
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
-
-    .solver-hud-card {
+    .analytics-card {
       background: var(--surface-card);
       border: 1px solid var(--border-subtle);
       border-radius: 20px;
-      padding: 1.25rem;
+      padding: 1.5rem;
       box-shadow: var(--shadow-lg);
+    }
+
+    .analytics-card-header {
+      margin-bottom: 1.1rem;
     }
 
     .section-header {
@@ -596,7 +943,7 @@
       background: var(--primary-hover);
     }
 
-    .analytics-accordion {
+    .solver-accordion {
       background: var(--surface-card);
       border: 1px solid var(--border-subtle);
       border-radius: 20px;
@@ -624,7 +971,7 @@
       display: none;
     }
 
-    .analytics-accordion.open .accordion-content {
+    .solver-accordion.open .accordion-content {
       display: block;
     }
 
@@ -744,7 +1091,7 @@
 
     .stats-pills-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 0.6rem;
     }
 
@@ -909,13 +1256,16 @@
   <main class="game-arena">
     <!-- Left Column: Board & Controls -->
     <div class="game-card">
-      <!-- Top HUD: Difficulty, Timer, Mistakes -->
+      <!-- Top HUD: Difficulty, Mode, Timer, Mistakes -->
       <div class="game-hud">
-        <div class="difficulty-tabs">
-          <button class="tab-btn" data-diff="easy">Easy</button>
-          <button class="tab-btn" data-diff="medium">Medium</button>
-          <button class="tab-btn active" data-diff="hard">Hard</button>
-          <button class="tab-btn" data-diff="expert">Expert</button>
+        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+          <div class="hud-diff-chip" id="chipDifficulty">
+            <span class="icon">🎯</span>
+            <span class="hud-diff-label" id="currentDiffBadge">HARD</span>
+          </div>
+          <div class="hud-diff-chip" id="chipMode">
+            <span id="chipModeBadge" class="hud-mode-pill assisted">🛡️ ASSISTED</span>
+          </div>
         </div>
 
         <div class="hud-metrics">
@@ -937,33 +1287,39 @@
       </div>
 
       <!-- Canvas Sudoku Board -->
-      <div class="board-wrapper">
+      <div class="board-wrapper" id="boardWrapper">
         <canvas id="sudokuCanvas" width="540" height="540"></canvas>
+
+        <!-- Radial Number Ring Dial Overlay -->
+        <div class="radial-ring-overlay" id="radialRingOverlay" style="display: none;">
+          <button class="radial-close-btn" id="btnRadialClose" title="Close Dial (✕)">✕</button>
+          <div class="radial-bubbles-container" id="radialBubblesContainer"></div>
+        </div>
       </div>
 
-      <!-- Action Toolbar (Notes, Erase, Hint, Undo, New) -->
+      <!-- Action Toolbar (Undo / Erase) -->
       <div class="game-toolbar">
         <button class="tool-btn" id="btnUndo" title="Undo last move (Ctrl+Z)">
           <span class="tool-icon">↩️</span>
           <span>Undo</span>
         </button>
-        <button class="tool-btn" id="btnErase" title="Erase cell (Backspace/Del)">
+        <button class="tool-btn" id="btnErase" style="display: none;" title="Erase cell (Backspace/Del)">
           <span class="tool-icon">⌫</span>
           <span>Erase</span>
         </button>
-        <button class="tool-btn" id="btnToggleNotes" title="Toggle Pencil / Notes Mode (N)">
-          <span class="tool-icon">✏️</span>
-          <span id="labelNotes">Notes (OFF)</span>
-        </button>
-        <button class="tool-btn" id="btnHint" title="Reveal next logical deduction (H)">
-          <span class="tool-icon">💡</span>
-          <span>Hint</span>
-        </button>
-        <button class="tool-btn" id="btnNewGame" title="Generate New Puzzle">
-          <span class="tool-icon">🎲</span>
-          <span>New Game</span>
-        </button>
       </div>
+
+      <!-- Dedicated Standalone Hint Button (on its own row when enabled) -->
+      <button class="btn-hint-row" id="btnHint" title="Reveal next logical deduction (H)">
+        <span style="font-size: 1.15rem;">💡</span>
+        <span id="labelHintText">Hint (3 left)</span>
+      </button>
+
+      <!-- Prominent Full-Row New Game Button -->
+      <button class="btn-new-game-row" id="btnOpenNewGameMenu" title="Start a New Game with Difficulty Selection">
+        <span style="font-size: 1.25rem;">🎲</span>
+        <span>NEW GAME</span>
+      </button>
 
       <!-- Tactile Digit Keypad (1-9) -->
       <div class="digit-keypad">
@@ -979,12 +1335,118 @@
       </div>
     </div>
 
-    <!-- Right Column: Step Solver Provenance & Collapsible Analytics -->
-    <div class="side-stack">
-      <!-- Deductive Provenance & Auto-Solver Card -->
-      <div class="solver-hud-card">
-        <div class="section-header">
-          <h2 class="section-title">🧠 Logical Solver Provenance</h2>
+    <!-- Middle Section: Graph & Granular Metrics (Beneath the game screen) -->
+    <div class="analytics-card" id="analyticsCard">
+      <div class="analytics-card-header">
+        <h2 class="section-title">📊 Granular Difficulty &amp; Cognitive Spectrum</h2>
+      </div>
+
+      <div class="analytics-card-body">
+        <!-- Assertion & Difficulty Proportion Breakdown -->
+        <div class="proportion-card">
+          <div class="proportion-header">
+            <span class="proportion-title">Assertion-Solution Link Proportions</span>
+            <span style="font-size: 0.72rem; font-weight: 700; color: var(--primary);" id="propTotalSteps">45 Deduction Steps</span>
+          </div>
+
+          <!-- Segmented Distribution Ribbon Bar -->
+          <div class="proportion-bar" id="proportionBar">
+            <div class="proportion-seg gentle" id="segGentle" style="width: 40%;" title="Gentle / Direct"></div>
+            <div class="proportion-seg moderate" id="segModerate" style="width: 35%;" title="Moderate"></div>
+            <div class="proportion-seg challenging" id="segChallenging" style="width: 20%;" title="Challenging"></div>
+            <div class="proportion-seg bottleneck" id="segBottleneck" style="width: 5%;" title="Bottleneck Chain"></div>
+          </div>
+
+          <!-- Legend with Counts & Percentages -->
+          <div class="proportion-legend">
+            <div class="prop-chip">
+              <div class="prop-chip-header">
+                <span class="prop-dot gentle"></span>
+                <span>Gentle</span>
+              </div>
+              <div>
+                <span class="prop-chip-val" id="cntGentle">18</span>
+                <span class="prop-chip-pct" id="pctGentle">40%</span>
+              </div>
+            </div>
+
+            <div class="prop-chip">
+              <div class="prop-chip-header">
+                <span class="prop-dot moderate"></span>
+                <span>Moderate</span>
+              </div>
+              <div>
+                <span class="prop-chip-val" id="cntModerate">16</span>
+                <span class="prop-chip-pct" id="pctModerate">35%</span>
+              </div>
+            </div>
+
+            <div class="prop-chip">
+              <div class="prop-chip-header">
+                <span class="prop-dot challenging"></span>
+                <span>Hard</span>
+              </div>
+              <div>
+                <span class="prop-chip-val" id="cntChallenging">9</span>
+                <span class="prop-chip-pct" id="pctChallenging">20%</span>
+              </div>
+            </div>
+
+            <div class="prop-chip">
+              <div class="prop-chip-header">
+                <span class="prop-dot bottleneck"></span>
+                <span>Extreme</span>
+              </div>
+              <div>
+                <span class="prop-chip-val" id="cntBottleneck">2</span>
+                <span class="prop-chip-pct" id="pctBottleneck">5%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-box">
+          <canvas id="trajectoryCanvas" width="500" height="260"></canvas>
+        </div>
+
+        <div class="stats-pills-grid">
+          <div class="metric-card">
+            <div class="metric-label">Granular Tier</div>
+            <div class="metric-value" id="statGranularTier" style="font-size: 0.95rem; color: var(--primary);">Hard (Tier 1)</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Total Assertions</div>
+            <div class="metric-value" id="statTotalAssertions" style="color: var(--success);">142</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Peak Bottleneck</div>
+            <div class="metric-value" id="statMaxAssertions">8 assertions</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Avg Assertions/Step</div>
+            <div class="metric-value" id="statAvgAssertions">3.45 /step</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Score Spread</div>
+            <div class="metric-value" id="statSpread">0.80</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Pacing Flow</div>
+            <div class="metric-value" id="statSuddenness">Balanced</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Section: Collapsible Step-by-Step Solver Provenance (Beneath Graph & Metrics) -->
+    <div class="solver-accordion" id="solverAccordion">
+      <div class="accordion-header" id="solverAccordionToggle">
+        <h2 class="section-title">🧠 Step-by-Step Logical Solver</h2>
+        <span style="font-size: 0.85rem; font-weight: 700; color: var(--primary);" id="solverAccordionChevron">▼ Show Solver</span>
+      </div>
+
+      <div class="accordion-content" id="solverAccordionContent">
+        <div class="section-header" style="margin-top: 0.25rem;">
           <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);" id="hudStepCounter">Step 0 / 45</span>
         </div>
 
@@ -1003,119 +1465,15 @@
           <button class="btn-action" id="btnDownloadReplay" title="Download animated replay SVG">⬇️ SVG Replay</button>
         </div>
       </div>
-
-      <!-- Granular Analytics & Difficulty Trajectory Card -->
-      <div class="analytics-accordion open" id="analyticsAccordion">
-        <div class="accordion-header" id="accordionToggle">
-          <h2 class="section-title">📊 Granular Difficulty &amp; Trajectory</h2>
-          <span style="font-size: 0.9rem; color: var(--primary);" id="accordionChevron">▲ Hide Metrics</span>
-        </div>
-
-        <div class="accordion-content">
-          <!-- Assertion & Difficulty Proportion Breakdown -->
-          <div class="proportion-card">
-            <div class="proportion-header">
-              <span class="proportion-title">Assertion-Solution Link Proportions</span>
-              <span style="font-size: 0.72rem; font-weight: 700; color: var(--primary);" id="propTotalSteps">45 Deduction Steps</span>
-            </div>
-
-            <!-- Segmented Distribution Ribbon Bar -->
-            <div class="proportion-bar" id="proportionBar">
-              <div class="proportion-seg gentle" id="segGentle" style="width: 40%;" title="Gentle / Direct"></div>
-              <div class="proportion-seg moderate" id="segModerate" style="width: 35%;" title="Moderate"></div>
-              <div class="proportion-seg challenging" id="segChallenging" style="width: 20%;" title="Challenging"></div>
-              <div class="proportion-seg bottleneck" id="segBottleneck" style="width: 5%;" title="Bottleneck Chain"></div>
-            </div>
-
-            <!-- Legend with Counts & Percentages -->
-            <div class="proportion-legend">
-              <div class="prop-chip">
-                <div class="prop-chip-header">
-                  <span class="prop-dot gentle"></span>
-                  <span>Gentle</span>
-                </div>
-                <div>
-                  <span class="prop-chip-val" id="cntGentle">18</span>
-                  <span class="prop-chip-pct" id="pctGentle">40%</span>
-                </div>
-              </div>
-
-              <div class="prop-chip">
-                <div class="prop-chip-header">
-                  <span class="prop-dot moderate"></span>
-                  <span>Moderate</span>
-                </div>
-                <div>
-                  <span class="prop-chip-val" id="cntModerate">16</span>
-                  <span class="prop-chip-pct" id="pctModerate">35%</span>
-                </div>
-              </div>
-
-              <div class="prop-chip">
-                <div class="prop-chip-header">
-                  <span class="prop-dot challenging"></span>
-                  <span>Hard</span>
-                </div>
-                <div>
-                  <span class="prop-chip-val" id="cntChallenging">9</span>
-                  <span class="prop-chip-pct" id="pctChallenging">20%</span>
-                </div>
-              </div>
-
-              <div class="prop-chip">
-                <div class="prop-chip-header">
-                  <span class="prop-dot bottleneck"></span>
-                  <span>Extreme</span>
-                </div>
-                <div>
-                  <span class="prop-chip-val" id="cntBottleneck">2</span>
-                  <span class="prop-chip-pct" id="pctBottleneck">5%</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="chart-box">
-            <canvas id="trajectoryCanvas" width="500" height="180"></canvas>
-          </div>
-
-          <div class="stats-pills-grid">
-            <div class="metric-card">
-              <div class="metric-label">Granular Tier</div>
-              <div class="metric-value" id="statGranularTier" style="font-size: 0.95rem; color: var(--primary);">Hard (Tier 1)</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Total Assertions</div>
-              <div class="metric-value" id="statTotalAssertions" style="color: var(--success);">142</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Peak Bottleneck</div>
-              <div class="metric-value" id="statMaxAssertions">8 assertions</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Avg Assertions/Step</div>
-              <div class="metric-value" id="statAvgAssertions">3.45 /step</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Score Spread</div>
-              <div class="metric-value" id="statSpread">0.80</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Pacing Flow</div>
-              <div class="metric-value" id="statSuddenness">Balanced</div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </main>
 
   <!-- Victory Celebration Modal -->
   <div class="modal-backdrop" id="victoryModal">
     <div class="victory-modal">
-      <div class="victory-badge-icon">🏆</div>
-      <h2 class="victory-title">Puzzle Complete!</h2>
-      <p class="victory-subtitle">Splendid work! You solved this puzzle 100% logically.</p>
+      <div class="victory-badge-icon" id="winBadgeIcon">🏆</div>
+      <h2 class="victory-title" id="winTitle">Puzzle Complete!</h2>
+      <p class="victory-subtitle" id="winSubtitle">Splendid work! You solved this puzzle 100% logically.</p>
 
       <div class="victory-stats-row">
         <div class="win-stat">
@@ -1143,21 +1501,155 @@
     </div>
   </div>
 
-  <!-- Difficulty Change Confirmation Modal -->
+  <!-- Step 1: Difficulty Selection Modal (Easy, Medium, Hard, Extreme, Impossible) -->
+  <div class="modal-backdrop" id="diffSelectModal">
+    <div class="victory-modal" style="max-width: 480px; padding: 2rem;">
+      <div style="font-size: 2.6rem; margin-bottom: 0.35rem;">🧩</div>
+      <h2 class="victory-title">Select Difficulty</h2>
+      <p class="victory-subtitle" style="margin-bottom: 1.25rem;">Choose a challenge tier to generate a uniquely solvable puzzle</p>
+
+      <div class="diff-selection-list">
+        <button class="diff-select-item" data-diff="easy">
+          <div class="diff-select-badge easy">🟢 Easy</div>
+          <div class="diff-select-info">
+            <span class="diff-select-name">Casual &amp; Direct</span>
+            <span class="diff-select-sub">36–41 Clues • Naked singles &amp; gentle cascades</span>
+          </div>
+        </button>
+        <button class="diff-select-item" data-diff="medium">
+          <div class="diff-select-badge medium">🟡 Medium</div>
+          <div class="diff-select-info">
+            <span class="diff-select-name">Moderate Challenge</span>
+            <span class="diff-select-sub">29–34 Clues • Hidden singles &amp; 3x3 box deductions</span>
+          </div>
+        </button>
+        <button class="diff-select-item" data-diff="hard">
+          <div class="diff-select-badge hard">🟠 Hard</div>
+          <div class="diff-select-info">
+            <span class="diff-select-name">Advanced Logic</span>
+            <span class="diff-select-sub">24–28 Clues • Line constraints &amp; pointing/claiming</span>
+          </div>
+        </button>
+        <button class="diff-select-item" data-diff="extreme">
+          <div class="diff-select-badge extreme">🔴 Extreme</div>
+          <div class="diff-select-info">
+            <span class="diff-select-name">Grandmaster Challenge</span>
+            <span class="diff-select-sub">21–23 Clues • Naked pairs/triples &amp; subset reductions</span>
+          </div>
+        </button>
+        <button class="diff-select-item" data-diff="impossible">
+          <div class="diff-select-badge impossible">🟣 Impossible</div>
+          <div class="diff-select-info">
+            <span class="diff-select-name">Cognitive Bottleneck</span>
+            <span class="diff-select-sub">17–20 Clues • Minimal clue boundary &amp; multi-branch proofs</span>
+          </div>
+        </button>
+      </div>
+
+      <button class="btn-action" id="btnDiffSelectCancel" style="width: 100%; justify-content: center; padding: 0.75rem; margin-top: 1rem; font-weight: 700;">
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <!-- Step 2: Game Mode & Confirmation Modal -->
   <div class="modal-backdrop" id="confirmModal">
-    <div class="victory-modal" style="max-width: 400px; padding: 2rem;">
-      <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">🎲</div>
-      <h2 class="victory-title" id="confirmTitle">Start New Game?</h2>
-      <p class="victory-subtitle" id="confirmMessage" style="margin-bottom: 1.5rem;">
-        Switching difficulty to <b id="confirmTargetDiff" style="color: var(--primary); text-transform: uppercase;">Hard</b> will start a fresh puzzle and reset your current progress.
+    <div class="victory-modal" style="max-width: 480px; padding: 2rem;">
+      <div style="font-size: 2.8rem; margin-bottom: 0.35rem;">🎲</div>
+      <h2 class="victory-title" id="confirmTitle">Start New Game</h2>
+      <p class="victory-subtitle" id="confirmMessage" style="margin-bottom: 1.25rem;">
+        Difficulty: <b id="confirmTargetDiff" style="color: var(--primary); text-transform: uppercase;">Hard</b>
       </p>
 
-      <div style="display: flex; gap: 0.6rem;">
-        <button class="btn-action primary" id="btnConfirmStart" style="flex: 1; justify-content: center; padding: 0.75rem;">
-          Start New Game
+      <!-- Game Mode Selection: Catch Mistakes vs Like Paper -->
+      <div class="mode-selection-group">
+        <label class="mode-select-card active" id="modeCardCatch">
+          <input type="radio" name="gameModeSelect" value="catch_mistakes" checked style="display: none;">
+          <div class="mode-card-header">
+            <span class="mode-card-icon">🛡️</span>
+            <span class="mode-card-title">Catch Mistakes</span>
+            <span class="mode-card-pill assisted">Assisted</span>
+          </div>
+          <p class="mode-card-desc">
+            Enables <b>Undo</b> button, instant red conflict warnings, 3-mistake limit, and logical hints.
+          </p>
+        </label>
+
+        <label class="mode-select-card" id="modeCardPaper">
+          <input type="radio" name="gameModeSelect" value="like_paper" style="display: none;">
+          <div class="mode-card-header">
+            <span class="mode-card-icon">📰</span>
+            <span class="mode-card-title">Like Paper</span>
+            <span class="mode-card-pill paper">Pure</span>
+          </div>
+          <p class="mode-card-desc">
+            <b>Erase</b> button only. Zero mistake indicators, no red highlights, no auto-checks — like pen on paper.
+          </p>
+        </label>
+      </div>
+
+      <!-- Playthrough Option for Catch Mistakes: Allow Hints Toggle & Hint Count Number Box -->
+      <div id="rowAllowHints" class="hints-toggle-row" style="margin-top: 0.9rem; padding: 0.75rem 1rem; background: var(--surface-subtle); border: 1px solid var(--border-subtle); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
+        <label for="toggleAllowHints" style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; user-select: none; flex: 1;">
+          <input type="checkbox" id="toggleAllowHints" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary);">
+          <div>
+            <div style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 0.35rem;">
+              <span>💡</span>
+              <span>Allow Hints</span>
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted);">Enable hint button (0 = Unlimited hints)</div>
+          </div>
+        </label>
+
+        <!-- Number box: Only visible/enabled if Allow Hints is checked! -->
+        <div id="boxHintLimit" style="display: flex; align-items: center; gap: 0.35rem;">
+          <input type="number" id="inputHintLimit" min="0" max="99" value="3" title="0 = Unlimited hints" style="width: 54px; padding: 0.35rem 0.45rem; border-radius: 8px; border: 1px solid var(--border-subtle); background: var(--surface-card); color: var(--text-main); font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; font-weight: 800; text-align: center;">
+          <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted);">cap</span>
+        </div>
+      </div>
+
+      <!-- Playthrough Option for Like Paper: Highlighter Toggle -->
+      <div id="rowHighlighter" class="hints-toggle-row" style="margin-top: 0.9rem; padding: 0.75rem 1rem; background: var(--surface-subtle); border: 1px solid var(--border-subtle); border-radius: 12px; display: none; justify-content: space-between; align-items: center;">
+        <label for="toggleHighlighter" style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; user-select: none;">
+          <span style="font-size: 1.15rem;">🖍️</span>
+          <div>
+            <div style="font-size: 0.88rem; font-weight: 800; color: var(--text-main);">Highlighter</div>
+            <div style="font-size: 0.72rem; color: var(--text-muted);">Mimics pencil/ruler on paper — toggle row/column/box guide highlights</div>
+          </div>
+        </label>
+        <input type="checkbox" id="toggleHighlighter" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary);">
+      </div>
+
+      <!-- Playthrough Option for Both Modes: Digit Counters Toggle -->
+      <div id="rowDigitCounters" class="hints-toggle-row" style="margin-top: 0.75rem; padding: 0.75rem 1rem; background: var(--surface-subtle); border: 1px solid var(--border-subtle); border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
+        <label for="toggleDigitCounters" style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; user-select: none;">
+          <span style="font-size: 1.15rem;">🔢</span>
+          <div>
+            <div style="font-size: 0.88rem; font-weight: 800; color: var(--text-main);">Digit Counters</div>
+            <div style="font-size: 0.72rem; color: var(--text-muted);">Show remaining count badge under keypad numbers</div>
+          </div>
+        </label>
+        <input type="checkbox" id="toggleDigitCounters" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary);">
+      </div>
+
+      <!-- Playthrough Option for Both Modes: Radial Dial Toggle -->
+      <div id="rowRadialDial" class="hints-toggle-row" style="margin-top: 0.75rem; padding: 0.75rem 1rem; background: var(--surface-subtle); border: 1px solid var(--border-subtle); border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
+        <label for="toggleRadialDial" style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; user-select: none;">
+          <span style="font-size: 1.15rem;">🔘</span>
+          <div>
+            <div style="font-size: 0.88rem; font-weight: 800; color: var(--text-main);">Radial Number Ring</div>
+            <div style="font-size: 0.72rem; color: var(--text-muted);">Re-clicking selected square opens a radial ring of number bubbles around ✕</div>
+          </div>
+        </label>
+        <input type="checkbox" id="toggleRadialDial" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary);">
+      </div>
+
+      <div style="display: flex; gap: 0.6rem; margin-top: 1.25rem;">
+        <button class="btn-action primary" id="btnConfirmStart" style="flex: 1.3; justify-content: center; padding: 0.85rem; font-weight: 800; font-size: 0.95rem;">
+          ▶ START NEW GAME
         </button>
-        <button class="btn-action" id="btnConfirmCancel" style="flex: 1; justify-content: center; padding: 0.75rem;">
-          Cancel
+        <button class="btn-action" id="btnConfirmCancel" style="flex: 0.9; justify-content: center; padding: 0.85rem; font-weight: 700; font-size: 0.95rem;">
+          ✖ CANCEL
         </button>
       </div>
     </div>
@@ -1184,6 +1676,17 @@
     let isNotesMode = false;
     let showHeatmap = false;
     let currentDifficulty = 'hard';
+    let currentGameMode = 'catch_mistakes'; // 'catch_mistakes' | 'like_paper'
+    let currentAllowHints = true; // Controlled via New Game dialog toggle
+    let currentAllowHighlighter = true; // Controlled via Like Paper Highlighter toggle
+    let currentAllowDigitCounters = true; // Controlled via Digit Counters toggle (both modes)
+    let currentAllowRadialRing = true; // Controlled via Radial Number Ring toggle (both modes)
+    let isRadialOpen = false;
+    let currentHintCap = 3; // 0 = unlimited, >0 = count cap
+    let currentHintsRemaining = 3; // Infinity if currentHintCap === 0
+
+    // Chronological User Guess / Move Tracking
+    let userGuessHistory = []; // array of { order, r, c, val, prevVal, isCorrect, timestamp }
 
     let gameTimeSeconds = 0;
     let timerInterval = null;
@@ -1200,6 +1703,78 @@
     let unsolveStartTime = 0;
     const unsolveDuration = 850; // ms
     let unsolveCarvedCells = []; // array of { r, c, val, dissolveThreshold, spawned }
+
+    // --- Radial Number Ring Dial Controller ---
+    function closeRadialRing() {
+      const overlay = document.getElementById('radialRingOverlay');
+      if (overlay) overlay.style.display = 'none';
+      isRadialOpen = false;
+    }
+
+    function openRadialRing(r, c) {
+      if (!currentAllowRadialRing || isUnsolving || isPlayingSolver) return;
+      if (!initialGrid.length || initialGrid[r][c] !== 0) return;
+
+      const overlay = document.getElementById('radialRingOverlay');
+      const container = document.getElementById('radialBubblesContainer');
+      const wrapper = document.getElementById('boardWrapper');
+      if (!overlay || !container || !wrapper) return;
+
+      container.innerHTML = '';
+      const R = 72; // radius of number bubbles ring
+
+      // Count occurrences of each number on the board
+      const counts = new Array(10).fill(0);
+      for (let row = 0; row < 9; row++) {
+        for (let col = 0; col < 9; col++) {
+          const v = userGrid[row] ? userGrid[row][col] : 0;
+          if (v >= 1 && v <= 9) counts[v]++;
+        }
+      }
+
+      // Filter to only numbers that still have open spaces left on the board (< 9 total)
+      const availableNums = [];
+      for (let num = 1; num <= 9; num++) {
+        const countElsewhere = counts[num] - (userGrid[r][c] === num ? 1 : 0);
+        if (countElsewhere < 9) {
+          availableNums.push(num);
+        }
+      }
+
+      const totalAvailable = availableNums.length;
+      if (totalAvailable > 0) {
+        availableNums.forEach((num, idx) => {
+          // Numbers evenly distributed circularly around center x
+          const angle = -Math.PI / 2 + idx * (2 * Math.PI / totalAvailable);
+          const bx = 100 + R * Math.cos(angle);
+          const by = 100 + R * Math.sin(angle);
+
+          const btn = document.createElement('button');
+          btn.className = 'radial-bubble-btn';
+          btn.innerHTML = `<span class="radial-bubble-text">${num}</span>`;
+          btn.style.left = `${bx}px`;
+          btn.style.top = `${by}px`;
+          btn.title = `Place ${num}`;
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            inputDigit(num);
+            closeRadialRing();
+          });
+          container.appendChild(btn);
+        });
+      }
+
+      const rect = boardCanvas.getBoundingClientRect();
+      const cellSize = rect.width / 9;
+      const cellCenterX = c * cellSize + cellSize / 2;
+      const cellCenterY = r * cellSize + cellSize / 2;
+
+      // Always center directly over the selected square!
+      overlay.style.left = `${cellCenterX}px`;
+      overlay.style.top = `${cellCenterY}px`;
+      overlay.style.display = 'block';
+      isRadialOpen = true;
+    }
 
     const boardCanvas = document.getElementById('sudokuCanvas');
     const boardCtx = boardCanvas.getContext('2d');
@@ -1269,32 +1844,96 @@
         const left = Math.max(0, 9 - counts[num]);
         const badge = document.getElementById(`badge-${num}`);
         const btn = document.querySelector(`.digit-btn[data-val="${num}"]`);
-        if (badge) badge.innerText = left > 0 ? `${left} left` : '✓';
+        if (badge) {
+          badge.style.display = currentAllowDigitCounters ? 'inline-block' : 'none';
+          badge.innerText = left > 0 ? `${left} left` : '✓';
+        }
         if (btn) {
-          if (left === 0) btn.classList.add('completed');
+          if (currentAllowDigitCounters && left === 0) btn.classList.add('completed');
           else btn.classList.remove('completed');
         }
       }
     }
 
+    function updateHintButtonDisplay() {
+      const btnHintEl = document.getElementById('btnHint');
+      const labelEl = document.getElementById('labelHintText');
+      if (!btnHintEl || !labelEl) return;
+
+      if (!currentAllowHints || currentGameMode === 'like_paper') {
+        btnHintEl.style.display = 'none';
+        return;
+      }
+
+      btnHintEl.style.display = 'flex';
+      if (currentHintCap === 0) {
+        labelEl.innerText = 'Hint (Unlimited)';
+        btnHintEl.disabled = false;
+      } else {
+        labelEl.innerText = `Hint (${currentHintsRemaining} left)`;
+        btnHintEl.disabled = (currentHintsRemaining <= 0);
+      }
+    }
+
     // --- Game Loading & Initialization (100% In-Browser from Bundled Code) ---
-    function loadPuzzle(difficulty = "hard") {
+    function loadPuzzle(difficulty = "hard", mode = null, allowHints = null, allowHighlighter = null, hintCap = null, allowDigitCounters = null, allowRadialRing = null) {
+      if (mode) currentGameMode = mode;
+      if (allowHints !== null) currentAllowHints = allowHints;
+      if (allowHighlighter !== null) currentAllowHighlighter = allowHighlighter;
+      if (hintCap !== null) currentHintCap = hintCap;
+      if (allowDigitCounters !== null) currentAllowDigitCounters = allowDigitCounters;
+      if (allowRadialRing !== null) currentAllowRadialRing = allowRadialRing;
+      currentHintsRemaining = (currentHintCap === 0) ? Infinity : currentHintCap;
       currentDifficulty = difficulty;
       isPlayingSolver = false;
       pendingDifficulty = null;
+      closeRadialRing();
       document.getElementById('btnPlayPause').innerText = '▶ Play Solver';
       document.getElementById('appModeBadge').innerText = '⚡ Carving...';
 
-      document.querySelectorAll('.tab-btn').forEach(b => {
-        if (b.getAttribute('data-diff') === difficulty) b.classList.add('active');
-        else b.classList.remove('active');
-      });
+      const diffBadgeEl = document.getElementById('currentDiffBadge');
+      if (diffBadgeEl) {
+        diffBadgeEl.innerText = difficulty.toUpperCase();
+        if (difficulty === 'easy') diffBadgeEl.style.color = '#16a34a';
+        else if (difficulty === 'medium') diffBadgeEl.style.color = '#ca8a04';
+        else if (difficulty === 'hard') diffBadgeEl.style.color = '#ea580c';
+        else if (difficulty === 'extreme') diffBadgeEl.style.color = '#dc2626';
+        else if (difficulty === 'impossible') diffBadgeEl.style.color = '#9333ea';
+      }
+
+      // Configure HUD mode badge and button visibility based on Catch Mistakes vs Like Paper & Allow Hints
+      const modeBadgeEl = document.getElementById('chipModeBadge');
+      const btnUndoEl = document.getElementById('btnUndo');
+      const btnEraseEl = document.getElementById('btnErase');
+      const chipMistakesEl = document.getElementById('chipMistakes');
+
+      if (currentGameMode === 'like_paper') {
+        if (modeBadgeEl) {
+          modeBadgeEl.innerText = '📰 LIKE PAPER';
+          modeBadgeEl.className = 'hud-mode-pill paper';
+        }
+        if (btnUndoEl) btnUndoEl.style.display = 'none';
+        if (btnEraseEl) btnEraseEl.style.display = 'flex';
+        if (chipMistakesEl) chipMistakesEl.style.display = 'none';
+      } else {
+        if (modeBadgeEl) {
+          modeBadgeEl.innerText = '🛡️ ASSISTED';
+          modeBadgeEl.className = 'hud-mode-pill assisted';
+        }
+        if (btnUndoEl) btnUndoEl.style.display = 'flex';
+        if (btnEraseEl) btnEraseEl.style.display = 'none';
+        if (chipMistakesEl) chipMistakesEl.style.display = 'flex';
+      }
+
+      updateHintButtonDisplay();
 
       // Clear any active modals
       const victoryEl = document.getElementById('victoryModal');
       if (victoryEl) victoryEl.classList.remove('active');
       const confirmEl = document.getElementById('confirmModal');
       if (confirmEl) confirmEl.classList.remove('active');
+      const diffSelectEl = document.getElementById('diffSelectModal');
+      if (diffSelectEl) diffSelectEl.classList.remove('active');
 
       mistakesCount = 0;
       document.getElementById('mistakeCounter').innerText = `${mistakesCount}/${maxMistakes}`;
@@ -1302,6 +1941,7 @@
       document.getElementById('conflictBanner').style.display = 'none';
 
       moveHistory = [];
+      userGuessHistory = [];
       notesGrid = Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set()));
       currentConflict = null;
       boardShake = 0;
@@ -1348,6 +1988,43 @@
       updateDigitCounters();
       updateProportionRibbon();
       drawTrajectoryChart();
+    }
+
+    // --- Live Dynamic Solver Engine (Solves Live From Current User Board) ---
+    function recalculateLiveSolver() {
+      if (isUnsolving || !userGrid.length || isPlayingSolver) return;
+
+      let blanks = 0;
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (userGrid[r][c] === 0) blanks++;
+        }
+      }
+
+      if (blanks === 0) {
+        deductions = [];
+        currentStepIdx = 0;
+        updateHUD();
+        updateProportionRibbon();
+        drawTrajectoryChart();
+        return;
+      }
+
+      try {
+        const assessment = window.SudokuEngine.solveAndAssess(userGrid);
+        if (assessment && assessment.step_deductions) {
+          deductions = assessment.step_deductions;
+          currentStepIdx = 0;
+          if (assessment.advanced_metrics) {
+            updateMetricsDisplay(assessment.advanced_metrics);
+          }
+          updateProportionRibbon();
+          drawTrajectoryChart();
+          updateHUD();
+        }
+      } catch (e) {
+        console.warn("Live solver calculation note:", e);
+      }
     }
 
     function updateMetricsDisplay(m) {
@@ -1442,12 +2119,16 @@
 
           boardCtx.fillStyle = isAlt ? colorCellAlt : colorBoardBg;
 
-          if (selectedCell && (selectedCell.r === r || selectedCell.c === c || (Math.floor(selectedCell.r/3) === Math.floor(r/3) && Math.floor(selectedCell.c/3) === Math.floor(c/3)))) {
-            boardCtx.fillStyle = colorMatch;
-          }
+          const shouldHighlightGuides = (currentGameMode !== 'like_paper') || currentAllowHighlighter;
 
-          if (selectedVal !== 0 && userGrid[r] && userGrid[r][c] === selectedVal) {
-            boardCtx.fillStyle = colorSelected;
+          if (shouldHighlightGuides) {
+            if (selectedCell && (selectedCell.r === r || selectedCell.c === c || (Math.floor(selectedCell.r/3) === Math.floor(r/3) && Math.floor(selectedCell.c/3) === Math.floor(c/3)))) {
+              boardCtx.fillStyle = colorMatch;
+            }
+
+            if (selectedVal !== 0 && userGrid[r] && userGrid[r][c] === selectedVal) {
+              boardCtx.fillStyle = colorSelected;
+            }
           }
 
           if (currentConflict && ((currentConflict.r === r && currentConflict.c === c) || currentConflict.conflicts.some(cc => cc.r === r && cc.c === c))) {
@@ -1606,55 +2287,37 @@
 
     // --- Deductive Tier Classification (Difficulty & Assertion Complexity) ---
     function getDeductionTier(score, assertions, tech = "") {
-      if (tech.includes("Row") || tech.includes("Col") || score >= 2.05 || assertions >= 24) {
-        if (score >= 2.15 || assertions >= 26) {
-          return {
-            id: 'bottleneck',
-            name: 'Extreme Bottleneck',
-            color: '#dc2626',
-            bg: 'rgba(220, 38, 38, 0.12)',
-            stemColor: 'rgba(220, 38, 38, 0.45)'
-          };
-        }
+      if (tech.includes("Hidden Pair") || tech.includes("Hidden Triple") || score >= 2.15 || assertions >= 26) {
+        return {
+          id: 'bottleneck',
+          name: 'Extreme Bottleneck',
+          color: '#dc2626',
+          bg: 'rgba(220, 38, 38, 0.14)',
+          stemColor: 'rgba(220, 38, 38, 0.50)'
+        };
+      } else if (tech.includes("Locked") || tech.includes("Naked Pair") || tech.includes("Naked Triple") || tech.includes("Row") || tech.includes("Col") || score >= 1.75 || assertions >= 18) {
         return {
           id: 'challenging',
           name: 'Hard / High Complexity',
           color: '#f97316',
-          bg: 'rgba(249, 115, 22, 0.12)',
-          stemColor: 'rgba(249, 115, 22, 0.45)'
+          bg: 'rgba(249, 115, 22, 0.14)',
+          stemColor: 'rgba(249, 115, 22, 0.50)'
         };
-      } else if (tech.includes("Box") || score >= 1.55 || assertions >= 14) {
-        if (score >= 1.70 || assertions >= 18) {
-          return {
-            id: 'challenging',
-            name: 'Hard / High Complexity',
-            color: '#f97316',
-            bg: 'rgba(249, 115, 22, 0.12)',
-            stemColor: 'rgba(249, 115, 22, 0.45)'
-          };
-        }
+      } else if (tech.includes("Box") || score >= 1.35 || assertions >= 10) {
         return {
           id: 'moderate',
           name: 'Moderate',
           color: '#eab308',
-          bg: 'rgba(234, 179, 8, 0.12)',
-          stemColor: 'rgba(234, 179, 8, 0.45)'
-        };
-      } else if (score >= 1.25 || assertions >= 7) {
-        return {
-          id: 'moderate',
-          name: 'Moderate',
-          color: '#eab308',
-          bg: 'rgba(234, 179, 8, 0.12)',
-          stemColor: 'rgba(234, 179, 8, 0.45)'
+          bg: 'rgba(234, 179, 8, 0.14)',
+          stemColor: 'rgba(234, 179, 8, 0.50)'
         };
       } else {
         return {
           id: 'gentle',
           name: 'Gentle / Direct',
           color: '#16a34a',
-          bg: 'rgba(22, 163, 74, 0.12)',
-          stemColor: 'rgba(22, 163, 74, 0.45)'
+          bg: 'rgba(22, 163, 74, 0.14)',
+          stemColor: 'rgba(22, 163, 74, 0.50)'
         };
       }
     }
@@ -1698,7 +2361,7 @@
       document.getElementById('pctBottleneck').innerText = `${pBottleneck}%`;
     }
 
-    // --- Round Feature Spike Graph Renderer ---
+    // --- Round Polar Feature Spike Graph Renderer ---
     function drawTrajectoryChart() {
       const rect = chartCanvas.getBoundingClientRect();
       const w = rect.width > 0 ? rect.width : (chartCanvas.parentElement ? chartCanvas.parentElement.clientWidth : 460);
@@ -1761,59 +2424,77 @@
         chartCtx.stroke();
       }
 
-      // 3. Compute Radial Feature Spike Points with Absolute Difficulty Domain Scaling
+      // 3. Compute Radial Feature Spike Points with Exact Cognitive Formula
       const pts = deductions.map((d, i) => {
         const angle = -Math.PI / 2 + (i / n) * (Math.PI * 2);
         const ast = d.assertions || (8 + (d.reasons ? d.reasons.total : 0));
         const tier = getDeductionTier(d.step_score, ast, d.technique || "");
 
-        // Absolute cognitive scaling across the global difficulty spectrum:
-        const scoreNorm = Math.max(0, Math.min(1.0, (d.step_score - 1.0) / 1.35));
+        // Mathematical Intensity Model: 0.55 * ScoreNorm + 0.45 * AstNorm
+        const scoreNorm = Math.max(0, Math.min(1.0, (d.step_score - 1.00) / 1.35));
         const astNorm = Math.max(0, Math.min(1.0, (ast - 2) / 22));
-        const combinedIntensity = Math.max(0.08, Math.min(1.0, 0.55 * scoreNorm + 0.45 * astNorm));
+        const combinedIntensity = Math.max(0.08, Math.min(1.00, 0.55 * scoreNorm + 0.45 * astNorm));
+
+        // Dynamic HSL Interpolation: 120deg (lime green) -> 0deg (crimson red)
+        const hue = Math.round(120 * (1.0 - combinedIntensity));
+        const dynamicColor = `hsl(${hue}, 85%, 48%)`;
+        const dynamicBg = `hsla(${hue}, 85%, 48%, 0.16)`;
 
         const r = r0 + combinedIntensity * radialSpan;
         const x = cx + r * Math.cos(angle);
         const y = cy + r * Math.sin(angle);
         const bx = cx + r0 * Math.cos(angle);
         const by = cy + r0 * Math.sin(angle);
-        return { x, y, bx, by, r, angle, score: d.step_score, ast, tech: d.technique, tier, idx: i };
+        const spikeWidth = 1.2 + Math.min(2.8, ((ast - 2) / 22.0) * 2.8);
+
+        return { x, y, bx, by, r, angle, score: d.step_score, ast, tech: d.technique, tier, idx: i, intensity: combinedIntensity, dynamicColor, dynamicBg, spikeWidth };
       });
 
-      // 4. Starburst Perimeter Polygon & Translucent Radial Fill
+      // 4. Catmull-Rom Smooth Closed Contour Perimeter
       const starGrad = chartCtx.createRadialGradient(cx, cy, r0, cx, cy, rMax);
       starGrad.addColorStop(0, 'rgba(224, 108, 58, 0.04)');
       starGrad.addColorStop(0.7, 'rgba(224, 108, 58, 0.14)');
       starGrad.addColorStop(1, 'rgba(220, 38, 38, 0.22)');
 
-      chartCtx.beginPath();
-      pts.forEach((pt, i) => {
-        if (i === 0) chartCtx.moveTo(pt.x, pt.y);
-        else chartCtx.lineTo(pt.x, pt.y);
-      });
-      chartCtx.closePath();
-      chartCtx.fillStyle = starGrad;
-      chartCtx.fill();
+      if (pts.length >= 3) {
+        chartCtx.beginPath();
+        for (let i = 0; i < pts.length; i++) {
+          const p0 = pts[(i - 1 + pts.length) % pts.length];
+          const p1 = pts[i];
+          const p2 = pts[(i + 1) % pts.length];
+          const p3 = pts[(i + 2) % pts.length];
 
-      // Outer Perimeter Stroke
-      chartCtx.strokeStyle = 'rgba(224, 108, 58, 0.45)';
-      chartCtx.lineWidth = 1.6;
-      chartCtx.stroke();
+          const cp1x = p1.x + (p2.x - p0.x) / 6;
+          const cp1y = p1.y + (p2.y - p0.y) / 6;
+          const cp2x = p2.x - (p3.x - p1.x) / 6;
+          const cp2y = p2.y - (p3.y - p1.y) / 6;
+
+          if (i === 0) chartCtx.moveTo(p1.x, p1.y);
+          chartCtx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+        }
+        chartCtx.closePath();
+        chartCtx.fillStyle = starGrad;
+        chartCtx.fill();
+
+        // Perimeter Stroke
+        chartCtx.strokeStyle = 'rgba(224, 108, 58, 0.50)';
+        chartCtx.lineWidth = 1.8;
+        chartCtx.stroke();
+      }
 
       // 5. Radial Feature Spikes (from Hub core to spike tip)
       pts.forEach(pt => {
         chartCtx.beginPath();
         chartCtx.moveTo(pt.bx, pt.by);
         chartCtx.lineTo(pt.x, pt.y);
-        chartCtx.strokeStyle = pt.tier.color;
-        const spikeWidth = 1.2 + Math.min(2.8, (pt.ast / 24) * 2.2);
-        chartCtx.lineWidth = spikeWidth;
+        chartCtx.strokeStyle = pt.dynamicColor;
+        chartCtx.lineWidth = pt.spikeWidth;
         chartCtx.stroke();
 
         // Node tip bead
         chartCtx.beginPath();
-        chartCtx.arc(pt.x, pt.y, 2.4, 0, Math.PI * 2);
-        chartCtx.fillStyle = pt.tier.color;
+        chartCtx.arc(pt.x, pt.y, 2.5, 0, Math.PI * 2);
+        chartCtx.fillStyle = pt.dynamicColor;
         chartCtx.fill();
       });
 
@@ -1856,13 +2537,13 @@
         // Radiant Outer Ring
         chartCtx.beginPath();
         chartCtx.arc(activePt.x, activePt.y, pulse + 4, 0, Math.PI * 2);
-        chartCtx.fillStyle = activePt.tier.bg;
+        chartCtx.fillStyle = activePt.dynamicBg;
         chartCtx.fill();
 
         // Solid Active Node
         chartCtx.beginPath();
         chartCtx.arc(activePt.x, activePt.y, pulse, 0, Math.PI * 2);
-        chartCtx.fillStyle = activePt.tier.color;
+        chartCtx.fillStyle = activePt.dynamicColor;
         chartCtx.fill();
 
         // White Center Core
@@ -1931,25 +2612,43 @@
       if (initialGrid[r][c] !== 0) return;
 
       const prevVal = userGrid[r][c];
-      const prevNotes = new Set(notesGrid[r][c]);
 
-      if (isNotesMode) {
-        if (digit === 0) {
-          notesGrid[r][c].clear();
-        } else {
-          if (notesGrid[r][c].has(digit)) notesGrid[r][c].delete(digit);
-          else notesGrid[r][c].add(digit);
+      userGrid[r][c] = digit;
+      if (notesGrid[r] && notesGrid[r][c]) notesGrid[r][c].clear();
+
+      if (currentGameMode !== 'like_paper') {
+        moveHistory.push({ r, c, prevVal, newVal: digit });
+      }
+
+      // Track chronological user guess history
+      if (digit !== prevVal) {
+        userGuessHistory.push({
+          order: userGuessHistory.length + 1,
+          r, c,
+          val: digit,
+          prevVal,
+          isCorrect: (solutionGrid.length && solutionGrid[r]) ? (digit === solutionGrid[r][c]) : true,
+          timestamp: gameTimeSeconds
+        });
+      }
+
+      const rect = boardCanvas.getBoundingClientRect();
+      const cellSize = rect.width / 9;
+
+      if (currentGameMode === 'like_paper') {
+        // Pure Paper Mode: zero indicators, zero conflict checking, zero error alerts!
+        currentConflict = null;
+        const banner = document.getElementById('conflictBanner');
+        if (banner) banner.style.display = 'none';
+
+        if (digit !== 0) {
+          spawnParticles(c * cellSize + cellSize / 2, r * cellSize + cellSize / 2, "#e06c3a");
+          if (checkWin()) triggerVictory();
         }
-        moveHistory.push({ r, c, prevVal, newVal: prevVal, prevNotes, newNotes: new Set(notesGrid[r][c]) });
       } else {
-        userGrid[r][c] = digit;
-        notesGrid[r][c].clear();
-        moveHistory.push({ r, c, prevVal, newVal: digit, prevNotes, newNotes: new Set() });
-
+        // Catch Mistakes Mode: conflict detection, mistake counter, red warning
         const banner = document.getElementById('conflictBanner');
         const conflictText = document.getElementById('conflictText');
-        const rect = boardCanvas.getBoundingClientRect();
-        const cellSize = rect.width / 9;
 
         if (digit !== 0) {
           const conflict = checkConflict(r, c, digit);
@@ -1975,28 +2674,37 @@
           currentConflict = null;
           banner.style.display = 'none';
         }
-        updateDigitCounters();
       }
+      updateDigitCounters();
+      recalculateLiveSolver();
     }
 
     function undoMove() {
+      if (currentGameMode === 'like_paper') return; // Disabled in Paper mode
       if (moveHistory.length === 0) return;
       const last = moveHistory.pop();
       userGrid[last.r][last.c] = last.prevVal;
-      notesGrid[last.r][last.c] = new Set(last.prevNotes);
       selectedCell = { r: last.r, c: last.c };
       currentConflict = null;
       document.getElementById('conflictBanner').style.display = 'none';
+      if (userGuessHistory.length > 0) userGuessHistory.pop();
       updateDigitCounters();
+      recalculateLiveSolver();
     }
 
     function giveHint() {
+      if (currentGameMode === 'like_paper' || !currentAllowHints) return;
+      if (currentHintCap > 0 && currentHintsRemaining <= 0) return;
       if (!solutionGrid.length) return;
       for (let r = 0; r < 9; r++) {
         for (let c = 0; c < 9; c++) {
           if (userGrid[r][c] === 0) {
             selectedCell = { r, c };
             inputDigit(solutionGrid[r][c]);
+            if (currentHintCap > 0) {
+              currentHintsRemaining--;
+              updateHintButtonDisplay();
+            }
             return;
           }
         }
@@ -2015,28 +2723,44 @@
     // --- Victory Confetti & Modal ---
     let confettiParticles = [];
 
-    function triggerVictory() {
+    function triggerVictory(isSolverWin = false) {
       if (timerInterval) clearInterval(timerInterval);
       const m = Math.floor(gameTimeSeconds / 60);
       const s = gameTimeSeconds % 60;
       document.getElementById('winStatTime').innerText = `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
       document.getElementById('winStatDiff').innerText = currentDifficulty.toUpperCase();
-      document.getElementById('winStatMistakes').innerText = `${mistakesCount}/${maxMistakes}`;
+      document.getElementById('winStatMistakes').innerText = currentGameMode === 'like_paper' ? 'Pure Paper' : `${mistakesCount}/${maxMistakes}`;
+
+      const iconEl = document.getElementById('winBadgeIcon');
+      const titleEl = document.getElementById('winTitle');
+      const subEl = document.getElementById('winSubtitle');
+
+      if (isSolverWin) {
+        if (iconEl) iconEl.innerText = "🤖💩";
+        if (titleEl) titleEl.innerText = "Solver Solved It!";
+        if (subEl) subEl.innerText = "The automated solver was running when the last number hit — here is your special prize!";
+      } else {
+        if (iconEl) iconEl.innerText = "🏆";
+        if (titleEl) titleEl.innerText = "Puzzle Complete!";
+        if (subEl) subEl.innerText = "Splendid work! You solved this puzzle 100% logically.";
+      }
 
       document.getElementById('victoryModal').classList.add('active');
 
       confettiParticles = [];
       const colors = ['#e06c3a', '#3b82f6', '#16a34a', '#f59e0b', '#ec4899', '#8b5cf6'];
-      for (let i = 0; i < 120; i++) {
+      const count = isSolverWin ? 80 : 120;
+      for (let i = 0; i < count; i++) {
         confettiParticles.push({
           x: Math.random() * window.innerWidth,
-          y: -10 - Math.random() * 100,
+          y: -20 - Math.random() * 120,
           vx: (Math.random() - 0.5) * 4,
           vy: 2 + Math.random() * 5,
-          size: 6 + Math.random() * 8,
+          size: isSolverWin ? (26 + Math.random() * 20) : (6 + Math.random() * 8),
           color: colors[Math.floor(Math.random() * colors.length)],
           rotation: Math.random() * Math.PI * 2,
-          rSpeed: (Math.random() - 0.5) * 0.2
+          rSpeed: (Math.random() - 0.5) * (isSolverWin ? 0.08 : 0.2),
+          isPoop: isSolverWin
         });
       }
     }
@@ -2053,28 +2777,53 @@
         confettiCtx.save();
         confettiCtx.translate(p.x, p.y);
         confettiCtx.rotate(p.rotation);
-        confettiCtx.fillStyle = p.color;
-        confettiCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+
+        if (p.isPoop) {
+          confettiCtx.font = `${Math.round(p.size)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+          confettiCtx.textAlign = "center";
+          confettiCtx.textBaseline = "middle";
+          confettiCtx.fillText('💩', 0, 0);
+        } else {
+          confettiCtx.fillStyle = p.color;
+          confettiCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+        }
+
         confettiCtx.restore();
 
-        if (p.y > window.innerHeight + 20) confettiParticles.splice(i, 1);
+        if (p.y > window.innerHeight + 40) confettiParticles.splice(i, 1);
       }
     }
 
     // --- Solver Provenance Step Navigation ---
     function updateHUD() {
       const n = deductions.length;
-      document.getElementById('hudStepCounter').innerText = `Step ${currentStepIdx} / ${n}`;
+      const guessCount = userGuessHistory ? userGuessHistory.filter(g => g.val > 0).length : 0;
+      const stepEl = document.getElementById('hudStepCounter');
+      if (stepEl) {
+        stepEl.innerText = (isPlayingSolver || currentStepIdx > 0)
+          ? `Step ${currentStepIdx} / ${n}`
+          : `${n} Live Steps to Solve (${guessCount} Guess${guessCount === 1 ? '' : 'es'} Placed)`;
+      }
+
       if (currentStepIdx === 0) {
-        document.getElementById('hudTechTitle').innerText = isPlayingSolver ? "Solver Ready" : "Interactive Play Mode";
-        document.getElementById('hudExplanation').innerText = isPlayingSolver
-          ? "Step forward or play to inspect exact deduction proofs."
-          : "Click cells and enter numbers with keyboard (1-9) or touch keypad.";
+        if (n === 0 && !isUnsolving) {
+          document.getElementById('hudTechTitle').innerText = "🎉 Grid Fully Solved!";
+          document.getElementById('hudExplanation').innerText = `All numbers filled successfully in ${guessCount} guesses.`;
+        } else {
+          document.getElementById('hudTechTitle').innerText = isPlayingSolver
+            ? `⚡ Solving Live from Current Board (${n} Steps)`
+            : "Interactive Play Mode";
+          document.getElementById('hudExplanation').innerText = isPlayingSolver
+            ? "Step forward or play solver to execute live deductions from your current progress."
+            : `Live solver tracks ${guessCount} moves played so far and re-evaluates all analytical proofs in real-time.`;
+        }
         return;
       }
       const d = deductions[currentStepIdx - 1];
-      document.getElementById('hudTechTitle').innerText = d.technique;
-      document.getElementById('hudExplanation').innerText = d.description || `Single deduction at (${d.row + 1}, ${d.col + 1}) with value ${d.val}.`;
+      if (d) {
+        document.getElementById('hudTechTitle').innerText = d.technique;
+        document.getElementById('hudExplanation').innerText = d.description || `Single deduction at (${d.row + 1}, ${d.col + 1}) with value ${d.val}.`;
+      }
     }
 
     function stepForward() {
@@ -2088,9 +2837,15 @@
         updateHUD();
         updateDigitCounters();
         drawTrajectoryChart();
+        if (checkWin()) {
+          isPlayingSolver = false;
+          document.getElementById('btnPlayPause').innerText = '▶ Play Solver';
+          triggerVictory(true);
+        }
       } else {
         isPlayingSolver = false;
         document.getElementById('btnPlayPause').innerText = '▶ Play Solver';
+        if (checkWin()) triggerVictory(true);
       }
     }
 
@@ -2236,6 +2991,18 @@
         stepForward();
         lastStepTime = now;
       }
+      if (isRadialOpen) {
+        const container = document.getElementById('radialBubblesContainer');
+        if (container) {
+          // Slow continuous orbital rotation: 9 degrees per second (40s full revolution)
+          const ringAngle = (animPhase * 9) % 360;
+          container.style.transform = `rotate(${ringAngle.toFixed(2)}deg)`;
+          const texts = container.querySelectorAll('.radial-bubble-text');
+          texts.forEach(txt => {
+            txt.style.transform = `rotate(${(-ringAngle).toFixed(2)}deg)`;
+          });
+        }
+      }
       renderBoard();
       renderConfetti();
       drawTrajectoryChart();
@@ -2252,71 +3019,174 @@
       const c = Math.floor(x / cellSize);
       const r = Math.floor(y / cellSize);
       if (r >= 0 && r < 9 && c >= 0 && c < 9) {
-        selectedCell = { r, c };
+        if (selectedCell && selectedCell.r === r && selectedCell.c === c) {
+          // If square is already selected, clicking it again opens/toggles the radial number ring!
+          if (isRadialOpen) {
+            closeRadialRing();
+          } else {
+            openRadialRing(r, c);
+          }
+        } else {
+          closeRadialRing();
+          selectedCell = { r, c };
+        }
       }
     });
 
+    const btnRadialCloseEl = document.getElementById('btnRadialClose');
+    if (btnRadialCloseEl) {
+      btnRadialCloseEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeRadialRing();
+      });
+    }
+
     document.querySelectorAll('.digit-btn').forEach(btn => {
       btn.addEventListener('click', () => {
+        closeRadialRing();
         const val = parseInt(btn.getAttribute('data-val'), 10);
         inputDigit(val);
       });
     });
 
-    // --- Difficulty Change Confirmation Dialogue ---
+    // --- 2-Step New Game Dialogue Flow ---
     let pendingDifficulty = null;
 
-    function requestDifficultyChange(targetDiff) {
-      pendingDifficulty = targetDiff;
-      const titleEl = document.getElementById('confirmTitle');
-      if (titleEl) titleEl.innerText = `Start New ${targetDiff.toUpperCase()} Game?`;
-      const msgEl = document.getElementById('confirmMessage');
-      if (msgEl) {
-        msgEl.innerHTML = `Switching difficulty to <b id="confirmTargetDiff" style="color: var(--primary); text-transform: uppercase;">${targetDiff}</b> will start a fresh puzzle and reset your current progress.`;
-      }
-      const modalEl = document.getElementById('confirmModal');
-      if (modalEl) modalEl.classList.add('active');
+    function openDifficultySelectionMenu() {
+      closeRadialRing();
+      const diffModal = document.getElementById('diffSelectModal');
+      if (diffModal) diffModal.classList.add('active');
     }
 
-    document.querySelectorAll('.tab-btn').forEach(btn => {
+    function closeDifficultySelectionMenu() {
+      const diffModal = document.getElementById('diffSelectModal');
+      if (diffModal) diffModal.classList.remove('active');
+    }
+
+    function requestDifficultyConfirmation(targetDiff) {
+      closeDifficultySelectionMenu();
+      pendingDifficulty = targetDiff;
+
+      const titleEl = document.getElementById('confirmTitle');
+      if (titleEl) titleEl.innerText = `Start New ${targetDiff.toUpperCase()} Game?`;
+
+      const msgEl = document.getElementById('confirmMessage');
+      if (msgEl) {
+        msgEl.innerHTML = `Generate a fresh <b id="confirmTargetDiff" style="color: var(--primary); text-transform: uppercase;">${targetDiff}</b> puzzle? Your current board progress, notes, and timer will be reset.`;
+      }
+
+      const confirmEl = document.getElementById('confirmModal');
+      if (confirmEl) confirmEl.classList.add('active');
+    }
+
+    function closeConfirmationModal() {
+      const confirmEl = document.getElementById('confirmModal');
+      if (confirmEl) confirmEl.classList.remove('active');
+      pendingDifficulty = null;
+    }
+
+    // Full-Row New Game Button triggers Step 1
+    const btnOpenMenu = document.getElementById('btnOpenNewGameMenu');
+    if (btnOpenMenu) {
+      btnOpenMenu.addEventListener('click', openDifficultySelectionMenu);
+    }
+
+    // Step 1: Difficulty item selection triggers Step 2
+    document.querySelectorAll('.diff-select-item').forEach(btn => {
       btn.addEventListener('click', () => {
         const targetDiff = btn.getAttribute('data-diff');
-        requestDifficultyChange(targetDiff);
+        requestDifficultyConfirmation(targetDiff);
       });
     });
 
+    const btnDiffCancel = document.getElementById('btnDiffSelectCancel');
+    if (btnDiffCancel) {
+      btnDiffCancel.addEventListener('click', closeDifficultySelectionMenu);
+    }
+
+    const diffModalEl = document.getElementById('diffSelectModal');
+    if (diffModalEl) {
+      diffModalEl.addEventListener('click', (e) => {
+        if (e.target.id === 'diffSelectModal') closeDifficultySelectionMenu();
+      });
+    }
+
+    // Step 2: Game Mode selection & Confirm start or cancel
+    let selectedGameMode = 'catch_mistakes';
+
+    const cardCatch = document.getElementById('modeCardCatch');
+    const cardPaper = document.getElementById('modeCardPaper');
+    const rowAllowHints = document.getElementById('rowAllowHints');
+    const rowHighlighter = document.getElementById('rowHighlighter');
+
+    if (cardCatch && cardPaper) {
+      cardCatch.addEventListener('click', () => {
+        selectedGameMode = 'catch_mistakes';
+        cardCatch.classList.add('active');
+        cardPaper.classList.remove('active');
+        if (rowAllowHints) rowAllowHints.style.display = 'flex';
+        if (rowHighlighter) rowHighlighter.style.display = 'none';
+      });
+
+      cardPaper.addEventListener('click', () => {
+        selectedGameMode = 'like_paper';
+        cardPaper.classList.add('active');
+        cardCatch.classList.remove('active');
+        if (rowAllowHints) rowAllowHints.style.display = 'none';
+        if (rowHighlighter) rowHighlighter.style.display = 'flex';
+      });
+    }
+
+    const toggleAllowHintsEl = document.getElementById('toggleAllowHints');
+    const boxHintLimitEl = document.getElementById('boxHintLimit');
+    if (toggleAllowHintsEl && boxHintLimitEl) {
+      toggleAllowHintsEl.addEventListener('change', () => {
+        boxHintLimitEl.style.display = toggleAllowHintsEl.checked ? 'flex' : 'none';
+      });
+    }
+
     document.getElementById('btnConfirmStart').addEventListener('click', () => {
-      document.getElementById('confirmModal').classList.remove('active');
       const target = pendingDifficulty || currentDifficulty;
-      pendingDifficulty = null;
-      loadPuzzle(target);
+      const toggleHintsEl = document.getElementById('toggleAllowHints');
+      const allowHints = toggleHintsEl ? toggleHintsEl.checked : true;
+      const toggleHighlighterEl = document.getElementById('toggleHighlighter');
+      const allowHighlighter = toggleHighlighterEl ? toggleHighlighterEl.checked : true;
+      const toggleCountersEl = document.getElementById('toggleDigitCounters');
+      const allowDigitCounters = toggleCountersEl ? toggleCountersEl.checked : true;
+      const toggleRadialEl = document.getElementById('toggleRadialDial');
+      const allowRadialRing = toggleRadialEl ? toggleRadialEl.checked : true;
+      const inputHintLimitEl = document.getElementById('inputHintLimit');
+      let hintCap = 3;
+      if (inputHintLimitEl) {
+        const parsed = parseInt(inputHintLimitEl.value, 10);
+        hintCap = isNaN(parsed) || parsed < 0 ? 0 : parsed;
+      }
+      closeConfirmationModal();
+      loadPuzzle(target, selectedGameMode, allowHints, allowHighlighter, hintCap, allowDigitCounters, allowRadialRing);
     });
 
-    document.getElementById('btnConfirmCancel').addEventListener('click', () => {
-      document.getElementById('confirmModal').classList.remove('active');
-      pendingDifficulty = null;
-    });
+    document.getElementById('btnConfirmCancel').addEventListener('click', closeConfirmationModal);
 
     document.getElementById('confirmModal').addEventListener('click', (e) => {
-      if (e.target.id === 'confirmModal') {
-        document.getElementById('confirmModal').classList.remove('active');
-        pendingDifficulty = null;
-      }
+      if (e.target.id === 'confirmModal') closeConfirmationModal();
     });
 
-    document.getElementById('btnToggleNotes').addEventListener('click', () => {
-      isNotesMode = !isNotesMode;
-      document.getElementById('btnToggleNotes').classList.toggle('active', isNotesMode);
-      document.getElementById('labelNotes').innerText = isNotesMode ? "Notes (ON)" : "Notes (OFF)";
+    document.getElementById('btnErase').addEventListener('click', () => {
+      closeRadialRing();
+      inputDigit(0);
     });
-
-    document.getElementById('btnErase').addEventListener('click', () => inputDigit(0));
-    document.getElementById('btnUndo').addEventListener('click', undoMove);
-    document.getElementById('btnHint').addEventListener('click', giveHint);
-    document.getElementById('btnNewGame').addEventListener('click', () => requestDifficultyChange(currentDifficulty));
+    document.getElementById('btnUndo').addEventListener('click', () => {
+      closeRadialRing();
+      undoMove();
+    });
+    document.getElementById('btnHint').addEventListener('click', () => {
+      closeRadialRing();
+      giveHint();
+    });
 
     document.getElementById('btnPlayPause').addEventListener('click', () => {
       if (isUnsolving) return;
+      closeRadialRing();
       isPlayingSolver = !isPlayingSolver;
       document.getElementById('btnPlayPause').innerText = isPlayingSolver ? '⏸ Pause' : '▶ Play Solver';
       document.getElementById('appModeBadge').innerText = isPlayingSolver ? 'Solver Mode' : 'Play Mode';
@@ -2324,6 +3194,7 @@
 
     document.getElementById('btnNextStep').addEventListener('click', () => {
       if (isUnsolving) return;
+      closeRadialRing();
       isPlayingSolver = false;
       document.getElementById('btnPlayPause').innerText = '▶ Play Solver';
       stepForward();
@@ -2331,6 +3202,7 @@
 
     document.getElementById('btnPrevStep').addEventListener('click', () => {
       if (isUnsolving) return;
+      closeRadialRing();
       isPlayingSolver = false;
       document.getElementById('btnPlayPause').innerText = '▶ Play Solver';
       stepBackward();
@@ -2345,20 +3217,20 @@
       downloadSVGReplay();
     });
 
-    document.getElementById('accordionToggle').addEventListener('click', () => {
-      const acc = document.getElementById('analyticsAccordion');
+    document.getElementById('solverAccordionToggle').addEventListener('click', () => {
+      const acc = document.getElementById('solverAccordion');
       acc.classList.toggle('open');
-      document.getElementById('accordionChevron').innerText = acc.classList.contains('open') ? '▲ Hide Metrics' : '▼ Show Metrics';
-      if (acc.classList.contains('open')) drawTrajectoryChart();
+      document.getElementById('solverAccordionChevron').innerText = acc.classList.contains('open') ? '▲ Hide Solver' : '▼ Show Solver';
     });
 
     document.getElementById('btnNextPuzzle').addEventListener('click', () => {
       document.getElementById('victoryModal').classList.remove('active');
-      loadPuzzle(currentDifficulty);
+      loadPuzzle(currentDifficulty, currentGameMode, currentAllowHints, currentAllowHighlighter, currentHintCap, currentAllowDigitCounters, currentAllowRadialRing);
     });
 
     document.getElementById('btnWatchReplay').addEventListener('click', () => {
       document.getElementById('victoryModal').classList.remove('active');
+      closeRadialRing();
       userGrid = initialGrid.map(r => [...r]);
       currentStepIdx = 0;
       isPlayingSolver = true;
@@ -2368,23 +3240,33 @@
 
     window.addEventListener('keydown', (e) => {
       if (isUnsolving) return;
+      if (e.key === 'Escape') {
+        closeRadialRing();
+        return;
+      }
       if (e.key >= '1' && e.key <= '9') {
+        closeRadialRing();
         inputDigit(parseInt(e.key, 10));
       } else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') {
+        closeRadialRing();
         inputDigit(0);
-      } else if (e.key === 'n' || e.key === 'N') {
-        document.getElementById('btnToggleNotes').click();
       } else if (e.key === 'h' || e.key === 'H') {
-        giveHint();
+        closeRadialRing();
+        if (currentGameMode !== 'like_paper' && currentAllowHints) giveHint();
       } else if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
-        undoMove();
+        closeRadialRing();
+        if (currentGameMode !== 'like_paper') undoMove();
       } else if (e.key === 'ArrowUp' && selectedCell && selectedCell.r > 0) {
+        closeRadialRing();
         selectedCell.r--;
       } else if (e.key === 'ArrowDown' && selectedCell && selectedCell.r < 8) {
+        closeRadialRing();
         selectedCell.r++;
       } else if (e.key === 'ArrowLeft' && selectedCell && selectedCell.c > 0) {
+        closeRadialRing();
         selectedCell.c--;
       } else if (e.key === 'ArrowRight' && selectedCell && selectedCell.c < 8) {
+        closeRadialRing();
         selectedCell.c++;
       }
     });

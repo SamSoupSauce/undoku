@@ -205,13 +205,59 @@
       };
     }
 
-    static findNakedSingle(b) {
+    static getCombinations(arr, k) {
+      const result = [];
+      function backtrack(start, combo) {
+        if (combo.length === k) {
+          result.push([...combo]);
+          return;
+        }
+        for (let i = start; i < arr.length; i++) {
+          combo.push(arr[i]);
+          backtrack(i + 1, combo);
+          combo.pop();
+        }
+      }
+      backtrack(0, []);
+      return result;
+    }
+
+    static getUnitDefinitions() {
+      const units = [];
+      // 1. Rows
+      for (let r = 0; r < 9; r++) {
+        const u = [];
+        for (let c = 0; c < 9; c++) u.push({ r, c });
+        units.push({ type: 'row', name: `Row ${r + 1}`, cells: u });
+      }
+      // 2. Columns
+      for (let c = 0; c < 9; c++) {
+        const u = [];
+        for (let r = 0; r < 9; r++) u.push({ r, c });
+        units.push({ type: 'col', name: `Col ${c + 1}`, cells: u });
+      }
+      // 3. 3x3 Boxes
+      for (let br = 0; br < 9; br += 3) {
+        for (let bc = 0; bc < 9; bc += 3) {
+          const u = [];
+          for (let dr = 0; dr < 3; dr++) {
+            for (let dc = 0; dc < 3; dc++) u.push({ r: br + dr, c: bc + dc });
+          }
+          const boxIdx = (br / 3) * 3 + (bc / 3) + 1;
+          units.push({ type: 'box', name: `Box ${boxIdx}`, cells: u });
+        }
+      }
+      return units;
+    }
+
+    // 1. Naked Single
+    static findNakedSingle(b, cands) {
       for (let r = 0; r < 9; r++) {
         for (let c = 0; c < 9; c++) {
           if (b[r][c] === 0) {
-            const cands = SudokuEngine.getCandidates(b, r, c);
-            if (cands.length === 1) {
-              const val = cands[0];
+            const cellCands = cands ? cands[r][c] : SudokuEngine.getCandidates(b, r, c);
+            if (cellCands.length === 1) {
+              const val = cellCands[0];
               const reasons = SudokuEngine.analyzeEliminations(b, r, c);
 
               let rowOpen = 0, colOpen = 0, boxOpen = 0;
@@ -227,11 +273,6 @@
               }
               const minOpen = Math.min(rowOpen, colOpen, boxOpen);
 
-              // Assertions scale directly with cognitive search space:
-              // - 1-2 open cells in unit: 2-4 assertions, score 1.05-1.15 (Direct Footholds & Cascades)
-              // - 3-4 open cells in unit: 6-9 assertions, score 1.20-1.32 (Gentle to Moderate)
-              // - 5-6 open cells in unit: 12-15 assertions, score 1.40-1.55 (Moderate)
-              // - 7+ open cells in unit: 18-22 assertions, score 1.65-1.85 (Hard)
               let assertions = 2;
               if (minOpen <= 1) assertions = 2;
               else if (minOpen === 2) assertions = 4;
@@ -242,9 +283,9 @@
               else assertions = Math.min(22, 16 + (minOpen - 6) * 2);
 
               const score = 1.0 + (assertions / 22.0) * 0.75;
-
               const desc = `Naked Single at (${r + 1},${c + 1}): only ${val} fits [assertions: ${assertions}, min-open: ${minOpen}, cross-h: ${reasons.cross_horizontal}, cross-v: ${reasons.cross_vertical}, 3x3-sq: ${reasons.box_3x3}]`;
               return {
+                type: 'placement',
                 row: r,
                 col: c,
                 val,
@@ -261,17 +302,19 @@
       return null;
     }
 
-    static findHiddenSingle(b) {
-      // 1. 3x3 Box
+    // 2. Hidden Single (Box)
+    static findHiddenSingleBox(b, cands) {
       for (let boxR = 0; boxR < 9; boxR += 3) {
         for (let boxC = 0; boxC < 9; boxC += 3) {
           for (let num = 1; num <= 9; num++) {
             let count = 0, targetR = -1, targetC = -1;
             let peerElimAssertions = 0;
-            for (let r = boxR; r < boxR + 3; r++) {
-              for (let c = boxC; c < boxC + 3; c++) {
+            for (let dr = 0; dr < 3; dr++) {
+              for (let dc = 0; dc < 3; dc++) {
+                const r = boxR + dr, c = boxC + dc;
                 if (b[r][c] === 0) {
-                  if (SudokuEngine.isValid(b, r, c, num)) {
+                  const cellCands = cands ? cands[r][c] : SudokuEngine.getCandidates(b, r, c);
+                  if (cellCands.includes(num)) {
                     count++;
                     targetR = r;
                     targetC = c;
@@ -288,8 +331,10 @@
               const reasons = SudokuEngine.analyzeEliminations(b, targetR, targetC);
               const assertions = Math.max(10, Math.min(24, Math.round(8 + peerElimAssertions * 0.4 + reasons.total * 0.3)));
               const score = 1.40 + (assertions / 24.0) * 0.45;
-              const desc = `Hidden Single in 3x3 Box at (${targetR + 1},${targetC + 1}): ${num} is unique in box [assertions: ${assertions}, cross-h: ${reasons.cross_horizontal}, cross-v: ${reasons.cross_vertical}, 3x3-sq: ${reasons.box_3x3}]`;
+              const boxIdx = (boxR / 3) * 3 + (boxC / 3) + 1;
+              const desc = `Hidden Single in Box ${boxIdx} at (${targetR + 1},${targetC + 1}): ${num} is unique in box [assertions: ${assertions}, cross-h: ${reasons.cross_horizontal}, cross-v: ${reasons.cross_vertical}, 3x3-sq: ${reasons.box_3x3}]`;
               return {
+                type: 'placement',
                 row: targetR,
                 col: targetC,
                 val: num,
@@ -303,23 +348,27 @@
           }
         }
       }
+      return null;
+    }
 
-      // 2. Rows
+    // 3. Hidden Single (Line - Row & Col)
+    static findHiddenSingleLine(b, cands) {
+      // Rows
       for (let r = 0; r < 9; r++) {
         for (let num = 1; num <= 9; num++) {
           let count = 0, targetC = -1;
           let peerElimAssertions = 0;
           for (let c = 0; c < 9; c++) {
             if (b[r][c] === 0) {
-              if (SudokuEngine.isValid(b, r, c, num)) {
+              const cellCands = cands ? cands[r][c] : SudokuEngine.getCandidates(b, r, c);
+              if (cellCands.includes(num)) {
                 count++;
                 targetC = c;
               } else {
                 for (let i = 0; i < 9; i++) {
                   if (b[i][c] === num) peerElimAssertions++;
                 }
-                const startR = Math.floor(r / 3) * 3;
-                const startC = Math.floor(c / 3) * 3;
+                const startR = Math.floor(r / 3) * 3, startC = Math.floor(c / 3) * 3;
                 for (let br = startR; br < startR + 3; br++) {
                   for (let bc = startC; bc < startC + 3; bc++) {
                     if (b[br][bc] === num) peerElimAssertions++;
@@ -334,6 +383,7 @@
             const score = 1.75 + (assertions / 32.0) * 0.50;
             const desc = `Hidden Single in Row ${r + 1} at (${r + 1},${targetC + 1}): ${num} is unique in row [assertions: ${assertions}, cross-h: ${reasons.cross_horizontal}, cross-v: ${reasons.cross_vertical}, 3x3-sq: ${reasons.box_3x3}]`;
             return {
+              type: 'placement',
               row: r,
               col: targetC,
               val: num,
@@ -347,22 +397,22 @@
         }
       }
 
-      // 3. Cols
+      // Columns
       for (let c = 0; c < 9; c++) {
         for (let num = 1; num <= 9; num++) {
           let count = 0, targetR = -1;
           let peerElimAssertions = 0;
           for (let r = 0; r < 9; r++) {
             if (b[r][c] === 0) {
-              if (SudokuEngine.isValid(b, r, c, num)) {
+              const cellCands = cands ? cands[r][c] : SudokuEngine.getCandidates(b, r, c);
+              if (cellCands.includes(num)) {
                 count++;
                 targetR = r;
               } else {
                 for (let i = 0; i < 9; i++) {
                   if (b[r][i] === num) peerElimAssertions++;
                 }
-                const startR = Math.floor(r / 3) * 3;
-                const startC = Math.floor(c / 3) * 3;
+                const startR = Math.floor(r / 3) * 3, startC = Math.floor(c / 3) * 3;
                 for (let br = startR; br < startR + 3; br++) {
                   for (let bc = startC; bc < startC + 3; bc++) {
                     if (b[br][bc] === num) peerElimAssertions++;
@@ -377,6 +427,7 @@
             const score = 1.75 + (assertions / 32.0) * 0.50;
             const desc = `Hidden Single in Col ${c + 1} at (${targetR + 1},${c + 1}): ${num} is unique in col [assertions: ${assertions}, cross-h: ${reasons.cross_horizontal}, cross-v: ${reasons.cross_vertical}, 3x3-sq: ${reasons.box_3x3}]`;
             return {
+              type: 'placement',
               row: targetR,
               col: c,
               val: num,
@@ -389,14 +440,301 @@
           }
         }
       }
-
       return null;
     }
 
-    static findNextDeduction(b) {
-      const naked = SudokuEngine.findNakedSingle(b);
-      if (naked) return naked;
-      return SudokuEngine.findHiddenSingle(b);
+    // 4. Locked Candidates (Pointing & Claiming)
+    static findLockedCandidates(b, cands) {
+      // A. Pointing: Box -> Line
+      for (let bIdx = 0; bIdx < 9; bIdx++) {
+        const br = Math.floor(bIdx / 3) * 3;
+        const bc = (bIdx % 3) * 3;
+        for (let num = 1; num <= 9; num++) {
+          const boxCellsWithNum = [];
+          for (let dr = 0; dr < 3; dr++) {
+            for (let dc = 0; dc < 3; dc++) {
+              const r = br + dr, c = bc + dc;
+              if (b[r][c] === 0 && cands[r][c].includes(num)) {
+                boxCellsWithNum.push({ r, c });
+              }
+            }
+          }
+          if (boxCellsWithNum.length >= 2 && boxCellsWithNum.length <= 3) {
+            const firstR = boxCellsWithNum[0].r;
+            if (boxCellsWithNum.every(cell => cell.r === firstR)) {
+              const eliminations = [];
+              for (let c = 0; c < 9; c++) {
+                if (c < bc || c >= bc + 3) {
+                  if (b[firstR][c] === 0 && cands[firstR][c].includes(num)) {
+                    eliminations.push({ r: firstR, c, val: num });
+                  }
+                }
+              }
+              if (eliminations.length > 0) {
+                const assertions = Math.max(18, Math.min(36, Math.round(14 + 1.2 * eliminations.length + 0.5 * (81 - boxCellsWithNum.length))));
+                const score = 2.40 + (assertions / 36.0) * 0.60;
+                return {
+                  type: 'reduction',
+                  technique: 'Locked Candidates Pointing',
+                  eliminations,
+                  assertions,
+                  step_score: score,
+                  description: `Pointing in Box ${bIdx + 1}: ${num} locks to row ${firstR + 1}, eliminating ${eliminations.length} candidates`
+                };
+              }
+            }
+
+            const firstC = boxCellsWithNum[0].c;
+            if (boxCellsWithNum.every(cell => cell.c === firstC)) {
+              const eliminations = [];
+              for (let r = 0; r < 9; r++) {
+                if (r < br || r >= br + 3) {
+                  if (b[r][firstC] === 0 && cands[r][firstC].includes(num)) {
+                    eliminations.push({ r, c: firstC, val: num });
+                  }
+                }
+              }
+              if (eliminations.length > 0) {
+                const assertions = Math.max(18, Math.min(36, Math.round(14 + 1.2 * eliminations.length + 0.5 * (81 - boxCellsWithNum.length))));
+                const score = 2.40 + (assertions / 36.0) * 0.60;
+                return {
+                  type: 'reduction',
+                  technique: 'Locked Candidates Pointing',
+                  eliminations,
+                  assertions,
+                  step_score: score,
+                  description: `Pointing in Box ${bIdx + 1}: ${num} locks to col ${firstC + 1}, eliminating ${eliminations.length} candidates`
+                };
+              }
+            }
+          }
+        }
+      }
+
+      // B. Claiming: Line -> Box
+      // Rows
+      for (let r = 0; r < 9; r++) {
+        for (let num = 1; num <= 9; num++) {
+          const rowCells = [];
+          for (let c = 0; c < 9; c++) {
+            if (b[r][c] === 0 && cands[r][c].includes(num)) {
+              rowCells.push({ r, c });
+            }
+          }
+          if (rowCells.length >= 2 && rowCells.length <= 3) {
+            const firstBox = Math.floor(r / 3) * 3 + Math.floor(rowCells[0].c / 3);
+            if (rowCells.every(cell => (Math.floor(r / 3) * 3 + Math.floor(cell.c / 3)) === firstBox)) {
+              const br = Math.floor(r / 3) * 3, bc = Math.floor(rowCells[0].c / 3) * 3;
+              const eliminations = [];
+              for (let dr = 0; dr < 3; dr++) {
+                for (let dc = 0; dc < 3; dc++) {
+                  const cr = br + dr, cc = bc + dc;
+                  if (cr !== r && b[cr][cc] === 0 && cands[cr][cc].includes(num)) {
+                    eliminations.push({ r: cr, c: cc, val: num });
+                  }
+                }
+              }
+              if (eliminations.length > 0) {
+                const assertions = Math.max(18, Math.min(36, Math.round(14 + 1.2 * eliminations.length + 0.5 * (81 - rowCells.length))));
+                const score = 2.40 + (assertions / 36.0) * 0.60;
+                return {
+                  type: 'reduction',
+                  technique: 'Locked Candidates Claiming',
+                  eliminations,
+                  assertions,
+                  step_score: score,
+                  description: `Claiming in Row ${r + 1}: ${num} locks to box ${firstBox + 1}, eliminating ${eliminations.length} candidates`
+                };
+              }
+            }
+          }
+        }
+      }
+
+      // Columns
+      for (let c = 0; c < 9; c++) {
+        for (let num = 1; num <= 9; num++) {
+          const colCells = [];
+          for (let r = 0; r < 9; r++) {
+            if (b[r][c] === 0 && cands[r][c].includes(num)) {
+              colCells.push({ r, c });
+            }
+          }
+          if (colCells.length >= 2 && colCells.length <= 3) {
+            const firstBox = Math.floor(colCells[0].r / 3) * 3 + Math.floor(c / 3);
+            if (colCells.every(cell => (Math.floor(cell.r / 3) * 3 + Math.floor(c / 3)) === firstBox)) {
+              const br = Math.floor(colCells[0].r / 3) * 3, bc = Math.floor(c / 3) * 3;
+              const eliminations = [];
+              for (let dr = 0; dr < 3; dr++) {
+                for (let dc = 0; dc < 3; dc++) {
+                  const cr = br + dr, cc = bc + dc;
+                  if (cc !== c && b[cr][cc] === 0 && cands[cr][cc].includes(num)) {
+                    eliminations.push({ r: cr, c: cc, val: num });
+                  }
+                }
+              }
+              if (eliminations.length > 0) {
+                const assertions = Math.max(18, Math.min(36, Math.round(14 + 1.2 * eliminations.length + 0.5 * (81 - colCells.length))));
+                const score = 2.40 + (assertions / 36.0) * 0.60;
+                return {
+                  type: 'reduction',
+                  technique: 'Locked Candidates Claiming',
+                  eliminations,
+                  assertions,
+                  step_score: score,
+                  description: `Claiming in Col ${c + 1}: ${num} locks to box ${firstBox + 1}, eliminating ${eliminations.length} candidates`
+                };
+              }
+            }
+          }
+        }
+      }
+      return null;
+    }
+
+    // 5. Naked Subsets (Pairs & Triples, k in {2, 3})
+    static findNakedSubsets(b, cands, k) {
+      const units = SudokuEngine.getUnitDefinitions();
+      for (const unit of units) {
+        const openCells = unit.cells.filter(cell => b[cell.r][cell.c] === 0);
+        if (openCells.length <= k) continue;
+
+        const cellCombos = SudokuEngine.getCombinations(openCells, k);
+        for (const combo of cellCombos) {
+          const unionSet = new Set();
+          for (const cell of combo) {
+            for (const d of cands[cell.r][cell.c]) {
+              unionSet.add(d);
+            }
+          }
+          if (unionSet.size === k) {
+            const unionDigits = Array.from(unionSet);
+            const eliminations = [];
+            for (const otherCell of openCells) {
+              if (!combo.some(c => c.r === otherCell.r && c.c === otherCell.c)) {
+                for (const d of unionDigits) {
+                  if (cands[otherCell.r][otherCell.c].includes(d)) {
+                    eliminations.push({ r: otherCell.r, c: otherCell.c, val: d });
+                  }
+                }
+              }
+            }
+            if (eliminations.length > 0) {
+              const techName = k === 2 ? 'Naked Pair' : 'Naked Triple';
+              const assertions = Math.round(16 * k + 2.5 * eliminations.length + 0.8 * openCells.length);
+              const score = 2.80 + 0.50 * (k - 1) + (assertions / 48.0) * 0.70;
+              return {
+                type: 'reduction',
+                technique: techName,
+                eliminations,
+                assertions,
+                step_score: score,
+                description: `${techName} in ${unit.name}: [${unionDigits.join(',')}] eliminates ${eliminations.length} candidates`
+              };
+            }
+          }
+        }
+      }
+      return null;
+    }
+
+    // 6. Hidden Subsets (Pairs & Triples, k in {2, 3})
+    static findHiddenSubsets(b, cands, k) {
+      const units = SudokuEngine.getUnitDefinitions();
+      for (const unit of units) {
+        const openCells = unit.cells.filter(cell => b[cell.r][cell.c] === 0);
+        if (openCells.length <= k) continue;
+
+        const digitSet = new Set();
+        for (const cell of openCells) {
+          for (const d of cands[cell.r][cell.c]) {
+            digitSet.add(d);
+          }
+        }
+        const availDigits = Array.from(digitSet);
+        if (availDigits.length <= k) continue;
+
+        const digitCombos = SudokuEngine.getCombinations(availDigits, k);
+        for (const dCombo of digitCombos) {
+          const containingCells = openCells.filter(cell =>
+            dCombo.some(d => cands[cell.r][cell.c].includes(d))
+          );
+
+          if (containingCells.length === k) {
+            const eliminations = [];
+            for (const cell of containingCells) {
+              for (const d of cands[cell.r][cell.c]) {
+                if (!dCombo.includes(d)) {
+                  eliminations.push({ r: cell.r, c: cell.c, val: d });
+                }
+              }
+            }
+
+            if (eliminations.length > 0) {
+              const techName = k === 2 ? 'Hidden Pair' : 'Hidden Triple';
+              const assertions = Math.round(22 * k + 3.0 * eliminations.length + 1.0 * openCells.length);
+              const score = 3.50 + 0.60 * (k - 1) + (assertions / 56.0) * 0.80;
+              return {
+                type: 'reduction',
+                technique: techName,
+                eliminations,
+                assertions,
+                step_score: score,
+                description: `${techName} in ${unit.name}: [${dCombo.join(',')}] eliminates ${eliminations.length} extraneous candidates`
+              };
+            }
+          }
+        }
+      }
+      return null;
+    }
+
+    static findNextDeduction(b, cands = null) {
+      // Initialize candidate grid if not passed
+      if (!cands) {
+        cands = [];
+        for (let r = 0; r < 9; r++) {
+          cands[r] = [];
+          for (let c = 0; c < 9; c++) {
+            cands[r][c] = b[r][c] === 0 ? SudokuEngine.getCandidates(b, r, c) : [];
+          }
+        }
+      }
+
+      // Evaluate in strict human-solving priority order:
+      // 1. Naked Singles
+      const nakedSingle = SudokuEngine.findNakedSingle(b, cands);
+      if (nakedSingle) return nakedSingle;
+
+      // 2. Hidden Singles (Box)
+      const hiddenSingleBox = SudokuEngine.findHiddenSingleBox(b, cands);
+      if (hiddenSingleBox) return hiddenSingleBox;
+
+      // 3. Hidden Singles (Line)
+      const hiddenSingleLine = SudokuEngine.findHiddenSingleLine(b, cands);
+      if (hiddenSingleLine) return hiddenSingleLine;
+
+      // 4. Locked Candidates (Pointing & Claiming)
+      const locked = SudokuEngine.findLockedCandidates(b, cands);
+      if (locked) return locked;
+
+      // 5. Naked Pairs
+      const nakedPair = SudokuEngine.findNakedSubsets(b, cands, 2);
+      if (nakedPair) return nakedPair;
+
+      // 6. Hidden Pairs
+      const hiddenPair = SudokuEngine.findHiddenSubsets(b, cands, 2);
+      if (hiddenPair) return hiddenPair;
+
+      // 7. Naked Triples
+      const nakedTriple = SudokuEngine.findNakedSubsets(b, cands, 3);
+      if (nakedTriple) return nakedTriple;
+
+      // 8. Hidden Triples
+      const hiddenTriple = SudokuEngine.findHiddenSubsets(b, cands, 3);
+      if (hiddenTriple) return hiddenTriple;
+
+      return null;
     }
 
     static solveAndAssess(puzzle) {
@@ -405,6 +743,15 @@
       const techniqueCounts = {};
       const reasonCounts = { cross_horizontal: 0, cross_vertical: 0, box_3x3: 0 };
       let totalScore = 0;
+
+      // Initialize persistent candidate grid
+      const cands = [];
+      for (let r = 0; r < 9; r++) {
+        cands[r] = [];
+        for (let c = 0; c < 9; c++) {
+          cands[r][c] = work[r][c] === 0 ? SudokuEngine.getCandidates(work, r, c) : [];
+        }
+      }
 
       while (true) {
         let filled = true;
@@ -416,12 +763,12 @@
         }
         if (filled) break;
 
-        const deduction = SudokuEngine.findNextDeduction(work);
+        const deduction = SudokuEngine.findNextDeduction(work, cands);
         if (!deduction) {
           return {
             solved: false,
             total_score: totalScore,
-            rating: "Unsolvable by logical singles",
+            rating: "Unsolvable by logical strategies",
             granular_tier: "Unsolvable",
             reason_counts: reasonCounts,
             technique_counts: techniqueCounts,
@@ -431,13 +778,39 @@
           };
         }
 
-        work[deduction.row][deduction.col] = deduction.val;
+        if (deduction.type === 'reduction') {
+          // Candidate reduction: eliminate candidate values from targeted cells
+          for (const elim of deduction.eliminations) {
+            cands[elim.r][elim.c] = cands[elim.r][elim.c].filter(v => v !== elim.val);
+          }
+        } else {
+          // Cell placement
+          work[deduction.row][deduction.col] = deduction.val;
+          cands[deduction.row][deduction.col] = [];
+
+          // Remove placed digit from row, col, and box peers
+          const r = deduction.row, c = deduction.col, val = deduction.val;
+          for (let i = 0; i < 9; i++) {
+            cands[r][i] = cands[r][i].filter(v => v !== val);
+            cands[i][c] = cands[i][c].filter(v => v !== val);
+          }
+          const startR = Math.floor(r / 3) * 3, startC = Math.floor(c / 3) * 3;
+          for (let dr = 0; dr < 3; dr++) {
+            for (let dc = 0; dc < 3; dc++) {
+              cands[startR + dr][startC + dc] = cands[startR + dr][startC + dc].filter(v => v !== val);
+            }
+          }
+
+          if (deduction.reasons) {
+            reasonCounts.cross_horizontal += deduction.reasons.cross_horizontal || 0;
+            reasonCounts.cross_vertical += deduction.reasons.cross_vertical || 0;
+            reasonCounts.box_3x3 += deduction.reasons.box_3x3 || 0;
+          }
+        }
+
         stepDeductions.push(deduction);
         totalScore += deduction.step_score;
         techniqueCounts[deduction.technique] = (techniqueCounts[deduction.technique] || 0) + 1;
-        reasonCounts.cross_horizontal += deduction.reasons.cross_horizontal;
-        reasonCounts.cross_vertical += deduction.reasons.cross_vertical;
-        reasonCounts.box_3x3 += deduction.reasons.box_3x3;
       }
 
       let maxStepAssertions = 0;
@@ -446,20 +819,27 @@
         if (ast > maxStepAssertions) maxStepAssertions = ast;
       }
 
+      let clueCount = 0;
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (puzzle[r][c] !== 0) clueCount++;
+        }
+      }
+
       let rating = "Easy";
-      if (totalScore >= 68 || stepDeductions.length >= 55) rating = "Expert";
-      else if (totalScore >= 58 || stepDeductions.length >= 50) rating = "Hard";
-      else if (totalScore >= 48 || stepDeductions.length >= 44) rating = "Medium";
+      if (totalScore >= 74 || clueCount <= 23) rating = "Expert";
+      else if (totalScore >= 62 || clueCount <= 28) rating = "Hard";
+      else if (totalScore >= 50 || clueCount <= 34) rating = "Medium";
       else rating = "Easy";
 
       let granularTier = "Easy (Tier 1 - Casual)";
-      if (totalScore >= 74 || (stepDeductions.length >= 56 && maxStepAssertions >= 18)) granularTier = "Expert (Tier 2 - Extreme)";
-      else if (totalScore >= 68 || stepDeductions.length >= 54) granularTier = "Expert (Tier 1 - Grandmaster)";
-      else if (totalScore >= 62 || stepDeductions.length >= 51) granularTier = "Hard (Tier 2 - Master)";
-      else if (totalScore >= 56 || stepDeductions.length >= 48) granularTier = "Hard (Tier 1 - Advanced)";
-      else if (totalScore >= 50 || stepDeductions.length >= 45) granularTier = "Medium (Tier 2 - Intermediate)";
-      else if (totalScore >= 44 || stepDeductions.length >= 42) granularTier = "Medium (Tier 1 - Moderate)";
-      else if (totalScore >= 38 || stepDeductions.length >= 38) granularTier = "Easy (Tier 2 - Novice)";
+      if (totalScore >= 80 || (clueCount <= 21 && maxStepAssertions >= 20)) granularTier = "Expert (Tier 2 - Extreme)";
+      else if (totalScore >= 74 || clueCount <= 23) granularTier = "Expert (Tier 1 - Grandmaster)";
+      else if (totalScore >= 68 || clueCount <= 26) granularTier = "Hard (Tier 2 - Master)";
+      else if (totalScore >= 62 || clueCount <= 28) granularTier = "Hard (Tier 1 - Advanced)";
+      else if (totalScore >= 56 || clueCount <= 32) granularTier = "Medium (Tier 2 - Intermediate)";
+      else if (totalScore >= 50 || clueCount <= 34) granularTier = "Medium (Tier 1 - Moderate)";
+      else if (totalScore >= 44 || clueCount <= 39) granularTier = "Easy (Tier 2 - Novice)";
 
       const report = {
         solved: true,
@@ -584,7 +964,7 @@
       }
       let techniqueDiversity = 0.0;
       if (techKeys.length > 1) {
-        techniqueDiversity = Math.min(1.0, entropy / Math.log(4.0));
+        techniqueDiversity = Math.min(1.0, entropy / Math.log(6.0));
       }
 
       let clueCount = 81 - n;
@@ -1133,6 +1513,10 @@
         minBlanks = 47; maxBlanks = 52;
       } else if (targetDifficulty === "hard") {
         minBlanks = 53; maxBlanks = 57;
+      } else if (targetDifficulty === "extreme") {
+        minBlanks = 58; maxBlanks = 60;
+      } else if (targetDifficulty === "impossible") {
+        minBlanks = 61; maxBlanks = 64;
       } else if (targetDifficulty === "expert") {
         minBlanks = 58; maxBlanks = 64;
       }
