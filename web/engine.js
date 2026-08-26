@@ -1916,6 +1916,120 @@
       };
     }
 
+
+    /**
+     * Compact Binary Payload Serialization (Ticket 004 / serializer.ts)
+     * Compresses entire seed, subgrid topology, challenge tier, mode flags, and turn diffs into < 256 bytes Base64URL.
+     */
+    static serializeGamePayload(game) {
+      const turnHistory = game.turnHistory || game.history || [];
+      const buffer = new ArrayBuffer(10 + turnHistory.length * 2);
+      const view = new DataView(buffer);
+
+      const diffMap = { easy: 1, medium: 2, hard: 3, extreme: 4, impossible: 5 };
+      const diffVal = diffMap[game.difficulty] || 2;
+      const Br = game.boardRows || game.Br || 3;
+      const Bc = game.boardCols || game.Bc || 3;
+      const modeFlag = game.gameMode === "like_paper" ? 1 : 0;
+      const seed = Number(game.seed >>> 0);
+
+      // Byte 0: Protocol Version (high 4 bits = 1) | Br (low 4 bits)
+      view.setUint8(0, (1 << 4) | (Br & 0x0F));
+      // Byte 1: Bc (high 4 bits) | Difficulty (low 4 bits)
+      view.setUint8(1, ((Bc & 0x0F) << 4) | (diffVal & 0x0F));
+      // Byte 2-3: Mode Flags & Options uint16
+      view.setUint16(2, modeFlag, false);
+      // Byte 4-7: Seed uint32
+      view.setUint32(4, seed, false);
+      // Byte 8-9: Turn count uint16
+      view.setUint16(8, turnHistory.length, false);
+
+      // Turn Diffs: uint16 each (r: 4b, c: 4b, val: 4b, prevVal: 4b)
+      for (let i = 0; i < turnHistory.length; i++) {
+        const t = turnHistory[i];
+        const r = (t.r || 0) & 0x0F;
+        const c = (t.c || 0) & 0x0F;
+        const v = (t.val || 0) & 0x0F;
+        const pv = (t.prevVal || 0) & 0x0F;
+        const packed = (r << 12) | (c << 8) | (v << 4) | pv;
+        view.setUint16(10 + i * 2, packed, false);
+      }
+
+      const bytes = new Uint8Array(buffer);
+      if (typeof Buffer !== "undefined") {
+        return Buffer.from(bytes).toString("base64url");
+      } else {
+        let binary = "";
+        for (let i = 0; i < bytes.length; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        return btoa(binary)
+          .replace(/\+/g, "-")
+          .replace(/\//g, "_")
+          .replace(/=+$/, "");
+      }
+    }
+
+    /**
+     * Compact Binary Payload Deserialization (Ticket 004 / serializer.ts)
+     * Reconstitutes exact PRNG seed, topology, difficulty, and turn diff trajectory from Base64URL bitfield.
+     */
+    static deserializeGamePayload(b64url) {
+      if (!b64url || typeof b64url !== "string") return null;
+      let rawBytes;
+      if (typeof Buffer !== "undefined") {
+        rawBytes = new Uint8Array(Buffer.from(b64url, "base64url"));
+      } else {
+        let b64 = b64url.replace(/-/g, "+").replace(/_/g, "/");
+        while (b64.length % 4) b64 += "=";
+        const binary = atob(b64);
+        rawBytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          rawBytes[i] = binary.charCodeAt(i);
+        }
+      }
+
+      if (rawBytes.length < 10) return null;
+      const view = new DataView(rawBytes.buffer, rawBytes.byteOffset, rawBytes.byteLength);
+
+      const b0 = view.getUint8(0);
+      const version = (b0 >> 4) & 0x0F;
+      const Br = b0 & 0x0F;
+
+      const b1 = view.getUint8(1);
+      const Bc = (b1 >> 4) & 0x0F;
+      const diffVal = b1 & 0x0F;
+
+      const modeFlag = view.getUint16(2, false);
+      const seed = view.getUint32(4, false);
+      const turnCount = view.getUint16(8, false);
+
+      const diffRevMap = { 1: "easy", 2: "medium", 3: "hard", 4: "extreme", 5: "impossible" };
+      const difficulty = diffRevMap[diffVal] || "medium";
+      const gameMode = (modeFlag & 1) ? "like_paper" : "catch_mistakes";
+
+      const turnHistory = [];
+      for (let i = 0; i < turnCount && (10 + (i + 1) * 2 <= rawBytes.length); i++) {
+        const packed = view.getUint16(10 + i * 2, false);
+        const r = (packed >> 12) & 0x0F;
+        const c = (packed >> 8) & 0x0F;
+        const val = (packed >> 4) & 0x0F;
+        const prevVal = packed & 0x0F;
+        turnHistory.push({ step: i + 1, r, c, val, prevVal, timestamp: Date.now() });
+      }
+
+      return {
+        version,
+        Br,
+        Bc,
+        N: Br * Bc,
+        difficulty,
+        gameMode,
+        seed,
+        turnHistory
+      };
+    }
+
     static generateAndCarve(targetDiff = "hard", configKey = "classic_9x9", rng = new FastRand()) {
       if (configKey instanceof FastRand) {
         rng = configKey;

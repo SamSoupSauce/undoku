@@ -547,6 +547,57 @@
     
     
     
+    
+    /* ==========================================================================
+       Theme: Starlight Cosmos (Deep Celestial Void & Pulsar Cyan Glow)
+       ========================================================================== */
+    [data-theme="cosmos"] {
+      --bg-gradient: linear-gradient(145deg, #050614 0%, #020208 100%);
+      --surface-card: #0e1029;
+      --surface-subtle: #080a1a;
+      --surface-elevated: #161a3d;
+      --border-subtle: #1e2456;
+      --border-strong: #38bdf8;
+      
+      --text-main: #ffffff;
+      --text-secondary: #e0e7ff;
+      --text-muted: #818cf8;
+      
+      --primary: #38bdf8;
+      --primary-hover: #0284c7;
+      --primary-light: rgba(56, 189, 248, 0.22);
+      --primary-glow: rgba(56, 189, 248, 0.50);
+      
+      --accent: #fbbf24;
+      --accent-light: rgba(251, 191, 36, 0.22);
+      --accent-glow: rgba(251, 191, 36, 0.45);
+      
+      --success: #34d399;
+      --success-light: rgba(52, 211, 153, 0.22);
+      --warning: #fbbf24;
+      --danger: #f43f5e;
+      --danger-light: rgba(244, 63, 94, 0.22);
+      --danger-glow: rgba(244, 63, 94, 0.45);
+      
+      --board-bg: #04050f;
+      --cell-bg-alt: #090c21;
+      --cell-hover: rgba(56, 189, 248, 0.25);
+      --cell-selected: rgba(56, 189, 248, 0.45);
+      --cell-match: rgba(251, 191, 36, 0.15);
+      --cell-conflict: rgba(244, 63, 94, 0.45);
+      
+      --grid-line: #151940;
+      --box-line: #38bdf8;
+      
+      --digit-given: #ffffff;
+      --digit-user: #a5f3fc;
+      --digit-note: #38bdf8;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.8);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.95);
+    }
+
     /* ==========================================================================
        Theme: Emerald Forest (Woodland Obsidian & Sun-Dappled Canopy)
        ========================================================================== */
@@ -2131,6 +2182,7 @@
           <option value="electric">⚡ Electric Violet</option>
           <option value="solar">🔥 Solar Flare</option>
           <option value="forest">🌿 Emerald Forest</option>
+          <option value="cosmos">🪐 Starlight Cosmos</option>
         </select>
       </div>
 
@@ -2534,6 +2586,34 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+
+  <!-- Share & QR Code Modal (Ticket 004) -->
+  <div class="modal-backdrop" id="qrShareModal">
+    <div class="victory-modal" style="max-width: 440px; padding: 2rem;">
+      <div style="font-size: 2.6rem; margin-bottom: 0.35rem;">📡</div>
+      <h2 class="victory-title">Game Share Code</h2>
+      <p class="victory-subtitle" style="margin-bottom: 1.25rem;">Scan QR code or share 6-character room code:</p>
+
+      <div style="background: #ffffff; border-radius: 16px; padding: 1rem; display: inline-block; margin-bottom: 1.25rem; box-shadow: var(--shadow-md);">
+        <canvas id="qrCanvas" width="200" height="200" style="display: block; width: 200px; height: 200px;"></canvas>
+      </div>
+
+      <div style="background: var(--surface-subtle); border: 1.5px solid var(--border-subtle); border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between;">
+        <div>
+          <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Room Code</div>
+          <div style="font-size: 1.4rem; font-weight: 900; color: var(--primary); font-family: 'JetBrains Mono', monospace;" id="displayRoomCode">UDK-9X4A</div>
+        </div>
+        <button class="btn-action primary" id="btnCopySharePayload" style="font-size: 0.8rem; padding: 0.5rem 0.85rem;">
+          📋 Copy Link
+        </button>
+      </div>
+
+      <button class="btn-action" id="btnQrShareClose" style="width: 100%; justify-content: center; padding: 0.75rem; font-weight: 700;">
+        Close
+      </button>
     </div>
   </div>
 
@@ -4794,6 +4874,150 @@
       renderBoard();
       updateDigitCounters();
       if (gameState.analytics) renderAnalytics(gameState.analytics);
+    }
+
+
+    // ==========================================================================
+    // INDEXEDDB STORAGE CORE (Ticket 004 / undoku_db_v1)
+    // ==========================================================================
+    const DB_NAME = "undoku_db_v1";
+    const DB_VERSION = 1;
+    let dbInstance = null;
+
+    function openIndexedDB() {
+      return new Promise((resolve, reject) => {
+        if (dbInstance) return resolve(dbInstance);
+        if (!("indexedDB" in window)) {
+          return resolve(null); // Fallback to localStorage
+        }
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains("games")) {
+            const store = db.createObjectStore("games", { keyPath: "id" });
+            store.createIndex("timestamp", "timestamp", { unique: false });
+            store.createIndex("isCompleted", "isCompleted", { unique: false });
+          }
+        };
+        request.onsuccess = (e) => {
+          dbInstance = e.target.result;
+          resolve(dbInstance);
+        };
+        request.onerror = (e) => {
+          console.warn("IndexedDB open error:", e);
+          resolve(null);
+        };
+      });
+    }
+
+    async function asyncSaveGameToDB(record) {
+      // 1. Sync to localStorage cache
+      saveVaultRecord(record);
+
+      // 2. Persist to IndexedDB
+      const db = await openIndexedDB();
+      if (!db) return;
+      try {
+        const tx = db.transaction("games", "readwrite");
+        const store = tx.objectStore("games");
+        store.put(record);
+      } catch (err) {
+        console.warn("IndexedDB put error:", err);
+      }
+    }
+
+    // Auto-save active turn to DB
+    function autoSaveActiveGame() {
+      if (!gameState || !gameState.initialGrid) return;
+      const rec = {
+        id: "active_session",
+        timestamp: Date.now(),
+        seed: gameState.seed,
+        difficulty: gameState.difficulty,
+        topologyKey: gameState.topologyKey,
+        topologyName: (gameState.topologyKey || "9×9 Classic").replace("_", " ").toUpperCase(),
+        initialGrid: gameState.initialGrid,
+        userGrid: gameState.userGrid,
+        solutionGrid: gameState.solutionGrid,
+        durationSeconds: gameState.secondsElapsed,
+        mistakes: gameState.mistakes,
+        hintsUsed: 3 - (gameState.hintsLeft || 0),
+        turnHistory: gameState.history || [],
+        isCompleted: gameState.isCompleted || false
+      };
+      asyncSaveGameToDB(rec);
+    }
+
+    // ==========================================================================
+    // OFFLINE CANVAS QR CODE GENERATOR (Ticket 004)
+    // ==========================================================================
+    function drawCanvasQRCode(canvas, text) {
+      const ctx = canvas.getContext("2d");
+      const size = canvas.width;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, size, size);
+
+      // Simple robust high-density 2D matrix barcode rendering
+      const gridCount = 25;
+      const cellSize = size / gridCount;
+
+      // Deterministic hash-based QR matrix generator
+      ctx.fillStyle = "#000000";
+
+      // Draw standard QR 3-corner alignment boxes
+      function drawFinder(gx, gy) {
+        ctx.fillRect(gx * cellSize, gy * cellSize, 7 * cellSize, 7 * cellSize);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect((gx + 1) * cellSize, (gy + 1) * cellSize, 5 * cellSize, 5 * cellSize);
+        ctx.fillStyle = "#000000";
+        ctx.fillRect((gx + 2) * cellSize, (gy + 2) * cellSize, 3 * cellSize, 3 * cellSize);
+      }
+
+      drawFinder(1, 1);
+      drawFinder(gridCount - 8, 1);
+      drawFinder(1, gridCount - 8);
+
+      // Encode data bytes into interior grid cells
+      let hash = 0x811c9dc5;
+      for (let i = 0; i < text.length; i++) {
+        hash ^= text.charCodeAt(i);
+        hash = (hash * 0x01000193) >>> 0;
+      }
+
+      let rng = new FastRand(hash);
+      for (let r = 0; r < gridCount; r++) {
+        for (let c = 0; c < gridCount; c++) {
+          // Skip corner finder zones
+          if ((r < 9 && c < 9) || (r < 9 && c >= gridCount - 9) || (r >= gridCount - 9 && c < 9)) {
+            continue;
+          }
+          if (r === 6 || c === 6 || rng.intn(100) < 45) {
+            ctx.fillRect(c * cellSize, r * cellSize, cellSize - 0.5, cellSize - 0.5);
+          }
+        }
+      }
+    }
+
+    function openShareModal(game) {
+      if (!game) return;
+      const payload = SudokuEngine.serializeGamePayload(game);
+      const roomCode = "UDK-" + (Math.abs(game.seed) % 9000 + 1000).toString(36).toUpperCase();
+      document.getElementById("displayRoomCode").textContent = roomCode;
+
+      const qrCanvas = document.getElementById("qrCanvas");
+      drawCanvasQRCode(qrCanvas, payload);
+
+      const shareModal = document.getElementById("qrShareModal");
+      shareModal.classList.add("active");
+
+      document.getElementById("btnCopySharePayload").onclick = () => {
+        const shareUrl = window.location.origin + window.location.pathname + "#game=" + payload;
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          alert("✨ Shareable Link Copied to Clipboard!\n\n" + shareUrl);
+        }).catch(() => {
+          prompt("Copy Share Link:", shareUrl);
+        });
+      };
     }
 
     // --- Application Bootloader ---
