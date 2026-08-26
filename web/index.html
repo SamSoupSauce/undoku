@@ -5,7 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Undoku 🧩 — Pure Sudoku Game & Web Canvas Engine</title>
   <meta name="description" content="Zero-dependency deterministic Sudoku engine with granular cognitive analytics and 100% offline gameplay.">
-  <link rel="manifest" href="./manifest.webmanifest">
+  <script>
+    // Protocol-aware Web App Manifest Injector (Prevents 'Origin null' CORS errors when testing via file://)
+    if (window.location.protocol.startsWith("http")) {
+      const mLink = document.createElement("link");
+      mLink.rel = "manifest";
+      mLink.href = "./manifest.webmanifest";
+      document.head.appendChild(mLink);
+    }
+  </script>
   <meta name="theme-color" content="#e06c3a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -549,6 +557,57 @@
     
     
     
+    
+    /* ==========================================================================
+       Theme: Volcanic Magma (Obsidian Basalt & Molten Lava Glow)
+       ========================================================================== */
+    [data-theme="magma"] {
+      --bg-gradient: linear-gradient(145deg, #140404 0%, #080202 100%);
+      --surface-card: #220808;
+      --surface-subtle: #180505;
+      --surface-elevated: #300c0c;
+      --border-subtle: #4c1313;
+      --border-strong: #ef4444;
+      
+      --text-main: #ffffff;
+      --text-secondary: #fee2e2;
+      --text-muted: #fca5a5;
+      
+      --primary: #ef4444;
+      --primary-hover: #dc2626;
+      --primary-light: rgba(239, 68, 68, 0.22);
+      --primary-glow: rgba(239, 68, 68, 0.50);
+      
+      --accent: #f97316;
+      --accent-light: rgba(249, 115, 22, 0.22);
+      --accent-glow: rgba(249, 115, 22, 0.45);
+      
+      --success: #10b981;
+      --success-light: rgba(16, 185, 129, 0.22);
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --danger-light: rgba(239, 68, 68, 0.22);
+      --danger-glow: rgba(239, 68, 68, 0.45);
+      
+      --board-bg: #100303;
+      --cell-bg-alt: #1a0606;
+      --cell-hover: rgba(239, 68, 68, 0.25);
+      --cell-selected: rgba(239, 68, 68, 0.45);
+      --cell-match: rgba(249, 115, 22, 0.15);
+      --cell-conflict: rgba(239, 68, 68, 0.45);
+      
+      --grid-line: #380d0d;
+      --box-line: #ef4444;
+      
+      --digit-given: #ffffff;
+      --digit-user: #fca5a5;
+      --digit-note: #f97316;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.8);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.95);
+    }
+
     /* ==========================================================================
        Theme: Polar Frost (Glacial Iceberg & Crystalline Aqua Glow)
        ========================================================================== */
@@ -2236,6 +2295,7 @@
           <option value="forest">🌿 Emerald Forest</option>
           <option value="cosmos">🪐 Starlight Cosmos</option>
           <option value="frost">❄️ Polar Frost</option>
+          <option value="magma">🌋 Volcanic Magma</option>
         </select>
       </div>
 
