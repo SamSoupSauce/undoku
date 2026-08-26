@@ -559,6 +559,57 @@
     
     
     
+    
+    /* ==========================================================================
+       Theme: Twilight Nebula (Deep Space Indigo & Fuchsia Nebula Glow)
+       ========================================================================== */
+    [data-theme="nebula"] {
+      --bg-gradient: linear-gradient(145deg, #0c071e 0%, #05020c 100%);
+      --surface-card: #170d38;
+      --surface-subtle: #0f0826;
+      --surface-elevated: #22144f;
+      --border-subtle: #3b1d7d;
+      --border-strong: #d946ef;
+      
+      --text-main: #ffffff;
+      --text-secondary: #fae8ff;
+      --text-muted: #e879f9;
+      
+      --primary: #d946ef;
+      --primary-hover: #c026d3;
+      --primary-light: rgba(217, 70, 239, 0.22);
+      --primary-glow: rgba(217, 70, 239, 0.50);
+      
+      --accent: #38bdf8;
+      --accent-light: rgba(56, 189, 248, 0.22);
+      --accent-glow: rgba(56, 189, 248, 0.45);
+      
+      --success: #34d399;
+      --success-light: rgba(52, 211, 153, 0.22);
+      --warning: #fbbf24;
+      --danger: #f43f5e;
+      --danger-light: rgba(244, 63, 94, 0.22);
+      --danger-glow: rgba(244, 63, 94, 0.45);
+      
+      --board-bg: #090417;
+      --cell-bg-alt: #130a2e;
+      --cell-hover: rgba(217, 70, 239, 0.25);
+      --cell-selected: rgba(217, 70, 239, 0.45);
+      --cell-match: rgba(56, 189, 248, 0.15);
+      --cell-conflict: rgba(244, 63, 94, 0.45);
+      
+      --grid-line: #261152;
+      --box-line: #d946ef;
+      
+      --digit-given: #ffffff;
+      --digit-user: #f5d0fe;
+      --digit-note: #e879f9;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.8);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.95);
+    }
+
     /* ==========================================================================
        Theme: Cyber Neon Pulse (Electric Lime & Matrix Void Glow)
        ========================================================================== */
@@ -2348,6 +2399,7 @@
           <option value="frost">❄️ Polar Frost</option>
           <option value="magma">🌋 Volcanic Magma</option>
           <option value="neonpulse">⚡ Cyber Neon Pulse</option>
+          <option value="nebula">🌌 Twilight Nebula</option>
         </select>
       </div>
 
@@ -5001,6 +5053,26 @@
           const rec = list[idx];
           if (rec) {
             loadGameFromRecord(rec);
+          }
+        });
+      });
+
+      container.querySelectorAll(".btn-vault-svg").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const idx = parseInt(btn.getAttribute("data-idx"), 10);
+          const rec = list[idx];
+          if (rec) {
+            const initial = rec.initialGrid || initialGrid;
+            const user = rec.userGrid || initial;
+            const topo = (rec.topologyKey ? SudokuEngine.TOPOLOGIES[rec.topologyKey] : currentTopology) || currentTopology;
+            const svgContent = generateStaticBoardSVG(user, initial, topo);
+            const blob = new Blob([svgContent], { type: "image/svg+xml" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `undoku_${rec.topologyKey || "classic_9x9"}_${rec.difficulty || "medium"}_${rec.timestamp || Date.now()}.svg`;
+            a.click();
+            URL.revokeObjectURL(url);
           }
         });
       });
