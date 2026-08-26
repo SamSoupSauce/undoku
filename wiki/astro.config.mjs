@@ -9,7 +9,7 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: 'Undoku Wiki',
-			description: 'High-Performance Sudoku Generator, Difficulty Evaluator, & GORM Database API Engine',
+			description: 'High-Performance Sudoku Generator, Difficulty Evaluator, & Web Engine',
 			customCss: ['./src/styles/custom.css'],
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/SamSoupSauce/undoku' },
@@ -37,7 +37,7 @@ export default defineConfig({
 				{
 					label: 'Database & Persistence',
 					items: [
-						{ label: 'PostgreSQL & GORM Storage', slug: 'guides/database' },
+						{ label: 'SQLite Database & Storage', slug: 'guides/database' },
 					],
 				},
 				{

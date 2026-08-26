@@ -1,42 +1,43 @@
 ---
-title: PostgreSQL & GORM Database Storage
-description: Relational database schema, JSON fields, GORM models, and SQLite fallback.
+title: SQLite Database & Serverless Storage
+description: Relational database schema, JSON fields, and SQLite persistence for the Express backend.
 ---
 
 ## Database Architecture
 
-Undoku uses **GORM** to provide relational persistence for Sudoku puzzles, solution matrices, candidate elimination metrics, and step-by-step deduction histories.
+Undoku's Express.js testing and serverless backend uses SQLite (`better-sqlite3`) to provide persistence for Sudoku puzzles, solution matrices, candidate elimination metrics, and step-by-step deduction histories.
 
 ---
 
-## GORM Schema Model (`PuzzleRecord`)
+## Schema Model (`puzzles` table)
 
-```go
-type PuzzleRecord struct {
-	gorm.Model
-	Solution               string  `gorm:"type:varchar(81);not null" json:"solution"`
-	BoardState             string  `gorm:"type:varchar(81);not null;index" json:"board_state"`
-	BlanksCount            int     `gorm:"not null" json:"blanks_count"`
-	DifficultyRating       string  `gorm:"type:varchar(32);not null;index" json:"difficulty_rating"`
-	TotalScore             float64 `gorm:"type:numeric(10,2);not null" json:"total_score"`
-	CrossHorizontalReasons int     `gorm:"not null" json:"cross_horizontal_reasons"`
-	CrossVerticalReasons   int     `gorm:"not null" json:"cross_vertical_reasons"`
-	Box3x3Reasons          int     `gorm:"not null" json:"box_3x3_reasons"`
-	TotalReasons           int     `gorm:"not null" json:"total_reasons"`
-	TechniqueCountsJSON    string  `gorm:"type:text" json:"technique_counts_json"`
-	DeductionsJSON         string  `gorm:"type:text" json:"deductions_json"`
-}
+```sql
+CREATE TABLE IF NOT EXISTS puzzles (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  solution TEXT NOT NULL,
+  board_state TEXT NOT NULL,
+  blanks_count INTEGER NOT NULL,
+  difficulty_rating TEXT NOT NULL,
+  granular_tier TEXT NOT NULL,
+  total_score REAL NOT NULL,
+  composite_score REAL NOT NULL,
+  cross_horizontal_reasons INTEGER NOT NULL,
+  cross_vertical_reasons INTEGER NOT NULL,
+  box_3x3_reasons INTEGER NOT NULL,
+  total_reasons INTEGER NOT NULL,
+  technique_counts_json TEXT NOT NULL,
+  deductions_json TEXT NOT NULL,
+  advanced_metrics_json TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 ```
 
 ---
 
-## Database Drivers & Fallback
+## Storage Layer (`server/src/storage/db.js`)
 
-### 1. PostgreSQL (Production)
-Configured via `POSTGRES_DSN` environment variable:
-```bash
-POSTGRES_DSN="postgres://user:password@localhost:5432/undoku?sslmode=disable"
-```
-
-### 2. SQLite (Development & Testing)
-If `POSTGRES_DSN` is empty, GORM automatically initializes a local SQLite file (`undoku.db`) or in-memory database (`:memory:`) with auto-migration.
+The `DatabaseStorage` class provides:
+- **`savePuzzle(puzzleRecord)`**: Saves evaluated puzzles and serializes step deductions to JSON.
+- **`getPuzzle(id)`**: Fetches full puzzle record and reconstructs deductions matrix.
+- **`listPuzzles(filters)`**: Supports pagination (`limit`, `offset`) and difficulty filtering (`rating`).
+- **In-Memory Testing Support**: Accepts `:memory:` for ephemeral test runs.

@@ -4,10 +4,7 @@
   "description": "High-Performance Sudoku Generator, Evaluator, Web Canvas Engine & Express Server",
   "scripts": {
     "start": "npm --prefix server start",
-    "start:go": "RUN_HTTP_SERVER=true go run main.go",
-    "test": "npm --prefix server test && go test -v ./...",
-    "test:server": "npm --prefix server test",
-    "test:go": "go test -v ./...",
+    "test": "npm --prefix server test",
     "dev": "npm --prefix wiki run dev",
     "build": "node scripts/build.js",
     "build:wiki": "npm --prefix wiki run build",
