@@ -668,6 +668,57 @@
     
     
     
+    
+    /* ==========================================================================
+       Theme: Cyber Amethyst (Midnight Cyber Void & Electric Violet Glow)
+       ========================================================================== */
+    [data-theme="amethyst"] {
+      --bg-gradient: linear-gradient(145deg, #090514 0%, #030208 100%);
+      --surface-card: #150d2b;
+      --surface-subtle: #0d071c;
+      --surface-elevated: #221544;
+      --border-subtle: #3a2273;
+      --border-strong: #c084fc;
+      
+      --text-main: #ffffff;
+      --text-secondary: #fae8ff;
+      --text-muted: #d8b4fe;
+      
+      --primary: #c084fc;
+      --primary-hover: #a855f7;
+      --primary-light: rgba(192, 132, 252, 0.22);
+      --primary-glow: rgba(192, 132, 252, 0.50);
+      
+      --accent: #22d3ee;
+      --accent-light: rgba(34, 211, 238, 0.22);
+      --accent-glow: rgba(34, 211, 238, 0.45);
+      
+      --success: #34d399;
+      --success-light: rgba(52, 211, 153, 0.22);
+      --warning: #fbbf24;
+      --danger: #f43f5e;
+      --danger-light: rgba(244, 63, 94, 0.22);
+      --danger-glow: rgba(244, 63, 94, 0.45);
+      
+      --board-bg: #06030e;
+      --cell-bg-alt: #100a21;
+      --cell-hover: rgba(192, 132, 252, 0.25);
+      --cell-selected: rgba(192, 132, 252, 0.45);
+      --cell-match: rgba(34, 211, 238, 0.15);
+      --cell-conflict: rgba(244, 63, 94, 0.45);
+      
+      --grid-line: #241445;
+      --box-line: #c084fc;
+      
+      --digit-given: #ffffff;
+      --digit-user: #e9d5ff;
+      --digit-note: #22d3ee;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.8);
+      --shadow-lg: 0 24px 45px rgba(0, 0, 0, 0.95);
+    }
+
     /* ==========================================================================
        Theme: Andromeda Starlight (Deep Space Void & Ultraviolet Cyan Glow)
        ========================================================================== */
@@ -2712,6 +2763,7 @@
           <option value="jade">🌿 Imperial Jade</option>
           <option value="quartz">💎 Rose Quartz</option>
           <option value="andromeda">🌌 Andromeda Starlight</option>
+          <option value="amethyst">🔮 Cyber Amethyst</option>
         </select>
       </div>
 
@@ -5553,6 +5605,120 @@
     }
 
 
+
+    // ==========================================================================
+    // THE SACRED GAME SHARE ENGINE (Zero-Backend / Bulletproof P2P & Hash Sharing)
+    // ==========================================================================
+    const ShareManager = {
+      generatePayload(session) {
+        if (!session) session = activeSession || gameState;
+        if (!session) return "";
+        return SudokuEngine.serializeGamePayload({
+          seed: session.seed || 12345678,
+          boardRows: session.Br || session.boardRows || 3,
+          boardCols: session.Bc || session.boardCols || 3,
+          difficulty: session.difficulty || "medium",
+          gameMode: session.gameMode || "catch_mistakes",
+          turnHistory: session.turnHistory || []
+        });
+      },
+
+      generateRoomCode(seed) {
+        const num = Math.abs(Number(seed) || 12345) % 46656; // 36^3
+        const suffix = num.toString(36).toUpperCase().padStart(3, "0");
+        const prefix = ((Math.abs(Number(seed)) >> 8) % 46656).toString(36).toUpperCase().padStart(3, "0");
+        return `UDK-${prefix.substring(0, 2)}${suffix.substring(0, 2)}`;
+      },
+
+      getShareableUrl(payload) {
+        const base = window.location.href.split("#")[0].split("?")[0];
+        return `${base}#game=${payload}`;
+      },
+
+      loadFromInput(rawInput) {
+        if (!rawInput || typeof rawInput !== "string") return false;
+        let str = rawInput.trim();
+        
+        // Strip full URL or hash
+        if (str.includes("#game=")) {
+          str = str.split("#game=")[1];
+        } else if (str.includes("?game=")) {
+          str = str.split("?game=")[1];
+        }
+        str = str.split("&")[0].split(" ")[0].trim();
+
+        // 1. Try decoding as Base64URL bitfield payload
+        try {
+          const imported = SudokuEngine.deserializeGamePayload(str);
+          if (imported && imported.seed) {
+            console.log("✨ Unpacked binary bitfield payload successfully:", imported);
+            const topoKey = (imported.N === 4 ? "mini_4x4" : imported.N === 6 ? "wide_6x6" : imported.N === 8 ? "wide_8x8" : imported.N === 16 ? "hexa_16x16" : imported.N === 12 ? (imported.Bc === 6 ? "ultra_12x12" : "duo_12x12") : "classic_9x9");
+            loadPuzzle(imported.difficulty || "medium", imported.gameMode || "catch_mistakes", true, true, 3, true, true, topoKey, new FastRand(imported.seed));
+            
+            // Apply imported moves if present
+            if (imported.turnHistory && imported.turnHistory.length > 0) {
+              imported.turnHistory.forEach(t => {
+                if (t.r < userGrid.length && t.c < userGrid.length && initialGrid[t.r][t.c] === 0) {
+                  userGrid[t.r][t.c] = t.val;
+                }
+              });
+              renderBoard();
+              updateDigitCounters();
+            }
+
+            // Save to Vault under shared tab
+            saveVaultRecord({
+              id: "shared_" + Date.now(),
+              timestamp: Date.now(),
+              seed: imported.seed,
+              difficulty: imported.difficulty,
+              topologyKey: topoKey,
+              topologyName: (topoKey || "9×9 Classic").replace("_", " ").toUpperCase(),
+              initialGrid: initialGrid,
+              userGrid: userGrid,
+              solutionGrid: solutionGrid,
+              durationSeconds: 0,
+              mistakes: 0,
+              hintsUsed: 0,
+              isCompleted: false,
+              isShared: true
+            });
+
+            navigateToScreen("GAME_PLAY");
+            return true;
+          }
+        } catch (e) {
+          console.warn("Bitfield parse note:", e);
+        }
+
+        // 2. Try parsing as 6-character room code (e.g. UDK-9X4A or 9X4A)
+        let cleanCode = str.replace(/^UDK-?/i, "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+        if (cleanCode.length >= 2) {
+          let seed = 0;
+          for (let i = 0; i < cleanCode.length; i++) {
+            seed = ((seed * 36) + cleanCode.charCodeAt(i)) >>> 0;
+          }
+          console.log(`✨ Reconstructing deterministic puzzle from code ${cleanCode} (seed: ${seed})`);
+          loadPuzzle("hard", "catch_mistakes", true, true, 3, true, true, "classic_9x9", new FastRand(seed));
+          navigateToScreen("GAME_PLAY");
+          return true;
+        }
+
+        return false;
+      },
+
+      checkBootHash() {
+        const hash = window.location.hash;
+        if (hash && hash.startsWith("#game=")) {
+          const payload = hash.substring(6);
+          const loaded = this.loadFromInput(payload);
+          if (loaded) {
+            console.log("🚀 Bootloader successfully hydrated shared game from URL hash!");
+          }
+        }
+      }
+    };
+
     // ==========================================================================
     // INDEXEDDB STORAGE CORE (Ticket 004 / undoku_db_v1)
     // ==========================================================================
@@ -5683,25 +5849,38 @@
     }
 
     function openShareModal(game) {
-      if (!game) return;
-      const payload = SudokuEngine.serializeGamePayload(game);
-      const roomCode = "UDK-" + (Math.abs(game.seed) % 9000 + 1000).toString(36).toUpperCase();
+      if (!game) game = activeSession || gameState;
+      if (!game) {
+        alert("Start or resume a puzzle first before sharing!");
+        return;
+      }
+      const payload = ShareManager.generatePayload(game);
+      const roomCode = ShareManager.generateRoomCode(game.seed);
       document.getElementById("displayRoomCode").textContent = roomCode;
 
+      const shareUrl = ShareManager.getShareableUrl(payload);
       const qrCanvas = document.getElementById("qrCanvas");
-      drawCanvasQRCode(qrCanvas, payload);
+      if (qrCanvas) {
+        drawCanvasQRCode(qrCanvas, shareUrl);
+      }
 
       const shareModal = document.getElementById("qrShareModal");
-      shareModal.classList.add("active");
+      if (shareModal) shareModal.classList.add("active");
 
-      document.getElementById("btnCopySharePayload").onclick = () => {
-        const shareUrl = window.location.origin + window.location.pathname + "#game=" + payload;
-        navigator.clipboard.writeText(shareUrl).then(() => {
-          alert("✨ Shareable Link Copied to Clipboard!\n\n" + shareUrl);
-        }).catch(() => {
-          prompt("Copy Share Link:", shareUrl);
-        });
-      };
+      const btnCopy = document.getElementById("btnCopySharePayload");
+      if (btnCopy) {
+        btnCopy.onclick = () => {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(shareUrl).then(() => {
+              alert("✨ Direct Share Link Copied to Clipboard!\n\n" + shareUrl);
+            }).catch(() => {
+              prompt("Copy Direct Share Link:", shareUrl);
+            });
+          } else {
+            prompt("Copy Direct Share Link:", shareUrl);
+          }
+        };
+      }
     }
 
 
@@ -5794,31 +5973,15 @@
 
       const bJoinCode = document.getElementById("btnJoinRoomCode");
       if (bJoinCode) bJoinCode.onclick = () => {
-        let rawVal = (document.getElementById("inputJoinRoomCode").value || "").trim();
+        const rawVal = (document.getElementById("inputJoinRoomCode").value || "").trim();
         if (!rawVal) {
-          alert("Please enter a valid 6-character room code or Base64 game payload!");
+          alert("Please enter a 6-character room code (e.g. UDK-9X4A), a #game= payload, or paste a share link!");
           return;
         }
-        if (rawVal.startsWith("#game=")) {
-          rawVal = rawVal.substring(6);
+        const success = ShareManager.loadFromInput(rawVal);
+        if (!success) {
+          alert("Could not load game from the provided code or payload string. Please verify and try again.");
         }
-        try {
-          const imported = SudokuEngine.deserializeGamePayload(rawVal);
-          if (imported) {
-            const topoKey = (imported.N === 4 ? "mini_4x4" : imported.N === 6 ? "wide_6x6" : imported.N === 8 ? "wide_8x8" : imported.N === 16 ? "hexa_16x16" : imported.N === 12 ? (imported.Bc === 6 ? "ultra_12x12" : "duo_12x12") : "classic_9x9");
-            loadPuzzle(imported.difficulty || "medium", imported.gameMode || "catch_mistakes", true, true, 3, true, true, topoKey, new FastRand(imported.seed));
-            navigateToScreen("GAME_PLAY");
-            return;
-          }
-        } catch (err) {}
-
-        let cleanCode = rawVal.replace(/^UDK-?/i, "").toUpperCase();
-        let seed = 0;
-        for (let i = 0; i < cleanCode.length; i++) {
-          seed = (seed * 36 + cleanCode.charCodeAt(i)) >>> 0;
-        }
-        loadPuzzle("hard", "catch_mistakes", true, true, 3, true, true, "classic_9x9", new FastRand(seed));
-        navigateToScreen("GAME_PLAY");
       };
 
       const bQrClose = document.getElementById("btnQrShareClose");
@@ -6021,9 +6184,19 @@
     window.addEventListener("DOMContentLoaded", () => {
       initCanvases();
       initAllButtonListeners();
-      loadPuzzle("hard", "catch_mistakes", true, true, 3, true, true, "classic_9x9");
-      navigateToScreen("HOME_MENU");
+      
+      // Check if arriving via a shared #game= URL
+      if (window.location.hash && window.location.hash.startsWith("#game=")) {
+        ShareManager.checkBootHash();
+      } else {
+        loadPuzzle("hard", "catch_mistakes", true, true, 3, true, true, "classic_9x9");
+        navigateToScreen("HOME_MENU");
+      }
       requestAnimationFrame(mainLoop);
+    });
+
+    window.addEventListener("hashchange", () => {
+      ShareManager.checkBootHash();
     });
   </script>
 </body>
