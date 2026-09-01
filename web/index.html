@@ -3629,9 +3629,9 @@
         </div>
 
         <div class="solver-controls">
-          <button class="btn-action primary" id="btnPlayPause">▶ Play Solver</button>
-          <button class="btn-action" id="btnPrevStep" title="Previous Step">⏮</button>
-          <button class="btn-action" id="btnNextStep" title="Next Step">⏭</button>
+          <button class="btn-action primary" id="btnPlayPause" style="display: none;">▶ Play Solver</button>
+          <button class="btn-action" id="btnPrevStep" title="Previous Step" style="display: none;">⏮</button>
+          <button class="btn-action" id="btnNextStep" title="Next Step" style="display: none;">⏭</button>
           <button class="btn-action" id="btnToggleHeatmap">🔥 Heatmap</button>
           <button class="btn-action" id="btnDownloadReplay" title="Download animated replay SVG">⬇️ SVG Replay</button>
         </div>
@@ -4097,7 +4097,63 @@
     let particles = [];
     let currentConflict = null;
     let boardShake = 0;
-    let animPhase = 0;
+    // --- Auto-Play & Skip Feature Toggle State ([5, 4, 3, 2, 1]) ---
+    let autoPlaySkipUnlocked = false;
+    let sequenceBuffer = [];
+    const SECRET_UNLOCK_SEQUENCE = [5, 4, 3, 2, 1];
+    let lastSequenceTimestamp = 0;
+    let lastSequenceVal = null;
+
+    function handleDigitInputSequence(val) {
+      const now = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
+      if (val === lastSequenceVal && (now - lastSequenceTimestamp) < 30) {
+        return;
+      }
+      lastSequenceVal = val;
+      lastSequenceTimestamp = now;
+
+      const num = typeof val === "number" ? val : parseInt(val, 10);
+      if (isNaN(num) || num <= 0) return;
+      sequenceBuffer.push(num);
+      if (sequenceBuffer.length > SECRET_UNLOCK_SEQUENCE.length) {
+        sequenceBuffer.shift();
+      }
+      if (sequenceBuffer.length === SECRET_UNLOCK_SEQUENCE.length) {
+        let match = true;
+        for (let i = 0; i < SECRET_UNLOCK_SEQUENCE.length; i++) {
+          if (sequenceBuffer[i] !== SECRET_UNLOCK_SEQUENCE[i]) {
+            match = false;
+            break;
+          }
+        }
+        if (match) {
+          sequenceBuffer = [];
+          toggleAutoPlaySkipFeature();
+        }
+      }
+    }
+
+    function toggleAutoPlaySkipFeature() {
+      autoPlaySkipUnlocked = !autoPlaySkipUnlocked;
+      updateAutoPlaySkipVisibility();
+      if (!autoPlaySkipUnlocked && isPlayingSolver) {
+        isPlayingSolver = false;
+        const bPlay = document.getElementById("btnPlayPause");
+        if (bPlay) bPlay.innerText = "▶ Play Solver";
+        const badge = document.getElementById("appModeBadge");
+        if (badge) badge.innerText = "Play Mode";
+      }
+    }
+
+    function updateAutoPlaySkipVisibility() {
+      const bPlay = document.getElementById("btnPlayPause");
+      const bPrev = document.getElementById("btnPrevStep");
+      const bNext = document.getElementById("btnNextStep");
+      const displayStyle = autoPlaySkipUnlocked ? "inline-flex" : "none";
+      if (bPlay) bPlay.style.display = displayStyle;
+      if (bPrev) bPrev.style.display = displayStyle;
+      if (bNext) bNext.style.display = displayStyle;
+    }
 
     // --- Unsolve / Carving Animation State ---
     let isUnsolving = false;
@@ -4244,6 +4300,7 @@
         btn.innerHTML = `${sym}<span class="digit-count-badge" id="badge-${i}">${N}</span>`;
         btn.addEventListener("click", () => {
           closeRadialRing();
+          handleDigitInputSequence(i);
           inputDigit(i);
         });
         keypad.appendChild(btn);
@@ -5756,7 +5813,7 @@
     });
 
     document.getElementById("btnPlayPause").addEventListener("click", () => {
-      if (isUnsolving) return;
+      if (!autoPlaySkipUnlocked || isUnsolving) return;
       closeRadialRing();
       isPlayingSolver = !isPlayingSolver;
       document.getElementById("btnPlayPause").innerText = isPlayingSolver ? "⏸ Pause" : "▶ Play Solver";
@@ -5764,7 +5821,7 @@
     });
 
     document.getElementById("btnNextStep").addEventListener("click", () => {
-      if (isUnsolving) return;
+      if (!autoPlaySkipUnlocked || isUnsolving) return;
       closeRadialRing();
       isPlayingSolver = false;
       document.getElementById("btnPlayPause").innerText = "▶ Play Solver";
@@ -5772,7 +5829,7 @@
     });
 
     document.getElementById("btnPrevStep").addEventListener("click", () => {
-      if (isUnsolving) return;
+      if (!autoPlaySkipUnlocked || isUnsolving) return;
       closeRadialRing();
       isPlayingSolver = false;
       document.getElementById("btnPlayPause").innerText = "▶ Play Solver";
@@ -5802,6 +5859,8 @@
     document.getElementById("btnWatchReplay").addEventListener("click", () => {
       document.getElementById("victoryModal").classList.remove("active");
       closeRadialRing();
+      autoPlaySkipUnlocked = true;
+      updateAutoPlaySkipVisibility();
       userGrid = initialGrid.map(r => [...r]);
       currentStepIdx = 0;
       isPlayingSolver = true;
@@ -5818,6 +5877,7 @@
       }
       if (e.key >= "1" && e.key <= "9") {
         const d = parseInt(e.key, 10);
+        handleDigitInputSequence(d);
         if (d <= N) {
           closeRadialRing();
           inputDigit(d);
@@ -6611,34 +6671,6 @@
       };
 
       // 6. Step Scrubber & Provenance Controls
-      const bPlayPause = document.getElementById("btnPlayPause");
-      if (bPlayPause) bPlayPause.onclick = () => {
-        isPlayingSolver = !isPlayingSolver;
-        bPlayPause.innerText = isPlayingSolver ? "⏸ Pause" : "▶ Play Solver";
-        const b4 = document.getElementById("appModeBadge"); if (b4) b4.innerText = isPlayingSolver ? "Solver Mode" : "Play Mode";
-      };
-
-      const bNextStep = document.getElementById("btnNextStep");
-      if (bNextStep) bNextStep.onclick = () => {
-        isPlayingSolver = false;
-        if (bPlayPause) bPlayPause.innerText = "▶ Play Solver";
-        if (currentStepIdx < deductions.length) {
-          const step = deductions[currentStepIdx];
-          userGrid[step.row][step.col] = step.value;
-          currentStepIdx++;
-        }
-      };
-
-      const bPrevStep = document.getElementById("btnPrevStep");
-      if (bPrevStep) bPrevStep.onclick = () => {
-        isPlayingSolver = false;
-        if (bPlayPause) bPlayPause.innerText = "▶ Play Solver";
-        if (currentStepIdx > 0) {
-          currentStepIdx--;
-          const step = deductions[currentStepIdx];
-          userGrid[step.row][step.col] = 0;
-        }
-      };
 
       const bHeatmap = document.getElementById("btnToggleHeatmap");
       if (bHeatmap) bHeatmap.onclick = (e) => {
