@@ -3241,9 +3241,6 @@
         <button class="nav-tab-btn" id="navBtnVault">
           <span>📚</span> Vault
         </button>
-        <button class="nav-tab-btn" id="navBtnShare">
-          <span>🔗</span> Share
-        </button>
       </div>
     </div>
 
@@ -3668,55 +3665,10 @@
     </div>
   </div>
 
-  <!-- Screen 4: Serverless Puzzle Sharing Hub (Ticket 004) -->
-  <div class="app-screen-view" id="screenShare">
-    <div class="dashboard-container">
-      <div style="text-align: center; max-width: 600px; margin: 0 auto 1.5rem;">
-        <div style="font-size: 3rem; margin-bottom: 0.5rem;">🔗</div>
-        <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.35rem;">Serverless Game Share</h1>
-        <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
-          Share exact puzzle seeds, turns, and trajectories using ephemeral 6-character room codes or offline bitfield payloads without a centralized server.
-        </p>
-      </div>
-
-      <div class="dashboard-launchers-grid">
-        <div class="dash-card">
-          <div class="dash-card-header">
-            <span class="dash-card-icon">📤</span>
-            <span class="dash-card-title">Share Active Game</span>
-          </div>
-          <p class="dash-card-desc">
-            Generate an ephemeral 6-character room code or copy a compact binary payload string (&lt; 256 bytes) to share with friends.
-          </p>
-          <button class="btn-action primary" id="btnGenerateShareCode" style="width: 100%; justify-content: center; padding: 0.75rem; font-weight: 800;">
-            🔗 Generate Share Code
-          </button>
-        </div>
-
-        <div class="dash-card">
-          <div class="dash-card-header">
-            <span class="dash-card-icon">📥</span>
-            <span class="dash-card-title">Join by Code / Payload</span>
-          </div>
-          <p class="dash-card-desc">
-            Paste a 6-character room code (e.g. <b>UDK-9X4A</b>) or Base64URL bitfield payload to load an exact identical match.
-          </p>
-          <div style="display: flex; gap: 0.5rem; margin-top: auto;">
-            <input type="text" id="inputJoinRoomCode" placeholder="Enter code (e.g. UDK-9X4A)" style="flex: 1; padding: 0.65rem 0.8rem; border-radius: 10px; border: 1px solid var(--border-subtle); background: var(--surface-subtle); color: var(--text-main); font-family: 'JetBrains Mono', monospace; font-weight: 700; text-transform: uppercase;">
-            <button class="btn-action primary" id="btnJoinRoomCode" style="padding: 0.65rem 1.1rem; font-weight: 800;">
-              Join
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
   <!-- Share & QR Code Modal (Ticket 004) -->
   <div class="modal-backdrop" id="qrShareModal">
     <div class="victory-modal" style="max-width: 440px; padding: 2rem;">
-      <div style="font-size: 2.6rem; margin-bottom: 0.35rem;">📡</div>
+      <div style="font-size: 2.6rem; margin-bottom: 0.35rem;">🔗</div>
       <h2 class="victory-title">Game Share Code</h2>
       <p class="victory-subtitle" style="margin-bottom: 1.25rem;">Scan QR code or share 6-character room code:</p>
 
@@ -5923,7 +5875,7 @@
     // ==========================================================================
     // SCREEN STATE MACHINE & NAVIGATION ROUTER (Ticket 003_5)
     // ==========================================================================
-    let currentScreen = "HOME_MENU"; // "HOME_MENU" | "GAME_PLAY" | "LIBRARY_VAULT" | "P2P_SHARE"
+    let currentScreen = "HOME_MENU"; // "HOME_MENU" | "GAME_PLAY" | "LIBRARY_VAULT"
     let isGameActive = false;
 
     function navigateToScreen(targetScreen) {
@@ -5933,13 +5885,11 @@
       document.getElementById("navBtnHome").classList.toggle("active", targetScreen === "HOME_MENU");
       document.getElementById("navBtnGame").classList.toggle("active", targetScreen === "GAME_PLAY");
       document.getElementById("navBtnVault").classList.toggle("active", targetScreen === "LIBRARY_VAULT");
-      document.getElementById("navBtnShare").classList.toggle("active", targetScreen === "P2P_SHARE");
 
       // Update Screen Views
       document.getElementById("screenHome").classList.toggle("active", targetScreen === "HOME_MENU");
       document.getElementById("screenGame").classList.toggle("active", targetScreen === "GAME_PLAY");
       document.getElementById("screenVault").classList.toggle("active", targetScreen === "LIBRARY_VAULT");
-      document.getElementById("screenShare").classList.toggle("active", targetScreen === "P2P_SHARE");
 
       if (targetScreen === "HOME_MENU") {
         updateHomeResumeCard();
@@ -6553,9 +6503,6 @@
       const nVault = document.getElementById("navBtnVault");
       if (nVault) nVault.onclick = () => navigateToScreen("LIBRARY_VAULT");
 
-      const nShare = document.getElementById("navBtnShare");
-      if (nShare) nShare.onclick = () => navigateToScreen("P2P_SHARE");
-
       // 2. Home Screen Launchers
       const bResume = document.getElementById("btnResumeGame");
       if (bResume) bResume.onclick = () => navigateToScreen("GAME_PLAY");
@@ -6609,33 +6556,7 @@
         }
       };
 
-      // 4. Share Screen
-      const bGenShare = document.getElementById("btnGenerateShareCode");
-      if (bGenShare) bGenShare.onclick = () => {
-        const game = {
-          seed: currentSeed || 12345,
-          boardRows: currentTopology.Br,
-          boardCols: currentTopology.Bc,
-          difficulty: currentDifficulty || "medium",
-          gameMode: currentGameMode || "catch_mistakes",
-          turnHistory: []
-        };
-        openShareModal(game);
-      };
-
-      const bJoinCode = document.getElementById("btnJoinRoomCode");
-      if (bJoinCode) bJoinCode.onclick = () => {
-        const rawVal = (document.getElementById("inputJoinRoomCode").value || "").trim();
-        if (!rawVal) {
-          alert("Please enter a 6-character room code (e.g. UDK-9X4A), a #game= payload, or paste a share link!");
-          return;
-        }
-        const success = ShareManager.loadFromInput(rawVal);
-        if (!success) {
-          alert("Could not load game from the provided code or payload string. Please verify and try again.");
-        }
-      };
-
+      // 4. Modals
       const bQrClose = document.getElementById("btnQrShareClose");
       if (bQrClose) bQrClose.onclick = () => {
         document.getElementById("qrShareModal").classList.remove("active");
