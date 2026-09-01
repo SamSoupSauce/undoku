@@ -1,0 +1,818 @@
+<!DOCTYPE html><html lang="en" dir="ltr" data-theme="dark" data-has-hero class="astro-vdxcvpsm"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Undoku Documentation Wiki | Undoku Wiki</title><link rel="canonical" href="https://samsoupsauce.github.io/undoku/wiki/"/><link rel="sitemap" href="/undoku/wiki/sitemap-index.xml"/><link rel="shortcut icon" href="/undoku/wiki/favicon.svg" type="image/svg+xml"/><meta name="generator" content="Astro v7.1.3"/><meta name="generator" content="Starlight v0.41.4"/><meta property="og:title" content="Undoku Documentation Wiki"/><meta property="og:type" content="article"/><meta property="og:url" content="https://samsoupsauce.github.io/undoku/wiki/"/><meta property="og:locale" content="en"/><meta property="og:description" content="High-Performance Sudoku Generator, Difficulty Evaluator, &amp; GORM Database API Engine."/><meta property="og:site_name" content="Undoku Wiki"/><meta name="twitter:card" content="summary_large_image"/><meta name="description" content="High-Performance Sudoku Generator, Difficulty Evaluator, &amp; GORM Database API Engine."/><script>
+	window.StarlightThemeProvider = (() => {
+		const storedTheme =
+			typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
+		const theme =
+			storedTheme ||
+			(window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+		document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
+		return {
+			updatePickers(theme = storedTheme || 'auto') {
+				document.querySelectorAll('starlight-theme-select').forEach((picker) => {
+					const select = picker.querySelector('select');
+					if (select) select.value = theme;
+					/** @type {HTMLTemplateElement | null} */
+					const tmpl = document.querySelector(`#theme-icons`);
+					const newIcon = tmpl && tmpl.content.querySelector('.' + theme);
+					if (newIcon) {
+						const oldIcon = picker.querySelector('svg.label-icon');
+						if (oldIcon) {
+							oldIcon.replaceChildren(...newIcon.cloneNode(true).childNodes);
+						}
+					}
+				});
+			},
+		};
+	})();
+</script><template id="theme-icons"><svg aria-hidden="true" class="light astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M5 12a1 1 0 0 0-1-1H3a1 1 0 0 0 0 2h1a1 1 0 0 0 1-1Zm.64 5-.71.71a1 1 0 0 0 0 1.41 1 1 0 0 0 1.41 0l.71-.71A1 1 0 0 0 5.64 17ZM12 5a1 1 0 0 0 1-1V3a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1Zm5.66 2.34a1 1 0 0 0 .7-.29l.71-.71a1 1 0 1 0-1.41-1.41l-.66.71a1 1 0 0 0 0 1.41 1 1 0 0 0 .66.29Zm-12-.29a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.71-.71a1.004 1.004 0 1 0-1.43 1.41l.73.71ZM21 11h-1a1 1 0 0 0 0 2h1a1 1 0 0 0 0-2Zm-2.64 6A1 1 0 0 0 17 18.36l.71.71a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.76-.66ZM12 6.5a5.5 5.5 0 1 0 5.5 5.5A5.51 5.51 0 0 0 12 6.5Zm0 9a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Zm0 3.5a1 1 0 0 0-1 1v1a1 1 0 0 0 2 0v-1a1 1 0 0 0-1-1Z"/></svg><svg aria-hidden="true" class="dark astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.64 13a1 1 0 0 0-1.05-.14 8.049 8.049 0 0 1-3.37.73 8.15 8.15 0 0 1-8.14-8.1 8.59 8.59 0 0 1 .25-2A1 1 0 0 0 8 2.36a10.14 10.14 0 1 0 14 11.69 1 1 0 0 0-.36-1.05Zm-9.5 6.69A8.14 8.14 0 0 1 7.08 5.22v.27a10.15 10.15 0 0 0 10.14 10.14 9.784 9.784 0 0 0 2.1-.22 8.11 8.11 0 0 1-7.18 4.32v-.04Z"/></svg><svg aria-hidden="true" class="auto astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg></template><link rel="stylesheet" href="/undoku/wiki/_astro/print.ehPL0gv-.css" media="print"><link rel="stylesheet" href="/undoku/wiki/_astro/common.C-mfAHEJ.css"><link rel="stylesheet" href="/undoku/wiki/_astro/docs.Dn8dxZCO.css"><style>@layer starlight.components{svg:where(.astro-n5k4ipy7){color:var(--sl-icon-color);font-size:var(--sl-icon-size,1em);width:1em;height:1em}}
+</style><script type="module" src="/undoku/wiki/_astro/page.LAbJoB63.js"></script></head><body class="astro-vdxcvpsm"><a class="sl-skip-link astro-vxeigawq" href="#_top">Skip to content</a><div class="page sl-flex astro-gqpr5s5a"><header class="header astro-gqpr5s5a"><div class="header astro-nczgtkxc"><div class="title-wrapper sl-flex astro-nczgtkxc"><a href="/undoku/wiki/" class="site-title sl-flex astro-clw6ags5"><span class="astro-clw6ags5" translate="no">Undoku Wiki</span></a></div><div class="sl-flex print:hidden astro-nczgtkxc"><site-search class="astro-nczgtkxc astro-r5ar4xm7" data-translations="{&quot;placeholder&quot;:&quot;Search&quot;}"><button data-open-modal disabled aria-label="Search" aria-keyshortcuts="Control+K" class="astro-r5ar4xm7"><svg aria-hidden="true" class="astro-r5ar4xm7 astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.71 20.29 18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/></svg><span class="sl-hidden md:sl-block astro-r5ar4xm7" aria-hidden="true">Search</span><kbd class="sl-hidden md:sl-flex astro-r5ar4xm7" style="display: none;"><kbd class="astro-r5ar4xm7">Ctrl</kbd><kbd class="astro-r5ar4xm7">K</kbd></kbd></button><dialog style="padding:0" aria-label="Search" class="astro-r5ar4xm7"><div class="dialog-frame sl-flex astro-r5ar4xm7"><button data-close-modal class="sl-flex md:sl-hidden astro-r5ar4xm7">Cancel</button><div class="search-container astro-r5ar4xm7"><div id="starlight__search" class="astro-r5ar4xm7"></div></div></div></dialog></site-search><script>
+	(() => {
+		const openBtn = document.querySelector('button[data-open-modal]');
+		const shortcut = openBtn?.querySelector('kbd');
+		if (!openBtn || !(shortcut instanceof HTMLElement)) return;
+		const platformKey = shortcut.querySelector('kbd');
+		if (platformKey && /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) {
+			platformKey.textContent = '⌘';
+			openBtn.setAttribute('aria-keyshortcuts', 'Meta+K');
+		}
+		shortcut.style.display = '';
+	})();
+</script><script type="module" src="/undoku/wiki/_astro/Search.astro_astro_type_script_index_0_lang.CByZKsNg.js"></script></div><div class="sl-hidden md:sl-flex print:hidden right-group astro-nczgtkxc"><div class="sl-flex social-icons astro-nczgtkxc"><a href="https://github.com/SamSoupSauce/undoku" rel="me" class="sl-flex astro-cg55etiy"><span class="sr-only astro-cg55etiy">GitHub</span><svg aria-hidden="true" class="astro-cg55etiy astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"/></svg></a></div><starlight-theme-select><label style="--sl-select-width: 6.25em" class="astro-r2p65idu"><span class="sr-only astro-r2p65idu">Select theme</span><svg aria-hidden="true" class="icon label-icon astro-r2p65idu astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg><select autocomplete="off" class="astro-r2p65idu"><option value="dark" class="astro-r2p65idu">Dark</option><option value="light" class="astro-r2p65idu">Light</option><option value="auto" selected class="astro-r2p65idu">Auto</option></select><svg aria-hidden="true" class="icon caret astro-r2p65idu astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg></label></starlight-theme-select><script>
+	StarlightThemeProvider.updatePickers();
+</script><script type="module">var e=`starlight-theme`,t=e=>e===`auto`||e===`dark`||e===`light`?e:`auto`,n=()=>t(typeof localStorage<`u`&&localStorage.getItem(e));function r(t){typeof localStorage<`u`&&localStorage.setItem(e,t===`light`||t===`dark`?t:``)}var i=()=>matchMedia(`(prefers-color-scheme: light)`).matches?`light`:`dark`;function a(e){StarlightThemeProvider.updatePickers(e),document.documentElement.dataset.theme=e===`auto`?i():e,r(e)}matchMedia(`(prefers-color-scheme: light)`).addEventListener(`change`,()=>{n()===`auto`&&a(`auto`)});var o=class extends HTMLElement{constructor(){super(),a(n()),this.querySelector(`select`)?.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&a(t(e.currentTarget.value))})}};customElements.define(`starlight-theme-select`,o);</script><script type="module">var e=class extends HTMLElement{constructor(){super();let e=this.querySelector(`select`);e&&(e.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&(window.location.pathname=e.currentTarget.value)}),window.addEventListener(`pageshow`,t=>{if(!t.persisted)return;let n=e.querySelector(`option[selected]`)?.index;n!==e.selectedIndex&&(e.selectedIndex=n??0)}))}};customElements.define(`starlight-lang-select`,e);</script></div></div></header><div class="main-frame astro-gqpr5s5a"><script type="module">var e=document.getElementById(`starlight__sidebar`),t=e?.querySelector(`sl-sidebar-state-persist`),n=`sl-sidebar-state`,r=()=>{let r=[],i=t?.dataset.hash||``;try{let e=sessionStorage.getItem(n),t=JSON.parse(e||`{}`);Array.isArray(t.open)&&t.hash===i&&(r=t.open)}catch{}return{hash:i,open:r,scroll:e?.scrollTop||0}},i=e=>{try{sessionStorage.setItem(n,JSON.stringify(e))}catch{}},a=()=>i(r()),o=(e,t)=>{let n=r();n.open[t]=e,i(n)};t?.addEventListener(`click`,e=>{if(!(e.target instanceof Element))return;let t=e.target.closest(`summary`)?.closest(`details`);if(!t)return;let n=t.querySelector(`sl-sidebar-restore`),r=parseInt(n?.dataset.index||``);isNaN(r)||o(!t.open,r)}),addEventListener(`visibilitychange`,()=>{document.visibilityState===`hidden`&&a()});</script><div class="lg:sl-flex astro-abfeecmu"><div class="main-pane astro-abfeecmu"><main data-pagefind-body class="astro-vdxcvpsm" lang="en" dir="ltr"><div class="content-panel astro-oil7k7jf"><div class="sl-container astro-oil7k7jf"><div class="hero astro-q2ezz3gc"><div class="sl-flex stack astro-q2ezz3gc"><div class="sl-flex copy astro-q2ezz3gc"><h1 id="_top" data-page-title class="astro-q2ezz3gc">Undoku Documentation Wiki</h1><div class="tagline astro-q2ezz3gc">High-Performance Deterministic Sudoku Generator, Candidate Elimination Metric Evaluator, & GORM Database API Engine.</div></div><div class="sl-flex actions astro-q2ezz3gc"><a class="sl-link-button not-content primary astro-q2ezz3gc astro-hlbqph7b" href="/undoku/">🧩 Play Web Canvas Game<svg aria-hidden="true" class="astro-hlbqph7b astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path fill-rule="evenodd" d="M1.44 8.855v-.001l3.527-3.516c.34-.344.802-.541 1.285-.548h6.649l.947-.947c3.07-3.07 6.207-3.072 7.62-2.868a1.821 1.821 0 0 1 1.557 1.557c.204 1.413.203 4.55-2.868 7.62l-.946.946v6.649a1.845 1.845 0 0 1-.549 1.286l-3.516 3.528a1.844 1.844 0 0 1-3.11-.944l-.858-4.275-4.52-4.52-2.31-.463-1.964-.394A1.847 1.847 0 0 1 .98 10.693a1.843 1.843 0 0 1 .46-1.838Zm5.379 2.017-3.873-.776L6.32 6.733h4.638l-4.14 4.14Zm8.403-5.655c2.459-2.46 4.856-2.463 5.89-2.33.134 1.035.13 3.432-2.329 5.891l-6.71 6.71-3.561-3.56 6.71-6.711Zm-1.318 15.837-.776-3.873 4.14-4.14v4.639l-3.364 3.374Z" clip-rule="evenodd"/><path d="M9.318 18.345a.972.972 0 0 0-1.86-.561c-.482 1.435-1.687 2.204-2.934 2.619a8.22 8.22 0 0 1-1.23.302c.062-.365.157-.79.303-1.229.415-1.247 1.184-2.452 2.62-2.935a.971.971 0 1 0-.62-1.842c-.12.04-.236.084-.35.13-2.02.828-3.012 2.588-3.493 4.033a10.383 10.383 0 0 0-.51 2.845l-.001.016v.063c0 .536.434.972.97.972H2.24a7.21 7.21 0 0 0 .878-.065c.527-.063 1.248-.19 2.02-.447 1.445-.48 3.205-1.472 4.033-3.494a5.828 5.828 0 0 0 .147-.407Z"/></svg></a><a class="sl-link-button not-content primary astro-q2ezz3gc astro-hlbqph7b" href="/undoku/wiki/guides/quickstart/">Getting Started<svg aria-hidden="true" class="astro-hlbqph7b astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg></a><a class="sl-link-button not-content minimal astro-q2ezz3gc astro-hlbqph7b" href="/undoku/wiki/reference/api/">API Reference<svg aria-hidden="true" class="astro-hlbqph7b astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M19.33 10.18a1 1 0 0 1-.77 0 1 1 0 0 1-.62-.93l.01-1.83-8.2 8.2a1 1 0 0 1-1.41-1.42l8.2-8.2H14.7a1 1 0 0 1 0-2h4.25a1 1 0 0 1 1 1v4.25a1 1 0 0 1-.62.93Z"/><path d="M11 4a1 1 0 1 1 0 2H7a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-4a1 1 0 1 1 2 0v4a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4Z"/></svg></a></div></div></div><div class="sl-markdown-content"><div class="canvas-hero-container astro-7xa57cgm"><div class="canvas-hero-card astro-7xa57cgm"><div class="canvas-header astro-7xa57cgm"><div class="badge-row astro-7xa57cgm"><span class="engine-badge astro-7xa57cgm">⚡ HTML5 Web Canvas Engine</span><span class="difficulty-badge astro-7xa57cgm" id="canvas-hero-diff">Hard</span><span class="score-badge astro-7xa57cgm" id="canvas-hero-score">Score: 84.50</span></div><div class="canvas-controls astro-7xa57cgm"><button class="hero-btn hero-diff-btn astro-7xa57cgm" data-diff="easy">Easy</button><button class="hero-btn hero-diff-btn astro-7xa57cgm" data-diff="medium">Med</button><button class="hero-btn hero-diff-btn active astro-7xa57cgm" data-diff="hard">Hard</button><button class="hero-btn hero-diff-btn astro-7xa57cgm" data-diff="expert">Exp</button><button id="hero-btn-mutate" class="hero-btn hero-btn-accent astro-7xa57cgm" title="Mutate &amp; Generate New Puzzle">🎲 New</button><button id="hero-btn-prev" class="hero-btn astro-7xa57cgm" title="Previous Step">⏮</button><button id="hero-btn-play" class="hero-btn hero-btn-primary astro-7xa57cgm" title="Play/Pause">▶ Play</button><button id="hero-btn-next" class="hero-btn astro-7xa57cgm" title="Next Step">⏭</button><button id="hero-btn-reset" class="hero-btn astro-7xa57cgm" title="Reset Board">↺</button><button id="hero-btn-heatmap" class="hero-btn hero-btn-toggle astro-7xa57cgm" title="Toggle Elimination Heatmap">🔥</button></div></div><div class="canvas-wrapper astro-7xa57cgm"><canvas id="heroSudokuCanvas" width="540" height="540" class="astro-7xa57cgm"></canvas></div><div class="deduction-hud astro-7xa57cgm" id="hero-hud"><div class="hud-top astro-7xa57cgm"><span class="hud-technique astro-7xa57cgm" id="hud-tech">Naked Single</span><span class="hud-step astro-7xa57cgm" id="hud-step-num">Step 1 / 44</span></div><div class="hud-desc astro-7xa57cgm" id="hud-desc">Deduction provenance will appear as steps execute.</div><div class="hud-reasons astro-7xa57cgm"><div class="reason-pill astro-7xa57cgm" title="Cross-Horizontal (Row) eliminations"><span class="reason-icon astro-7xa57cgm">⬌ Row:</span><span class="reason-val astro-7xa57cgm" id="hud-reason-h">4</span></div><div class="reason-pill astro-7xa57cgm" title="Cross-Vertical (Column) eliminations"><span class="reason-icon astro-7xa57cgm">⬍ Col:</span><span class="reason-val astro-7xa57cgm" id="hud-reason-v">3</span></div><div class="reason-pill astro-7xa57cgm" title="3x3 Box eliminations"><span class="reason-icon astro-7xa57cgm">▦ Box:</span><span class="reason-val astro-7xa57cgm" id="hud-reason-b">2</span></div><div class="reason-pill score-pill astro-7xa57cgm" title="Step Complexity Score"><span class="reason-icon astro-7xa57cgm">★ Step:</span><span class="reason-val astro-7xa57cgm" id="hud-step-score">1.45</span></div></div></div></div></div><script>
+  // Canvas Sudoku Interactive Engine & Rule-Based Mutator
+  (function () {
+    const canvas = document.getElementById('heroSudokuCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    class SudokuEngine {
+      static isValid(board, r, c, num) {
+        for (let i = 0; i < 9; i++) {
+          if (board[r][i] === num || board[i][c] === num) return false;
+        }
+        const startR = Math.floor(r / 3) * 3;
+        const startC = Math.floor(c / 3) * 3;
+        for (let row = startR; row < startR + 3; row++) {
+          for (let col = startC; col < startC + 3; col++) {
+            if (board[row][col] === num) return false;
+          }
+        }
+        return true;
+      }
+
+      static shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      }
+
+      static generateSeedBoard() {
+        const board = Array(9).fill(0).map(() => Array(9).fill(0));
+        function solve(b) {
+          for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+              if (b[r][c] === 0) {
+                const nums = SudokuEngine.shuffle([1,2,3,4,5,6,7,8,9]);
+                for (const num of nums) {
+                  if (SudokuEngine.isValid(b, r, c, num)) {
+                    b[r][c] = num;
+                    if (solve(b)) return true;
+                    b[r][c] = 0;
+                  }
+                }
+                return false;
+              }
+            }
+          }
+          return true;
+        }
+        solve(board);
+        return board;
+      }
+
+      static mutate(puzzle, solution = null) {
+        const p = puzzle.map(r => [...r]);
+        const s = solution ? solution.map(r => [...r]) : null;
+
+        const digits = SudokuEngine.shuffle([1,2,3,4,5,6,7,8,9]);
+        const mapping = {};
+        for (let i = 1; i <= 9; i++) mapping[i] = digits[i - 1];
+
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) {
+            if (p[r][c] !== 0) p[r][c] = mapping[p[r][c]];
+            if (s && s[r][c] !== 0) s[r][c] = mapping[s[r][c]];
+          }
+        }
+
+        for (let band = 0; band < 3; band++) {
+          const rowIndices = SudokuEngine.shuffle([0, 1, 2]);
+          const tempP = p.map(r => [...r]);
+          const tempS = s ? s.map(r => [...r]) : null;
+          for (let i = 0; i < 3; i++) {
+            const fromR = band * 3 + rowIndices[i];
+            const toR = band * 3 + i;
+            p[toR] = [...tempP[fromR]];
+            if (s) s[toR] = [...tempS[fromR]];
+          }
+        }
+
+        for (let stack = 0; stack < 3; stack++) {
+          const colIndices = SudokuEngine.shuffle([0, 1, 2]);
+          const tempP = p.map(r => [...r]);
+          const tempS = s ? s.map(r => [...r]) : null;
+          for (let r = 0; r < 9; r++) {
+            for (let i = 0; i < 3; i++) {
+              const fromC = stack * 3 + colIndices[i];
+              const toC = stack * 3 + i;
+              p[r][toC] = tempP[r][fromC];
+              if (s) s[r][toC] = tempS[r][fromC];
+            }
+          }
+        }
+
+        const bandOrder = SudokuEngine.shuffle([0, 1, 2]);
+        const tempP = p.map(r => [...r]);
+        const tempS = s ? s.map(r => [...r]) : null;
+        for (let b = 0; b < 3; b++) {
+          const fromB = bandOrder[b];
+          for (let r = 0; r < 3; r++) {
+            p[b * 3 + r] = [...tempP[fromB * 3 + r]];
+            if (s) s[b * 3 + r] = [...tempS[fromB * 3 + r]];
+          }
+        }
+
+        if (Math.random() > 0.5) {
+          const tp = p.map(r => [...r]);
+          const ts = s ? s.map(r => [...r]) : null;
+          for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+              p[r][c] = tp[c][r];
+              if (s) s[r][c] = ts[c][r];
+            }
+          }
+        }
+
+        return { puzzle: p, solution: s };
+      }
+
+      static getCandidates(b, r, c) {
+        if (b[r][c] !== 0) return [];
+        const used = new Set();
+        for (let i = 0; i < 9; i++) {
+          if (b[r][i] !== 0) used.add(b[r][i]);
+          if (b[i][c] !== 0) used.add(b[i][c]);
+        }
+        const startR = Math.floor(r / 3) * 3;
+        const startC = Math.floor(c / 3) * 3;
+        for (let row = startR; row < startR + 3; row++) {
+          for (let col = startC; col < startC + 3; col++) {
+            if (b[row][col] !== 0) used.add(b[row][col]);
+          }
+        }
+        const candidates = [];
+        for (let num = 1; num <= 9; num++) {
+          if (!used.has(num)) candidates.push(num);
+        }
+        return candidates;
+      }
+
+      static analyzeEliminations(b, r, c) {
+        if (b[r][c] !== 0) return { h: 0, v_: 0, b: 0 };
+        let h = 0, v = 0, box = 0;
+        const startR = Math.floor(r / 3) * 3;
+        const startC = Math.floor(c / 3) * 3;
+
+        for (let num = 1; num <= 9; num++) {
+          if (SudokuEngine.isValid(b, r, c, num)) continue;
+          let inRow = false;
+          for (let i = 0; i < 9; i++) if (b[r][i] === num) inRow = true;
+          if (inRow) h++;
+
+          let inCol = false;
+          for (let i = 0; i < 9; i++) if (b[i][c] === num) inCol = true;
+          if (inCol) v++;
+
+          let inBox = false;
+          for (let row = startR; row < startR + 3; row++) {
+            for (let col = startC; col < startC + 3; col++) {
+              if (b[row][col] === num) inBox = true;
+            }
+          }
+          if (inBox) box++;
+        }
+        return { h, v_: v, b: box };
+      }
+
+      static findNextDeduction(b) {
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) {
+            if (b[r][c] === 0) {
+              const cands = SudokuEngine.getCandidates(b, r, c);
+              if (cands.length === 1) {
+                const val = cands[0];
+                const reasons = SudokuEngine.analyzeEliminations(b, r, c);
+                const score = 1.0 + (reasons.h + reasons.v_ + reasons.b) * 0.05;
+                return {
+                  r, c, v: val,
+                  tech: "Naked Single",
+                  h: reasons.h, v_: reasons.v_, b: reasons.b,
+                  score,
+                  desc: `Naked Single at (${r},${c}): only ${val} fits [row: ${reasons.h}, col: ${reasons.v_}, box: ${reasons.b}]`
+                };
+              }
+            }
+          }
+        }
+
+        for (let boxR = 0; boxR < 9; boxR += 3) {
+          for (let boxC = 0; boxC < 9; boxC += 3) {
+            for (let num = 1; num <= 9; num++) {
+              let count = 0, targetR = -1, targetC = -1;
+              for (let r = boxR; r < boxR + 3; r++) {
+                for (let c = boxC; c < boxC + 3; c++) {
+                  if (b[r][c] === 0 && SudokuEngine.isValid(b, r, c, num)) {
+                    count++;
+                    targetR = r;
+                    targetC = c;
+                  }
+                }
+              }
+              if (count === 1) {
+                const reasons = SudokuEngine.analyzeEliminations(b, targetR, targetC);
+                const score = 1.5 + (reasons.h + reasons.v_ + reasons.b) * 0.05;
+                return {
+                  r: targetR, c: targetC, v: num,
+                  tech: "Hidden Single Box",
+                  h: reasons.h, v_: reasons.v_, b: reasons.b,
+                  score,
+                  desc: `Hidden Single in Box at (${targetR},${targetC}): ${num} is unique in box`
+                };
+              }
+            }
+          }
+        }
+
+        for (let r = 0; r < 9; r++) {
+          for (let num = 1; num <= 9; num++) {
+            let count = 0, targetC = -1;
+            for (let c = 0; c < 9; c++) {
+              if (b[r][c] === 0 && SudokuEngine.isValid(b, r, c, num)) {
+                count++;
+                targetC = c;
+              }
+            }
+            if (count === 1) {
+              const reasons = SudokuEngine.analyzeEliminations(b, r, targetC);
+              const score = 1.8 + (reasons.h + reasons.v_ + reasons.b) * 0.05;
+              return {
+                r, c: targetC, v: num,
+                tech: "Hidden Single Row",
+                h: reasons.h, v_: reasons.v_, b: reasons.b,
+                score,
+                desc: `Hidden Single in Row ${r} at (${r},${targetC}): ${num} is unique in row`
+              };
+            }
+          }
+        }
+
+        for (let c = 0; c < 9; c++) {
+          for (let num = 1; num <= 9; num++) {
+            let count = 0, targetR = -1;
+            for (let r = 0; r < 9; r++) {
+              if (b[r][c] === 0 && SudokuEngine.isValid(b, r, c, num)) {
+                count++;
+                targetR = r;
+              }
+            }
+            if (count === 1) {
+              const reasons = SudokuEngine.analyzeEliminations(b, targetR, c);
+              const score = 1.8 + (reasons.h + reasons.v_ + reasons.b) * 0.05;
+              return {
+                r: targetR, c, v: num,
+                tech: "Hidden Single Col",
+                h: reasons.h, v_: reasons.v_, b: reasons.b,
+                score,
+                desc: `Hidden Single in Col ${c} at (${targetR},${c}): ${num} is unique in column`
+              };
+            }
+          }
+        }
+
+        return null;
+      }
+
+      static solveAndAssess(puzzle) {
+        const work = puzzle.map(r => [...r]);
+        const steps = [];
+        let totalScore = 0;
+
+        while (true) {
+          let filled = true;
+          for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+              if (work[r][c] === 0) { filled = false; break; }
+            }
+            if (!filled) break;
+          }
+          if (filled) break;
+
+          const deduction = SudokuEngine.findNextDeduction(work);
+          if (!deduction) return { solved: false, steps, totalScore, rating: "Expert+" };
+
+          work[deduction.r][deduction.c] = deduction.v;
+          steps.push(deduction);
+          totalScore += deduction.score;
+        }
+
+        let rating = "Easy";
+        if (totalScore >= 115) rating = "Expert";
+        else if (totalScore >= 75) rating = "Hard";
+        else if (totalScore >= 45) rating = "Medium";
+
+        return { solved: true, steps, totalScore, rating };
+      }
+
+      static generateAndCarve(targetDiff = "hard") {
+        let full = SudokuEngine.generateSeedBoard();
+        full = SudokuEngine.mutate(full).puzzle;
+
+        let targetBlanks = 46;
+        if (targetDiff === "easy") targetBlanks = 32;
+        else if (targetDiff === "medium") targetBlanks = 40;
+        else if (targetDiff === "hard") targetBlanks = 48;
+        else if (targetDiff === "expert") targetBlanks = 54;
+
+        let puzzle = full.map(r => [...r]);
+        const positions = [];
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) positions.push({ r, c });
+        }
+        SudokuEngine.shuffle(positions);
+
+        for (const pos of positions) {
+          if (targetBlanks <= 0) break;
+          const orig = puzzle[pos.r][pos.c];
+          puzzle[pos.r][pos.c] = 0;
+          const test = SudokuEngine.solveAndAssess(puzzle);
+          if (test.solved) targetBlanks--;
+          else puzzle[pos.r][pos.c] = orig;
+        }
+
+        const mutated = SudokuEngine.mutate(puzzle, full);
+        puzzle = mutated.puzzle;
+        full = mutated.solution;
+
+        const assessment = SudokuEngine.solveAndAssess(puzzle);
+        return {
+          puzzle,
+          solution: full,
+          steps: assessment.steps,
+          rating: assessment.rating,
+          totalScore: assessment.totalScore
+        };
+      }
+    }
+
+    let initialBoard = [];
+    let steps = [];
+    let currentStep = 0;
+    let isPlaying = true;
+    let showHeatmap = false;
+    let selectedCell = null;
+    let isUnsolvingHero = false;
+    let particles = [];
+    let animPhase = 0;
+
+    function animateUnsolvingHeroTransition(solutionBoard, puzzleBoard) {
+      isUnsolvingHero = true;
+      isPlaying = false;
+      const btnPlay = document.getElementById('hero-btn-play');
+      if (btnPlay) btnPlay.innerText = '▶ Play';
+
+      initialBoard = solutionBoard.map(row => [...row]);
+      const blanks = [];
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (puzzleBoard[r][c] === 0) {
+            blanks.push({ r, c });
+          }
+        }
+      }
+      SudokuEngine.shuffle(blanks);
+
+      let idx = 0;
+      const rect = canvas.getBoundingClientRect();
+      const cellSize = rect.width / 9;
+
+      const timer = setInterval(() => {
+        if (idx >= blanks.length) {
+          clearInterval(timer);
+          isUnsolvingHero = false;
+          initialBoard = puzzleBoard.map(row => [...row]);
+          currentStep = 0;
+          isPlaying = true;
+          if (btnPlay) btnPlay.innerText = '⏸ Pause';
+          updateHUD();
+          return;
+        }
+
+        const b = blanks[idx];
+        initialBoard[b.r][b.c] = 0;
+        createParticles(b.c * cellSize + cellSize / 2, b.r * cellSize + cellSize / 2, "#38bdf8");
+        idx++;
+      }, 14);
+    }
+
+    function generateNewHeroPuzzle(diff = "hard") {
+      const res = SudokuEngine.generateAndCarve(diff);
+      steps = res.steps;
+      currentStep = 0;
+
+      const diffBadge = document.getElementById('canvas-hero-diff');
+      const scoreBadge = document.getElementById('canvas-hero-score');
+      if (diffBadge) diffBadge.innerText = res.rating;
+      if (scoreBadge) scoreBadge.innerText = `Score: ${res.totalScore.toFixed(2)}`;
+
+      animateUnsolvingHeroTransition(res.solution, res.puzzle);
+    }
+
+    function getGridAtStep(stepIndex) {
+      const grid = initialBoard.map(row => [...row]);
+      if (isUnsolvingHero) return grid;
+      for (let i = 0; i < stepIndex && i < steps.length; i++) {
+        const s = steps[i];
+        grid[s.r][s.c] = s.v;
+      }
+      return grid;
+    }
+
+    function createParticles(x, y, color) {
+      for (let i = 0; i < 16; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 1.5 + Math.random() * 3.5;
+        particles.push({
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          radius: 2 + Math.random() * 2.5,
+          color,
+          alpha: 1.0,
+          decay: 0.02 + Math.random() * 0.03
+        });
+      }
+    }
+
+    function updateParticles() {
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= p.decay;
+        if (p.alpha <= 0) particles.splice(i, 1);
+      }
+    }
+
+    function draw() {
+      if (!initialBoard.length) return;
+      const rect = canvas.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+      const cellSize = width / 9;
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Background
+      ctx.fillStyle = "#0a0e1a";
+      ctx.fillRect(0, 0, width, height);
+
+      const currentGrid = getGridAtStep(currentStep);
+      const latestStep = currentStep > 0 && currentStep <= steps.length ? steps[currentStep - 1] : null;
+
+      // 1. Heatmap
+      if (showHeatmap) {
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) {
+            if (initialBoard[r][c] === 0) {
+              const stepForCell = steps.find(s => s.r === r && s.c === c);
+              const elims = stepForCell ? (stepForCell.h + stepForCell.v_ + stepForCell.b) : 7;
+              const intensity = Math.min(1, Math.max(0.15, elims / 12));
+              ctx.fillStyle = `rgba(239, 68, 68, ${intensity * 0.55})`;
+              ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
+            }
+          }
+        }
+      }
+
+      // 2. Active Deduction Highlights with Laser Beams
+      if (latestStep) {
+        const pulse = 0.5 + 0.5 * Math.sin(animPhase * 8);
+
+        // Row laser beam
+        ctx.fillStyle = "rgba(99, 102, 241, 0.16)";
+        ctx.fillRect(0, latestStep.r * cellSize, width, cellSize);
+        ctx.strokeStyle = "rgba(129, 140, 248, 0.4)";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(0, latestStep.r * cellSize + cellSize / 2);
+        ctx.lineTo(width, latestStep.r * cellSize + cellSize / 2);
+        ctx.stroke();
+
+        // Column laser beam
+        ctx.fillStyle = "rgba(99, 102, 241, 0.16)";
+        ctx.fillRect(latestStep.c * cellSize, 0, cellSize, height);
+        ctx.beginPath();
+        ctx.moveTo(latestStep.c * cellSize + cellSize / 2, 0);
+        ctx.lineTo(latestStep.c * cellSize + cellSize / 2, height);
+        ctx.stroke();
+
+        // 3x3 Box Constraint Highlight
+        const boxR = Math.floor(latestStep.r / 3) * 3;
+        const boxC = Math.floor(latestStep.c / 3) * 3;
+        ctx.fillStyle = "rgba(168, 85, 247, 0.12)";
+        ctx.fillRect(boxC * cellSize, boxR * cellSize, cellSize * 3, cellSize * 3);
+        ctx.strokeStyle = "rgba(168, 85, 247, 0.45)";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(boxC * cellSize + 1, boxR * cellSize + 1, cellSize * 3 - 2, cellSize * 3 - 2);
+
+        // Target Cell Glowing Pop
+        ctx.fillStyle = `rgba(245, 158, 11, ${0.35 + pulse * 0.35})`;
+        ctx.fillRect(latestStep.c * cellSize, latestStep.r * cellSize, cellSize, cellSize);
+
+        ctx.strokeStyle = `rgba(251, 191, 36, ${0.8 + pulse * 0.2})`;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(latestStep.c * cellSize + 1.5, latestStep.r * cellSize + 1.5, cellSize - 3, cellSize - 3);
+      }
+
+      // 3. Selected Cell
+      if (selectedCell) {
+        ctx.fillStyle = "rgba(56, 189, 248, 0.25)";
+        ctx.fillRect(selectedCell.c * cellSize, selectedCell.r * cellSize, cellSize, cellSize);
+        ctx.strokeStyle = "#38bdf8";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(selectedCell.c * cellSize + 1, selectedCell.r * cellSize + 1, cellSize - 2, cellSize - 2);
+
+        const selectedVal = currentGrid[selectedCell.r][selectedCell.c];
+        if (selectedVal !== 0) {
+          for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+              if ((r !== selectedCell.r || c !== selectedCell.c) && currentGrid[r][c] === selectedVal) {
+                ctx.fillStyle = "rgba(56, 189, 248, 0.15)";
+                ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
+              }
+            }
+          }
+        }
+      }
+
+      // 4. Minor Grid lines
+      ctx.strokeStyle = "rgba(51, 65, 85, 0.6)";
+      ctx.lineWidth = 1;
+      for (let i = 1; i < 9; i++) {
+        if (i % 3 !== 0) {
+          ctx.beginPath();
+          ctx.moveTo(i * cellSize, 0);
+          ctx.lineTo(i * cellSize, height);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(0, i * cellSize);
+          ctx.lineTo(width, i * cellSize);
+          ctx.stroke();
+        }
+      }
+
+      // Major 3x3 box grid lines
+      ctx.strokeStyle = "#6366f1";
+      ctx.lineWidth = 2.5;
+      for (let i = 0; i <= 9; i += 3) {
+        ctx.beginPath();
+        ctx.moveTo(i * cellSize, 0);
+        ctx.lineTo(i * cellSize, height);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(0, i * cellSize);
+        ctx.lineTo(width, i * cellSize);
+        ctx.stroke();
+      }
+
+      // 5. Numbers
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      const fontSize = Math.floor(cellSize * 0.55);
+
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          const val = currentGrid[r][c];
+          if (val === 0) continue;
+
+          const isGiven = initialBoard[r][c] !== 0;
+          const isLatest = latestStep && latestStep.r === r && latestStep.c === c;
+
+          const cx = c * cellSize + cellSize / 2;
+          const cy = r * cellSize + cellSize / 2;
+
+          if (isGiven) {
+            ctx.font = `bold ${fontSize}px 'Inter', system-ui, sans-serif`;
+            ctx.fillStyle = "#f8fafc";
+            ctx.fillText(val.toString(), cx, cy);
+          } else if (isLatest) {
+            ctx.font = `bold ${fontSize + 2}px 'Inter', system-ui, sans-serif`;
+            ctx.fillStyle = "#fbbf24";
+            ctx.shadowColor = "rgba(251, 191, 36, 0.8)";
+            ctx.shadowBlur = 8;
+            ctx.fillText(val.toString(), cx, cy);
+            ctx.shadowBlur = 0;
+          } else {
+            ctx.font = `bold ${fontSize}px 'Inter', system-ui, sans-serif`;
+            ctx.fillStyle = "#818cf8";
+            ctx.fillText(val.toString(), cx, cy);
+          }
+        }
+      }
+
+      // 6. Particles
+      updateParticles();
+      for (const p of particles) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1.0;
+    }
+
+    function updateHUD() {
+      const hudStep = document.getElementById('hud-step-num');
+      const hudTech = document.getElementById('hud-tech');
+      const hudDesc = document.getElementById('hud-desc');
+      const hudRh = document.getElementById('hud-reason-h');
+      const hudRv = document.getElementById('hud-reason-v');
+      const hudRb = document.getElementById('hud-reason-b');
+      const hudScore = document.getElementById('hud-step-score');
+
+      if (currentStep === 0) {
+        if (hudStep) hudStep.innerText = `Step 0 / ${steps.length}`;
+        if (hudTech) hudTech.innerText = `Rule-Mutated Board Ready`;
+        if (hudDesc) hudDesc.innerText = `Press Play or Step Forward to trigger dynamic logical deduction algorithms.`;
+        if (hudRh) hudRh.innerText = `0`;
+        if (hudRv) hudRv.innerText = `0`;
+        if (hudRb) hudRb.innerText = `0`;
+        if (hudScore) hudScore.innerText = `0.00`;
+        return;
+      }
+
+      const s = steps[currentStep - 1];
+      if (hudStep) hudStep.innerText = `Step ${currentStep} / ${steps.length}`;
+      if (hudTech) hudTech.innerText = s.tech;
+      if (hudDesc) hudDesc.innerText = s.desc;
+      if (hudRh) hudRh.innerText = s.h.toString();
+      if (hudRv) hudRv.innerText = s.v_.toString();
+      if (hudRb) hudRb.innerText = s.b.toString();
+      if (hudScore) hudScore.innerText = s.score.toFixed(2);
+    }
+
+    function nextStep() {
+      if (currentStep < steps.length) {
+        currentStep++;
+        const s = steps[currentStep - 1];
+        const rect = canvas.getBoundingClientRect();
+        const cellSize = rect.width / 9;
+        createParticles(s.c * cellSize + cellSize / 2, s.r * cellSize + cellSize / 2, "#fbbf24");
+        updateHUD();
+      } else {
+        generateNewHeroPuzzle('hard');
+      }
+    }
+
+    function prevStep() {
+      if (currentStep > 0) {
+        currentStep--;
+        updateHUD();
+      }
+    }
+
+    let lastStepTime = 0;
+    const stepInterval = 300;
+
+    function animate(now) {
+      animPhase = now / 1000;
+      if (isPlaying && now - lastStepTime > stepInterval) {
+        nextStep();
+        lastStepTime = now;
+      }
+      draw();
+      requestAnimationFrame(animate);
+    }
+
+    const btnPlay = document.getElementById('hero-btn-play');
+    const btnNext = document.getElementById('hero-btn-next');
+    const btnPrev = document.getElementById('hero-btn-prev');
+    const btnReset = document.getElementById('hero-btn-reset');
+    const btnHeatmap = document.getElementById('hero-btn-heatmap');
+    const btnMutate = document.getElementById('hero-btn-mutate');
+
+    if (btnPlay) {
+      btnPlay.addEventListener('click', () => {
+        isPlaying = !isPlaying;
+        btnPlay.innerText = isPlaying ? '⏸ Pause' : '▶ Play';
+      });
+    }
+
+    if (btnNext) {
+      btnNext.addEventListener('click', () => {
+        isPlaying = false;
+        if (btnPlay) btnPlay.innerText = '▶ Play';
+        nextStep();
+      });
+    }
+
+    if (btnPrev) {
+      btnPrev.addEventListener('click', () => {
+        isPlaying = false;
+        if (btnPlay) btnPlay.innerText = '▶ Play';
+        prevStep();
+      });
+    }
+
+    if (btnReset) {
+      btnReset.addEventListener('click', () => {
+        isPlaying = false;
+        if (btnPlay) btnPlay.innerText = '▶ Play';
+        currentStep = 0;
+        updateHUD();
+      });
+    }
+
+    if (btnHeatmap) {
+      btnHeatmap.addEventListener('click', () => {
+        showHeatmap = !showHeatmap;
+        btnHeatmap.classList.toggle('active', showHeatmap);
+      });
+    }
+
+    let currentSelectedDiff = 'hard';
+
+    function setHeroDifficulty(diff) {
+      currentSelectedDiff = diff;
+      document.querySelectorAll('.hero-diff-btn').forEach(btn => {
+        if (btn.getAttribute('data-diff') === diff) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      generateNewHeroPuzzle(diff);
+    }
+
+    document.querySelectorAll('.hero-diff-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const diff = btn.getAttribute('data-diff');
+        setHeroDifficulty(diff);
+      });
+    });
+
+    if (btnMutate) {
+      btnMutate.addEventListener('click', () => {
+        generateNewHeroPuzzle(currentSelectedDiff);
+      });
+    }
+
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const cellSize = rect.width / 9;
+      const c = Math.floor(x / cellSize);
+      const r = Math.floor(y / cellSize);
+
+      if (r >= 0 && r < 9 && c >= 0 && c < 9) {
+        if (selectedCell && selectedCell.r === r && selectedCell.c === c) {
+          selectedCell = null;
+        } else {
+          selectedCell = { r, c };
+        }
+      }
+    });
+
+    setHeroDifficulty('hard');
+    requestAnimationFrame(animate);
+  })();
+</script>
+<div class="sl-heading-wrapper level-h2"><h2 id="feature-highlights">Feature Highlights</h2><a class="sl-anchor-link" href="#feature-highlights"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Feature Highlights”</span></a></div>
+<div class="card-grid astro-lmor3ela"><article class="card sl-flex astro-zts4jgjd"><p class="title sl-flex astro-zts4jgjd"><svg aria-hidden="true" class="icon astro-zts4jgjd astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.333em;"><path fill-rule="evenodd" d="M1.44 8.855v-.001l3.527-3.516c.34-.344.802-.541 1.285-.548h6.649l.947-.947c3.07-3.07 6.207-3.072 7.62-2.868a1.821 1.821 0 0 1 1.557 1.557c.204 1.413.203 4.55-2.868 7.62l-.946.946v6.649a1.845 1.845 0 0 1-.549 1.286l-3.516 3.528a1.844 1.844 0 0 1-3.11-.944l-.858-4.275-4.52-4.52-2.31-.463-1.964-.394A1.847 1.847 0 0 1 .98 10.693a1.843 1.843 0 0 1 .46-1.838Zm5.379 2.017-3.873-.776L6.32 6.733h4.638l-4.14 4.14Zm8.403-5.655c2.459-2.46 4.856-2.463 5.89-2.33.134 1.035.13 3.432-2.329 5.891l-6.71 6.71-3.561-3.56 6.71-6.711Zm-1.318 15.837-.776-3.873 4.14-4.14v4.639l-3.364 3.374Z" clip-rule="evenodd"/><path d="M9.318 18.345a.972.972 0 0 0-1.86-.561c-.482 1.435-1.687 2.204-2.934 2.619a8.22 8.22 0 0 1-1.23.302c.062-.365.157-.79.303-1.229.415-1.247 1.184-2.452 2.62-2.935a.971.971 0 1 0-.62-1.842c-.12.04-.236.084-.35.13-2.02.828-3.012 2.588-3.493 4.033a10.383 10.383 0 0 0-.51 2.845l-.001.016v.063c0 .536.434.972.97.972H2.24a7.21 7.21 0 0 0 .878-.065c.527-.063 1.248-.19 2.02-.447 1.445-.48 3.205-1.472 4.033-3.494a5.828 5.828 0 0 0 .147-.407Z"/></svg><span class="astro-zts4jgjd">⚡ Fast PRNG (FastRand)</span></p><div class="body astro-zts4jgjd"><p>Non-blocking Xorshift64 pseudo-random generator. Learn more in the <a href="/undoku/wiki/guides/architecture/">Architecture Guide</a>.</p></div></article><article class="card sl-flex astro-zts4jgjd"><p class="title sl-flex astro-zts4jgjd"><svg aria-hidden="true" class="icon astro-zts4jgjd astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.333em;"><path d="M17 22H5a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3h1a4 4 0 0 1 7.3-2.18c.448.64.692 1.4.7 2.18h3a1 1 0 0 1 1 1v3a4 4 0 0 1 2.18 7.3A3.86 3.86 0 0 1 18 18v3a1 1 0 0 1-1 1ZM5 8a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11v-3.18a1 1 0 0 1 1.33-.95 1.77 1.77 0 0 0 1.74-.23 2 2 0 0 0 .93-1.37 2 2 0 0 0-.48-1.59 1.89 1.89 0 0 0-2.17-.55 1 1 0 0 1-1.33-.95V8h-3.2a1 1 0 0 1-1-1.33 1.77 1.77 0 0 0-.23-1.74 1.939 1.939 0 0 0-3-.43A2 2 0 0 0 8 6c.002.23.046.456.13.67A1 1 0 0 1 7.18 8H5Z"/></svg><span class="astro-zts4jgjd">🧩 Logical Carving Engine</span></p><div class="body astro-zts4jgjd"><p>Guarantees 100% logical solvability. Learn more in the <a href="/undoku/wiki/guides/solver/">Solver Guide</a>.</p></div></article><article class="card sl-flex astro-zts4jgjd"><p class="title sl-flex astro-zts4jgjd"><svg aria-hidden="true" class="icon astro-zts4jgjd astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.333em;"><path d="M9 10h1a1 1 0 1 0 0-2H9a1 1 0 0 0 0 2Zm0 2a1 1 0 0 0 0 2h6a1 1 0 0 0 0-2H9Zm11-3.06a1.3 1.3 0 0 0-.06-.27v-.09c-.05-.1-.11-.2-.19-.28l-6-6a1.07 1.07 0 0 0-.28-.19h-.09a.88.88 0 0 0-.33-.11H7a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V8.94Zm-6-3.53L16.59 8H15a1 1 0 0 1-1-1V5.41ZM18 19a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h5v3a3 3 0 0 0 3 3h3v9Zm-3-3H9a1 1 0 0 0 0 2h6a1 1 0 0 0 0-2Z"/></svg><span class="astro-zts4jgjd">📊 Elimination Metrics & Difficulty</span></p><div class="body astro-zts4jgjd"><p>Tracks <code dir="auto">cross-horizontal</code>, <code dir="auto">cross-vertical</code>, and <code dir="auto">box-3x3</code> elimination reasons. Learn more in the <a href="/undoku/wiki/guides/difficulty/">Difficulty Guide</a>.</p></div></article><article class="card sl-flex astro-zts4jgjd"><p class="title sl-flex astro-zts4jgjd"><svg aria-hidden="true" class="icon astro-zts4jgjd astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.333em;"><path d="m21.32 9.55-1.89-.63.89-1.78A1 1 0 0 0 20.13 6L18 3.87a1 1 0 0 0-1.15-.19l-1.78.89-.63-1.89A1 1 0 0 0 13.5 2h-3a1 1 0 0 0-.95.68l-.63 1.89-1.78-.89A1 1 0 0 0 6 3.87L3.87 6a1 1 0 0 0-.19 1.15l.89 1.78-1.89.63a1 1 0 0 0-.68.94v3a1 1 0 0 0 .68.95l1.89.63-.89 1.78A1 1 0 0 0 3.87 18L6 20.13a1 1 0 0 0 1.15.19l1.78-.89.63 1.89a1 1 0 0 0 .95.68h3a1 1 0 0 0 .95-.68l.63-1.89 1.78.89a1 1 0 0 0 1.13-.19L20.13 18a1 1 0 0 0 .19-1.15l-.89-1.78 1.89-.63a1 1 0 0 0 .68-.94v-3a1 1 0 0 0-.68-.95ZM20 12.78l-1.2.4A2 2 0 0 0 17.64 16l.57 1.14-1.1 1.1-1.11-.6a2 2 0 0 0-2.79 1.16l-.4 1.2h-1.59l-.4-1.2A2 2 0 0 0 8 17.64l-1.14.57-1.1-1.1.6-1.11a2 2 0 0 0-1.16-2.82l-1.2-.4v-1.56l1.2-.4A2 2 0 0 0 6.36 8l-.57-1.11 1.1-1.1L8 6.36a2 2 0 0 0 2.82-1.16l.4-1.2h1.56l.4 1.2A2 2 0 0 0 16 6.36l1.14-.57 1.1 1.1-.6 1.11a2 2 0 0 0 1.16 2.79l1.2.4v1.59ZM12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"/></svg><span class="astro-zts4jgjd">🗄️ PostgreSQL & GORM Storage</span></p><div class="body astro-zts4jgjd"><p>Relational GORM database persistence with SQLite fallback. Learn more in the <a href="/undoku/wiki/guides/database/">Database Guide</a>.</p></div></article></div></div><footer class="sl-flex astro-xhxjzfa7"><div class="meta sl-flex astro-xhxjzfa7"></div><div class="pagination-links print:hidden astro-jgq3vlii" dir="ltr"></div></footer></div></div></main></div></div></div></div></body></html>
