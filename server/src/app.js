@@ -19,6 +19,12 @@ function createApp(storage) {
     app.use('/wiki', express.static(wikiDistPath));
   }
 
+  // Serve static assets from web/ (engine.js, manifest, icons, sw.js, etc.)
+  const webDir = path.resolve(__dirname, '../../web');
+  if (fs.existsSync(webDir)) {
+    app.use(express.static(webDir));
+  }
+
   // Serve root Web Canvas Sudoku Engine
   const webIndexPath = path.resolve(__dirname, '../../web/index.html');
   app.get('/', (req, res) => {

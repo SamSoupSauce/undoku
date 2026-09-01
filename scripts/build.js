@@ -55,6 +55,17 @@ if (fs.existsSync(wikiDistDir)) {
   fs.cpSync(wikiDistDir, destWikiDir, { recursive: true });
 }
 
+// 4. Copy Web Assets to Android App Assets (if directory exists)
+const androidAssetsDir = path.join(rootDir, 'android', 'app', 'src', 'main', 'assets');
+if (fs.existsSync(androidAssetsDir)) {
+  console.log('📱 Syncing Web Bundle to Android assets (android/app/src/main/assets/)...');
+  fs.copyFileSync(path.join(rootDir, 'web', 'index.html'), path.join(androidAssetsDir, 'index.html'));
+  fs.copyFileSync(webEnginePath, path.join(androidAssetsDir, 'engine.js'));
+  if (fs.existsSync(manifestPath)) {
+    fs.copyFileSync(manifestPath, path.join(androidAssetsDir, 'manifest.webmanifest'));
+  }
+}
+
 // Write .nojekyll for static hosts (GitHub Pages)
 fs.writeFileSync(path.join(siteDistDir, '.nojekyll'), '');
 
