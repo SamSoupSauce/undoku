@@ -3237,9 +3237,6 @@
         <button class="nav-tab-btn" id="navBtnGame">
           <span>🧩</span> Play
         </button>
-        <button class="nav-tab-btn" id="navBtnVersus">
-          <span>⚔️</span> Versus
-        </button>
         <button class="nav-tab-btn" id="navBtnVault">
           <span>📚</span> Vault
         </button>
@@ -3300,12 +3297,7 @@
   </header>
 
 
-  
-  <!-- Non-Blocking In-Game Floating Alert Toast -->
-  <div id="versusToastNotification" style="display: none; position: fixed; top: 75px; left: 50%; transform: translateX(-50%); background: var(--surface-elevated); border: 2px solid var(--primary); border-radius: 12px; padding: 0.65rem 1.25rem; font-size: 0.88rem; font-weight: 800; color: var(--text-main); box-shadow: var(--shadow-lg); z-index: 9999; backdrop-filter: blur(12px); animation: fadeInDropdown 0.2s ease;">
-    <span id="versusToastIcon" style="margin-right: 0.4rem;">🎯</span>
-    <span id="versusToastText">Move placed! Turn passed.</span>
-  </div>
+
 
   <!-- Screen 1: Home Dashboard Hub (Ticket 003_5) -->
   <div class="app-screen-view active" id="screenHome">
@@ -3416,44 +3408,6 @@
     <div class="game-card">
       <!-- Top HUD: Difficulty, Mode, Timer, Mistakes -->
       <div class="game-hud">
-
-      <!-- Versus Match Dual-Clock Scoreboard Banner -->
-      <div class="versus-hud-banner" id="versusHudBanner" style="display: none; width: 100%; margin-bottom: 0.75rem; background: var(--surface-subtle); border: 1.5px solid var(--border-strong); border-radius: 12px; padding: 0.65rem 1rem; justify-content: space-between; align-items: center;">
-        <!-- Player 1 Score & Clock -->
-        <div class="versus-player-card" id="cardPlayer1" style="display: flex; align-items: center; gap: 0.5rem;">
-          <span style="font-size: 1.2rem;">👤</span>
-          <div>
-            <div style="font-size: 0.8rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 0.35rem;">
-              <span id="labelP1Nick">Player 1</span>
-              <span class="hud-mode-pill assisted" style="font-size: 0.65rem; padding: 0.1rem 0.35rem;" id="scoreP1">0 pts</span>
-            </div>
-            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 800; color: var(--primary);" id="timerP1">⏱️ 00:00</div>
-          </div>
-        </div>
-
-        <!-- Versus Status & Open Cells Counter -->
-        <div style="text-align: center;">
-          <span class="diff-select-badge hard" style="font-size: 0.72rem; padding: 0.2rem 0.6rem; letter-spacing: 1px;" id="badgeVersusTurn">
-            ⚔️ P1 TURN
-          </span>
-          <div style="font-size: 0.68rem; font-weight: 700; color: var(--text-muted); margin-top: 0.15rem;" id="labelVsCellsLeft">
-            42 Spaces Left
-          </div>
-        </div>
-
-        <!-- Player 2 Score & Clock -->
-        <div class="versus-player-card" id="cardPlayer2" style="display: flex; align-items: center; gap: 0.5rem; text-align: right;">
-          <div>
-            <div style="font-size: 0.8rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 0.35rem; justify-content: flex-end;">
-              <span class="hud-mode-pill assisted" style="font-size: 0.65rem; padding: 0.1rem 0.35rem;" id="scoreP2">0 pts</span>
-              <span id="labelP2Nick">Player 2</span>
-            </div>
-            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 800; color: var(--text-muted);" id="timerP2">⏱️ 00:00</div>
-          </div>
-          <span style="font-size: 1.2rem;">👤</span>
-        </div>
-      </div>
-
         <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
           <div class="hud-diff-chip" id="chipDifficulty">
             <span class="icon">🎯</span>
@@ -3489,9 +3443,6 @@
               </button>
               <button class="hud-dropdown-item" id="btnMenuShare">
                 <span>📡</span> Share
-              </button>
-              <button class="hud-dropdown-item" id="btnMenuVersus">
-                <span>⚔️</span> Versus (1v1)
               </button>
               <div class="hud-dropdown-divider"></div>
               <button class="hud-dropdown-item danger" id="btnMenuDelete">
@@ -3821,60 +3772,7 @@
     </div>
   </div>
 
-  
-  <!-- Live Versus Room Modal: Real-time Connection & Matchmaking -->
-  <div class="modal-backdrop" id="versusRoomModal">
-    <div class="victory-modal" style="max-width: 520px; padding: 2rem;">
-      <div style="font-size: 2.8rem; margin-bottom: 0.35rem;">⚔️</div>
-      <h2 class="victory-title" id="vsRoomTitle">Versus Match Room</h2>
-      <p class="victory-subtitle" style="margin-bottom: 1.1rem;">
-        Persistent 1v1 battle arena. Thinking clocks and technique difficulty scoring stay active until all grid cells are filled!
-      </p>
 
-      <!-- Connection & Status Bar -->
-      <div style="background: var(--surface-subtle); border: 1.5px solid var(--border-subtle); border-radius: 14px; padding: 1rem; margin-bottom: 1.1rem; text-align: left;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-          <span style="font-size: 0.78rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Room Code</span>
-          <span class="hud-mode-pill assisted" id="vsRoomStatusBadge">🟢 WAITING FOR OPPONENT</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; font-weight: 800; color: var(--primary); letter-spacing: 2px;" id="displayVsRoomCode">
-            VS-9X4A
-          </div>
-          <button class="btn-action" id="btnCopyVsRoomCode" style="font-size: 0.78rem; padding: 0.4rem 0.75rem;">
-            📋 Copy Link
-          </button>
-        </div>
-      </div>
-
-      <!-- Match Roster & Technique Scoring Breakdown -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.1rem; text-align: left;">
-        <div style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.75rem;">
-          <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">👑 Host (P1)</div>
-          <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); margin-top: 0.2rem;" id="vsHostNickLabel">Player 1</div>
-          <div style="font-size: 0.72rem; color: var(--primary); font-weight: 700; margin-top: 0.2rem;">Ready to Battle</div>
-        </div>
-        <div style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.75rem;">
-          <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">⚔️ Challenger (P2)</div>
-          <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); margin-top: 0.2rem;" id="vsGuestNickLabel">Waiting...</div>
-          <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem;" id="vsGuestStatusLabel">Share room code or link to join</div>
-        </div>
-      </div>
-
-      <div style="background: var(--surface-subtle); border: 1px dashed var(--border-subtle); border-radius: 10px; padding: 0.65rem 0.85rem; margin-bottom: 1.25rem; font-size: 0.75rem; color: var(--text-muted); text-align: left;">
-        💡 <b>Dynamic Technique Scoring:</b> Naked Single (100 pts) • Hidden Single (150 pts) • Pointing Pair (300 pts) • Naked/Hidden Subsets (500-750 pts) • Speed Multipliers applied per move!
-      </div>
-
-      <div style="display: flex; gap: 0.6rem;">
-        <button class="btn-action" id="btnVsRoomCancel" style="flex: 1; justify-content: center; padding: 0.75rem; font-weight: 700;">
-          Cancel
-        </button>
-        <button class="btn-action primary" id="btnVsRoomStartRound" style="flex: 1.5; justify-content: center; padding: 0.75rem; font-weight: 800; font-size: 0.95rem;">
-          🚀 Start Battle Round
-        </button>
-      </div>
-    </div>
-  </div>
 
   <!-- Step 1: Size & Grid Topology Selection Modal -->
   <div class="modal-backdrop" id="sizeSelectModal">
@@ -4606,7 +4504,6 @@
     // --- Live Dynamic Solver Engine ---
     function recalculateLiveSolver() {
       if (isUnsolving || !userGrid.length || isPlayingSolver) return;
-      if (isVersusMode) return; // No live solver hints in Versus mode
       const N = currentTopology.N;
 
       let blanks = 0;
@@ -5287,10 +5184,6 @@
           banner.style.display = "none";
         }
       }
-      // In versus mode, notify opponent when local player places a valid digit
-      if (isVersusMode && digit !== 0 && versusMatch.activeTurn === versusMatch.localPlayer && !versusMatch.isFinished) {
-        onVersusMovePlaced(r, c, digit);
-      }
       updateDigitCounters();
       recalculateLiveSolver();
     }
@@ -5309,7 +5202,6 @@
     }
 
     function giveHint() {
-      if (isVersusMode) { showVersusToast("🚫", "Hints disabled in Versus mode!", 1800); return; }
       if (currentGameMode === "like_paper" || !currentAllowHints) return;
       if (currentHintCap > 0 && currentHintsRemaining <= 0) return;
       if (!solutionGrid.length) return;
@@ -5912,7 +5804,6 @@
 
     document.getElementById("btnPlayPause").addEventListener("click", () => {
       if (isUnsolving) return;
-      if (isVersusMode) { showVersusToast("🚫", "Solver disabled in Versus mode!", 1800); return; }
       closeRadialRing();
       isPlayingSolver = !isPlayingSolver;
       document.getElementById("btnPlayPause").innerText = isPlayingSolver ? "⏸ Pause" : "▶ Play Solver";
@@ -5921,7 +5812,6 @@
 
     document.getElementById("btnNextStep").addEventListener("click", () => {
       if (isUnsolving) return;
-      if (isVersusMode) { showVersusToast("🚫", "Solver disabled in Versus mode!", 1800); return; }
       closeRadialRing();
       isPlayingSolver = false;
       document.getElementById("btnPlayPause").innerText = "▶ Play Solver";
@@ -6170,9 +6060,6 @@
                   <button class="hud-dropdown-item btn-vault-share" data-idx="${idx}">
                     <span>📡</span> Share Game
                   </button>
-                  <button class="hud-dropdown-item btn-vault-versus" data-idx="${idx}">
-                    <span>⚔️</span> Versus Match
-                  </button>
                   <button class="hud-dropdown-item btn-vault-svg" data-idx="${idx}">
                     <span>⬇️</span> Export SVG
                   </button>
@@ -6194,9 +6081,6 @@
           <div style="display: flex; gap: 0.4rem; margin-top: 0.25rem;">
             <button class="btn-action primary btn-vault-play" data-idx="${idx}" style="flex: 1; font-size: 0.78rem; padding: 0.45rem; justify-content: center;">
               ${rec.isCompleted ? "🎬 Replay" : "▶ Resume"}
-            </button>
-            <button class="btn-action btn-vault-versus" data-idx="${idx}" style="font-size: 0.78rem; padding: 0.45rem 0.65rem;" title="1v1 Versus Battle">
-              ⚔️ Versus
             </button>
           </div>
         </div>
@@ -6233,17 +6117,6 @@
           const rec = list[idx];
           if (rec) {
             openShareModal(rec);
-          }
-        });
-      });
-
-      // Bind Versus from Vault
-      container.querySelectorAll(".btn-vault-versus").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const idx = parseInt(btn.getAttribute("data-idx"), 10);
-          const rec = list[idx];
-          if (rec) {
-            openVersusModal(rec);
           }
         });
       });
@@ -6489,14 +6362,9 @@
         const hash = window.location.hash;
         if (hash && hash.startsWith("#game=")) {
           const payload = hash.substring(6);
-          if (payload.startsWith("VS2_")) {
-            loadVersusTurnPayload(payload);
-            console.log("🚀 Bootloader successfully hydrated 1v1 Versus match from URL hash!");
-          } else {
-            const loaded = this.loadFromInput(payload);
-            if (loaded) {
-              console.log("🚀 Bootloader successfully hydrated shared game from URL hash!");
-            }
+          const loaded = this.loadFromInput(payload);
+          if (loaded) {
+            console.log("🚀 Bootloader successfully hydrated shared game from URL hash!");
           }
         }
       }
@@ -6681,13 +6549,6 @@
       const nGame = document.getElementById("navBtnGame");
       if (nGame) nGame.onclick = () => navigateToScreen("GAME_PLAY");
 
-      const nVersus = document.getElementById("navBtnVersus");
-      if (nVersus) nVersus.onclick = () => {
-        const nickInp = document.getElementById("inputHubVersusNick");
-        if (nickInp) nickInp.value = getSavedNickname();
-        navigateToScreen("VERSUS_ARENA");
-      };
-
       const nVault = document.getElementById("navBtnVault");
       if (nVault) nVault.onclick = () => navigateToScreen("LIBRARY_VAULT");
 
@@ -6746,55 +6607,6 @@
           renderVaultRecords("completed");
         }
       };
-
-      
-      // Versus Screen Host & Join Handlers
-      let hubVersusTopo = "classic_9x9";
-      let hubVersusDiff = "medium";
-
-      document.querySelectorAll(".btn-vs-topo").forEach(btn => {
-        btn.onclick = () => {
-          document.querySelectorAll(".btn-vs-topo").forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-          hubVersusTopo = btn.getAttribute("data-topo") || "classic_9x9";
-        };
-      });
-
-      document.querySelectorAll(".btn-vs-diff").forEach(btn => {
-        btn.onclick = () => {
-          document.querySelectorAll(".btn-vs-diff").forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-          hubVersusDiff = btn.getAttribute("data-diff") || "medium";
-        };
-      });
-
-      const bHostVs = document.getElementById("btnHostVersusGame");
-      if (bHostVs) {
-        bHostVs.onclick = () => {
-          const nick = (document.getElementById("inputHubVersusNick").value || "Player 1").trim();
-          saveNickname(nick);
-          loadPuzzle(hubVersusDiff, "catch_mistakes", true, true, 3, true, true, hubVersusTopo);
-          openVersusModal(activeSession || gameState);
-        };
-      }
-
-      const bJoinVs = document.getElementById("btnJoinVersusHub");
-      if (bJoinVs) {
-        bJoinVs.onclick = () => {
-          const raw = (document.getElementById("inputVersusHubJoin").value || "").trim();
-          if (!raw) return alert("Please enter a room code or paste a turn payload!");
-          if (raw.startsWith("VS2_") || raw.includes("VS2_")) {
-            loadVersusTurnPayload(raw);
-          } else {
-            const success = ShareManager.loadFromInput(raw);
-            if (success) {
-              isVersusMode = true;
-              updateVersusHUD();
-              startVersusThinkingClock();
-            }
-          }
-        };
-      }
 
       // 4. P2P Share Screen
       const bGenShare = document.getElementById("btnGenerateShareCode");
@@ -6981,18 +6793,6 @@
         };
       }
 
-      const bMenuVersus = document.getElementById("btnMenuVersus");
-      if (bMenuVersus) {
-        bMenuVersus.onclick = () => {
-          if (dropMenu) dropMenu.classList.remove("active");
-          if (bGameMenu) bGameMenu.classList.remove("active");
-          const session = activeSession || gameState;
-          if (session) {
-            openVersusModal(session);
-          }
-        };
-      }
-
       const bMenuDelete = document.getElementById("btnMenuDelete");
       if (bMenuDelete) {
         bMenuDelete.onclick = () => {
@@ -7037,828 +6837,7 @@
 
 
 
-    // ==========================================================================
-    // ANTI-CHEAT: INPUT ENTROPY SAMPLING
-    // Tracks mouse/touch jitter to detect inhuman / bot-level precision.
-    // Legitimate human input has measurable variance in position and timing.
-    // ==========================================================================
-    const inputEntropy = {
-      samples: [],        // { dx, dy, dt } movement deltas
-      clickTimes: [],     // ms timestamps of clicks/taps
-      maxSamples: 200,    // rolling window
 
-      // Add a pointer movement sample
-      record(x, y, t) {
-        const prev = this.samples[this.samples.length - 1];
-        if (prev) {
-          const dx = x - prev._x;
-          const dy = y - prev._y;
-          const dt = t - prev._t;
-          if (dt > 0 && dt < 500) { // ignore huge gaps (user paused)
-            this.samples.push({ dx, dy, dt, _x: x, _y: y, _t: t });
-          } else {
-            this.samples.push({ dx: 0, dy: 0, dt: 0, _x: x, _y: y, _t: t });
-          }
-        } else {
-          this.samples.push({ dx: 0, dy: 0, dt: 0, _x: x, _y: y, _t: t });
-        }
-        if (this.samples.length > this.maxSamples) this.samples.shift();
-      },
-
-      recordClick(t) {
-        this.clickTimes.push(t);
-        if (this.clickTimes.length > 50) this.clickTimes.shift();
-      },
-
-      // Returns variance of an array of numbers
-      variance(arr) {
-        if (arr.length < 2) return 0;
-        const mean = arr.reduce((a, b) => a + b, 0) / arr.length;
-        return arr.reduce((s, v) => s + (v - mean) ** 2, 0) / arr.length;
-      },
-
-      // Returns a 0–1 "humanness" score. <0.15 = suspicious.
-      score() {
-        const usable = this.samples.filter(s => s.dt > 0);
-        if (usable.length < 20) return 1; // not enough data yet
-
-        const dxVar = this.variance(usable.map(s => s.dx));
-        const dyVar = this.variance(usable.map(s => s.dy));
-        const dtVar = this.variance(usable.map(s => s.dt));
-
-        // Normalise against expected human ranges
-        const spatialScore = Math.min(1, (dxVar + dyVar) / 40);
-        const timingScore  = Math.min(1, dtVar / 200);
-
-        // Inter-click timing variance (humans are imprecise)
-        let clickScore = 0.5;
-        if (this.clickTimes.length >= 4) {
-          const gaps = [];
-          for (let i = 1; i < this.clickTimes.length; i++) {
-            gaps.push(this.clickTimes[i] - this.clickTimes[i - 1]);
-          }
-          clickScore = Math.min(1, this.variance(gaps) / 10000);
-        }
-
-        return (spatialScore * 0.4 + timingScore * 0.3 + clickScore * 0.3);
-      },
-
-      // Call at the end of a turn; returns flagged=true if input looks inhuman
-      auditTurn() {
-        const s = this.score();
-        const suspicious = s < 0.12;
-        return { score: s, suspicious };
-      },
-
-      reset() {
-        this.samples = [];
-        this.clickTimes = [];
-      }
-    };
-
-    // Wire pointer-move sampling (mousemove + touchmove on document)
-    document.addEventListener("mousemove", (e) => {
-      inputEntropy.record(e.clientX, e.clientY, performance.now());
-    }, { passive: true });
-    document.addEventListener("touchmove", (e) => {
-      if (e.touches.length > 0) {
-        inputEntropy.record(e.touches[0].clientX, e.touches[0].clientY, performance.now());
-      }
-    }, { passive: true });
-    document.addEventListener("click", () => inputEntropy.recordClick(performance.now()), { passive: true });
-    document.addEventListener("touchend", () => inputEntropy.recordClick(performance.now()), { passive: true });
-
-    // ==========================================================================
-    // MULTIPLAYER FUNCTION 2: REAL-TIME MATCH START SYNC & DUAL P2P PIPELINE
-    // ==========================================================================
-    const LOCAL_PEER_ID = "peer_" + Math.random().toString(36).substring(2, 9) + "_" + Date.now().toString(36);
-    let isVersusMode = false;
-    let versusBroadcastChannel = null;
-    let versusLobbyPollInterval = null;
-    let versusMatch = {
-      roomId: "VS-9X4A",
-      seed: 12345678,
-      topologyKey: "classic_9x9",
-      difficulty: "medium",
-      p1Nick: "Player 1",
-      p2Nick: "Challenger",
-      p1Score: 0,
-      p2Score: 0,
-      p1TimeMs: 0,
-      p2TimeMs: 0,
-      activeTurn: 1,       // 1 for P1, 2 for P2
-      localPlayer: 1,      // 1 if host/P1, 2 if guest/P2
-      isHost: true,
-      hasStarted: false,
-      turnStartTime: 0,
-      turnActive: false,
-      isFinished: false,
-      // Peer-validated anti-cheat counters (tracked by the RECEIVING player)
-      p1Strikes: 0,        // suspicious moves counted against P1 by P2's device
-      p2Strikes: 0,        // suspicious moves counted against P2 by P1's device
-      p1DroppedPts: 0,     // penalty points deducted from P1 (10 strikes = 1 pt)
-      p2DroppedPts: 0,     // penalty points deducted from P2
-    };
-
-    let versusTurnTimer = null;
-    let versusPingInterval = null;
-
-    function showVersusToast(icon, text, durationMs = 2400) {
-      const toast = document.getElementById("versusToastNotification");
-      const iconEl = document.getElementById("versusToastIcon");
-      const textEl = document.getElementById("versusToastText");
-      if (!toast || !iconEl || !textEl) return;
-
-      iconEl.innerText = icon || "⚔️";
-      textEl.innerText = text;
-      toast.style.display = "flex";
-      toast.style.alignItems = "center";
-
-      if (window.vsToastTimeout) clearTimeout(window.vsToastTimeout);
-      window.vsToastTimeout = setTimeout(() => {
-        toast.style.display = "none";
-      }, durationMs);
-    }
-
-    function initEmptyVersusRoundState(roomCode, seed, topologyKey, diff, p1, p2, isHost = true) {
-      versusMatch = {
-        roomId: roomCode || "VS-" + Math.floor(Math.random() * 1e5).toString(36).toUpperCase(),
-        seed: seed || Math.floor(Math.random() * 1e9),
-        topologyKey: topologyKey || "classic_9x9",
-        difficulty: diff || "medium",
-        p1Nick: p1 || (isHost ? getSavedNickname() : "Host"),
-        p2Nick: p2 || (isHost ? "Waiting..." : getSavedNickname()),
-        p1Score: 0,
-        p2Score: 0,
-        p1TimeMs: 0,
-        p2TimeMs: 0,
-        activeTurn: 1,
-        localPlayer: isHost ? 1 : 2,
-        isHost: isHost,
-        hasStarted: false,
-        turnStartTime: 0,
-        turnActive: false,
-        isFinished: false,
-        p1Strikes: 0,
-        p2Strikes: 0,
-        p1DroppedPts: 0,
-        p2DroppedPts: 0,
-      };
-    }
-
-    function calculateMoveDifficultyScore(r, c, val, thinkingTimeSec = 0) {
-      let basePoints = 100;
-      let technique = "Naked Single";
-
-      try {
-        if (deductions && deductions.length > 0) {
-          const match = deductions.find(d => d.row === r && d.col === c && d.val === val);
-          if (match && match.technique) {
-            technique = match.technique;
-            if (technique.includes("Hidden Single")) basePoints = 150;
-            else if (technique.includes("Pointing") || technique.includes("Claiming") || technique.includes("Locked")) basePoints = 300;
-            else if (technique.includes("Naked Pair") || technique.includes("Naked Triple")) basePoints = 500;
-            else if (technique.includes("Hidden Pair") || technique.includes("Hidden Triple")) basePoints = 750;
-            else if (technique.includes("Wing") || technique.includes("Chain") || technique.includes("Fish")) basePoints = 1200;
-          }
-        }
-      } catch (e) {}
-
-      // Pure inverse-time: faster recognition = more points, no artificial cap.
-      // Floor at 0.1s to prevent divide-by-zero on programmatic instant clicks.
-      const safeSec = Math.max(0.1, thinkingTimeSec);
-      const totalPoints = Math.round(basePoints / safeSec);
-      return { totalPoints, basePoints, technique };
-    }
-
-    // --- Dual P2P Message Dispatcher with Nonce & Storage Event Guaranteed Trigger ---
-    function sendVersusMessage(msg) {
-      msg.senderId = LOCAL_PEER_ID;
-      msg.roomId = versusMatch.roomId;
-      msg.timestamp = Date.now();
-      msg.nonce = Math.random().toString(36).substring(2, 9);
-
-      // 1. BroadcastChannel
-      if (versusBroadcastChannel) {
-        try { versusBroadcastChannel.postMessage(msg); } catch (e) {}
-      }
-
-      // 2. LocalStorage Event (Universal fallback with unique key to guarantee storage event trigger)
-      try {
-        const uniqueKey = "undoku_p2p_msg_" + Date.now() + "_" + msg.nonce;
-        localStorage.setItem(uniqueKey, JSON.stringify(msg));
-        // Also update canonical state key
-        localStorage.setItem("undoku_p2p_channel_" + versusMatch.roomId, JSON.stringify(msg));
-      } catch (e) {}
-    }
-
-    // --- Ping helpers ---
-    function startVersusPing() {
-      if (versusPingInterval) clearInterval(versusPingInterval);
-      versusPingInterval = setInterval(() => {
-        if (isVersusMode && !versusMatch.isFinished) {
-          sendVersusMessage({ type: "PING", timestamp: Date.now() });
-        }
-      }, 1000);
-    }
-
-    function stopVersusPing() {
-      if (versusPingInterval) clearInterval(versusPingInterval);
-      versusPingInterval = null;
-    }
-
-    // Stop local timer and signal opponent to stop theirs too
-    function stopBothTimers() {
-      stopVersusThinkingClock();
-      sendVersusMessage({ type: "STOP_TIMER" });
-    }
-
-    // --- Move handler: called when local player places a digit ---
-    function onVersusMovePlaced(r, c, val) {
-      if (!isVersusMode) return;
-      // Stop local clock and notify opponent simultaneously
-      const elapsed = stopVersusThinkingClock();
-      sendVersusMessage({ type: "STOP_TIMER" });
-
-      // Audit input entropy before resetting the sampler for this turn
-      const { score: entropyScore, suspicious } = inputEntropy.auditTurn();
-      inputEntropy.reset(); // fresh window for next turn
-
-      if (suspicious) {
-        console.warn(`[AntiCheat] Suspicious input entropy score: ${entropyScore.toFixed(3)} — possible bot/auto-solve`);
-        showVersusToast("⚠️", "Suspicious input detected! Move flagged.", 3000);
-      }
-
-      // Score the move by technique difficulty (pure inverse-time, no cap)
-      const { totalPoints, technique } = calculateMoveDifficultyScore(r, c, val, elapsed);
-      if (versusMatch.activeTurn === 1) {
-        versusMatch.p1Score += totalPoints;
-      } else {
-        versusMatch.p2Score += totalPoints;
-      }
-
-      // Check for game completion
-      const spacesRemaining = countOpenCells();
-      if (spacesRemaining === 0) {
-        versusMatch.isFinished = true;
-        stopVersusPing();
-        const winner = (versusMatch.p1Score >= versusMatch.p2Score) ? versusMatch.p1Nick : versusMatch.p2Nick;
-        showVersusToast("🏆", `MATCH COMPLETE! Winner: ${winner} (${Math.max(versusMatch.p1Score, versusMatch.p2Score)} pts)`, 6000);
-      }
-
-      // Switch turn to opponent
-      versusMatch.activeTurn = (versusMatch.activeTurn === 1) ? 2 : 1;
-      updateVersusHUD();
-
-      // Broadcast move diff + entropy audit over dual P2P pipeline
-      sendVersusMessage({
-        type: "MOVE_PLACED",
-        r, c, val,
-        points: totalPoints,
-        technique,
-        entropyScore: Math.round(entropyScore * 1000) / 1000,
-        suspicious,
-        match: {
-          p1Score: versusMatch.p1Score,
-          p2Score: versusMatch.p2Score,
-          p1TimeMs: versusMatch.p1TimeMs,
-          p2TimeMs: versusMatch.p2TimeMs,
-          activeTurn: versusMatch.activeTurn
-        }
-      });
-
-      if (!versusMatch.isFinished) {
-        const nextNick = (versusMatch.activeTurn === 1 ? versusMatch.p1Nick : versusMatch.p2Nick);
-        const flag = suspicious ? " ⚠️" : "";
-        showVersusToast("⚡", `${technique} (+${totalPoints} pts)! Turn passed to ${nextNick}.${flag}`, 2000);
-      }
-    }
-
-    // --- Unified incoming P2P message handler ---
-    function handleVersusIncomingMessage(msg) {
-      if (!msg || !msg.type) return;
-      // Reject own messages and messages from other rooms
-      if (msg.senderId === LOCAL_PEER_ID) return;
-      if (msg.roomId && msg.roomId !== versusMatch.roomId) return;
-
-      if (msg.type === "STOP_TIMER") {
-        // Opponent finished their turn; ensure our local clock is stopped
-        stopVersusThinkingClock();
-        return;
-      }
-
-      if (msg.type === "PING") {
-        // Keep-alive — no action needed
-        return;
-      }
-
-      if (msg.type === "PEER_JOIN") {
-        if (versusMatch.isHost) {
-          versusMatch.p2Nick = msg.nick || "Challenger";
-          const gLabel = document.getElementById("vsGuestNickLabel");
-          if (gLabel) gLabel.innerText = versusMatch.p2Nick;
-          const gStatus = document.getElementById("vsGuestStatusLabel");
-          if (gStatus) gStatus.innerText = "🟢 Connected & Ready!";
-          const roomBadge = document.getElementById("vsRoomStatusBadge");
-          if (roomBadge) {
-            roomBadge.innerText = "🟢 CHALLENGER READY";
-            roomBadge.className = "hud-mode-pill paper";
-          }
-          showVersusToast("👤", `${versusMatch.p2Nick} joined the room!`, 2500);
-          // Acknowledge challenger with host state
-          sendVersusMessage({
-            type: "HOST_READY",
-            hostNick: versusMatch.p1Nick,
-            seed: versusMatch.seed,
-            topologyKey: versusMatch.topologyKey,
-            difficulty: versusMatch.difficulty
-          });
-        }
-        return;
-      }
-
-      if (msg.type === "HOST_READY") {
-        if (!versusMatch.isHost) {
-          versusMatch.p1Nick = msg.hostNick || "Host";
-          const hLabel = document.getElementById("vsHostNickLabel");
-          if (hLabel) hLabel.innerText = versusMatch.p1Nick;
-          const rBadge = document.getElementById("vsRoomStatusBadge");
-          if (rBadge) {
-            rBadge.innerText = "🟢 CONNECTED TO HOST";
-            rBadge.className = "hud-mode-pill assisted";
-          }
-          const gStatus = document.getElementById("vsGuestStatusLabel");
-          if (gStatus) gStatus.innerText = "⏳ Waiting for Host to start match...";
-        }
-        return;
-      }
-
-      if (msg.type === "MATCH_START") {
-        if (versusMatch.hasStarted) return; // Prevent double-trigger
-        if (versusLobbyPollInterval) clearInterval(versusLobbyPollInterval);
-        const roomModal = document.getElementById("versusRoomModal");
-        if (roomModal) roomModal.classList.remove("active");
-
-        isVersusMode = true;
-        versusMatch.hasStarted = true;
-        versusMatch.p1Nick = msg.p1Nick || versusMatch.p1Nick;
-        versusMatch.p2Nick = msg.p2Nick || versusMatch.p2Nick;
-        versusMatch.activeTurn = 1;
-        versusMatch.localPlayer = 2; // Challenger is P2; host already set localPlayer=1
-
-        // Hydrate board from payload or seed
-        if (msg.payload) {
-          ShareManager.loadFromInput(msg.payload);
-        } else {
-          loadPuzzle(msg.difficulty, "catch_mistakes", true, true, 3, true, true, msg.topologyKey, msg.seed);
-        }
-
-        navigateToScreen("GAME_PLAY");
-        updateVersusHUD();
-        // Start 1s keep-alive ping for the challenger side
-        startVersusPing();
-        // Challenger does NOT start the clock — P1/host goes first
-        showVersusToast("⚔️", `Match Started! ${versusMatch.p1Nick} has first turn.`, 3000);
-        return;
-      }
-
-      if (msg.type === "MOVE_PLACED") {
-        // Opponent placed a digit → update our board view
-        if (msg.r !== undefined && msg.c !== undefined && msg.val !== undefined) {
-          if (userGrid[msg.r] && initialGrid[msg.r][msg.c] === 0) {
-            userGrid[msg.r][msg.c] = msg.val;
-            renderBoard();
-            updateDigitCounters();
-          }
-        }
-
-        // ---- CROSS-VALIDATED ANTI-CHEAT ----------------------------------------
-        // Ground truth is the RECEIVING device — but the receiving device must
-        // itself be demonstrably human before it can penalize anyone.
-        // This prevents a cheating host from nuking the challenger's score and
-        // a cheating challenger from nuking the host's score.
-        //
-        // Validation only fires if:
-        //   1. WE have sufficient entropy (we are human — can validate)
-        //   2. THEY have suspicious entropy (absolute OR relative to us)
-        //
-        // The penalty message carries OUR entropy so they can verify we were human
-        // when we issued it — if they receive a penalty from a device with bot-level
-        // entropy, they REJECT it.
-        // -------------------------------------------------------------------------
-        const myEntropy = inputEntropy.score();
-        const theirEntropy = typeof msg.entropyScore === "number" ? msg.entropyScore : 1;
-        const opponentPlayer = (versusMatch.localPlayer === 1) ? 2 : 1;
-        const opponentStrikesKey = `p${opponentPlayer}Strikes`;
-        const opponentDroppedKey = `p${opponentPlayer}DroppedPts`;
-        const opponentNick = (versusMatch.localPlayer === 1 ? versusMatch.p2Nick : versusMatch.p1Nick);
-
-        // We can only validate if we ourselves are human (entropy > 0.15)
-        const weAreHuman = myEntropy > 0.15;
-
-        // Flag opponent if: they self-reported suspicious, absolute bot threshold,
-        // OR their entropy is less than 15% of ours (relative)
-        const relativelyLow = myEntropy > 0.05 && theirEntropy < myEntropy * 0.15;
-        const peerFlagged = weAreHuman && (msg.suspicious || theirEntropy < 0.12 || relativelyLow);
-
-        if (peerFlagged) {
-          versusMatch[opponentStrikesKey] = (versusMatch[opponentStrikesKey] || 0) + 1;
-          console.warn(`[CrossValidate] ${opponentNick} strike ${versusMatch[opponentStrikesKey]} | their: ${theirEntropy.toFixed(3)} | ours: ${myEntropy.toFixed(3)}`);
-
-          if (versusMatch[opponentStrikesKey] % 10 === 0) {
-            versusMatch[opponentDroppedKey] = (versusMatch[opponentDroppedKey] || 0) + 1;
-            const droppedTotal = versusMatch[opponentDroppedKey];
-
-            // Deduct locally
-            if (opponentPlayer === 1) {
-              versusMatch.p1Score = Math.max(0, versusMatch.p1Score - 1);
-            } else {
-              versusMatch.p2Score = Math.max(0, versusMatch.p2Score - 1);
-            }
-            updateVersusHUD();
-
-            // Send penalty WITH our entropy so opponent can verify we were human
-            sendVersusMessage({
-              type: "CHEAT_PENALTY",
-              penalisedPlayer: opponentPlayer,
-              droppedTotal,
-              p1Score: versusMatch.p1Score,
-              p2Score: versusMatch.p2Score,
-              validatorEntropy: myEntropy,   // ← opponent checks this to accept/reject
-            });
-
-            showVersusToast("⚠️", `${opponentNick} penalty −1 pt (${droppedTotal}/10). Strikes: ${versusMatch[opponentStrikesKey]}`, 3500);
-
-            if (droppedTotal >= 10) {
-              sendVersusMessage({
-                type: "FORCE_RECONNECT",
-                reason: "Repeated suspicious input detected by peer.",
-                validatorEntropy: myEntropy,
-              });
-              showVersusToast("🚫", `${opponentNick} removed for suspicious input. Reconnect required.`, 6000);
-              versusMatch.isFinished = true;
-              stopVersusPing();
-            }
-          }
-        }
-        // -------------------------------------------------------------------------
-
-        // Sync authoritative match state from sender (after any local penalty adj.)
-        if (msg.match) {
-          versusMatch.p1Score = msg.match.p1Score ?? versusMatch.p1Score;
-          versusMatch.p2Score = msg.match.p2Score ?? versusMatch.p2Score;
-          versusMatch.p1TimeMs = msg.match.p1TimeMs ?? versusMatch.p1TimeMs;
-          versusMatch.p2TimeMs = msg.match.p2TimeMs ?? versusMatch.p2TimeMs;
-          versusMatch.activeTurn = msg.match.activeTurn ?? versusMatch.activeTurn;
-        }
-        updateVersusHUD();
-        const opponentFlag = peerFlagged ? ` ⚠️ (flagged ${versusMatch[opponentStrikesKey]}x)` : "";
-        showVersusToast("🎯", `${opponentNick} placed ${msg.val} (+${msg.points} pts).${opponentFlag} YOUR TURN!`, 2500);
-        if (versusMatch.activeTurn === versusMatch.localPlayer) {
-          inputEntropy.reset();
-          startVersusThinkingClock();
-        }
-        return;
-      }
-
-      if (msg.type === "CHEAT_PENALTY") {
-        // Cross-validation gate: only accept this penalty if the VALIDATOR was human.
-        // A bot validator (low entropy) cannot penalize a legitimate player.
-        const validatorEntropy = typeof msg.validatorEntropy === "number" ? msg.validatorEntropy : 0;
-        if (validatorEntropy < 0.15) {
-          console.warn(`[CrossValidate] CHEAT_PENALTY REJECTED — validator entropy too low: ${validatorEntropy.toFixed(3)}. Possible bad-faith host/challenger.`);
-          showVersusToast("🛡️", "Penalty rejected — validator flagged as non-human.", 3500);
-          return;
-        }
-
-        // Validator was human — accept the penalty
-        if (msg.p1Score !== undefined) versusMatch.p1Score = msg.p1Score;
-        if (msg.p2Score !== undefined) versusMatch.p2Score = msg.p2Score;
-        updateVersusHUD();
-        const isUs = (msg.penalisedPlayer === versusMatch.localPlayer);
-        const penalisedNick = (msg.penalisedPlayer === 1 ? versusMatch.p1Nick : versusMatch.p2Nick);
-        if (isUs) {
-          showVersusToast("🚫", `Your input was flagged by opponent (entropy validated). −1 pt (${msg.droppedTotal}/10).`, 4000);
-        } else {
-          showVersusToast("⚠️", `${penalisedNick} penalised (cross-validated). −1 pt (${msg.droppedTotal}/10).`, 3000);
-        }
-        return;
-      }
-
-      if (msg.type === "FORCE_RECONNECT") {
-        // Same gate — must be from a demonstrably human validator
-        const validatorEntropy = typeof msg.validatorEntropy === "number" ? msg.validatorEntropy : 0;
-        if (validatorEntropy < 0.15) {
-          console.warn(`[CrossValidate] FORCE_RECONNECT REJECTED — validator entropy: ${validatorEntropy.toFixed(3)}. Bot cannot kick human.`);
-          showVersusToast("🛡️", "Reconnect request rejected — validator flagged as non-human.", 4000);
-          return;
-        }
-
-        // Human validator — session integrity genuinely failed
-        versusMatch.isFinished = true;
-        stopVersusPing();
-        stopVersusThinkingClock();
-        showVersusToast("🚫", `Session ended: ${msg.reason || "Repeated suspicious input."} Reconnect to start a new match.`, 8000);
-        console.warn("[CrossValidate] FORCE_RECONNECT accepted. Validator entropy:", validatorEntropy.toFixed(3));
-        return;
-      }
-    }
-
-
-    function setupVersusP2PChannel(roomCode) {
-      if (versusBroadcastChannel) {
-        try { versusBroadcastChannel.close(); } catch (e) {}
-      }
-      try {
-        versusBroadcastChannel = new BroadcastChannel("undoku_vs_" + roomCode);
-        versusBroadcastChannel.onmessage = (event) => {
-          handleVersusIncomingMessage(event.data);
-        };
-      } catch (e) {
-        console.warn("BroadcastChannel init:", e);
-      }
-
-      // Storage event listener fallback (watches for any undoku_p2p_ key updates)
-      window.removeEventListener("storage", window._vsStorageListener);
-      window._vsStorageListener = (e) => {
-        if (e.key && e.key.startsWith("undoku_p2p_") && e.newValue) {
-          try {
-            const data = JSON.parse(e.newValue);
-            handleVersusIncomingMessage(data);
-          } catch (err) {}
-        }
-      };
-      window.addEventListener("storage", window._vsStorageListener);
-
-      // Active Lobby Poller: Ensures challenger notices match start even if backgrounded
-      if (versusLobbyPollInterval) clearInterval(versusLobbyPollInterval);
-      versusLobbyPollInterval = setInterval(() => {
-        if (versusMatch.hasStarted) {
-          clearInterval(versusLobbyPollInterval);
-          return;
-        }
-
-        // Check if Host has posted active match start to persistent storage
-        try {
-          const matchStartRecord = localStorage.getItem("undoku_match_active_" + roomCode);
-          if (matchStartRecord) {
-            const parsed = JSON.parse(matchStartRecord);
-            if (parsed && parsed.type === "MATCH_START") {
-              handleVersusIncomingMessage(parsed);
-              return;
-            }
-          }
-        } catch (e) {}
-
-        // Send ping if not host
-        if (!versusMatch.isHost) {
-          const myNick = getSavedNickname();
-          sendVersusMessage({ type: "PEER_JOIN", nick: myNick });
-        }
-      }, 400);
-    }
-
-    function getSavedNickname() {
-      try {
-        return localStorage.getItem("undoku_player_nick") || "Player 1";
-      } catch (e) {
-        return "Player 1";
-      }
-    }
-
-    function saveNickname(nick) {
-      try {
-        localStorage.setItem("undoku_player_nick", nick);
-      } catch (e) {}
-    }
-
-    function countOpenCells() {
-      let open = 0;
-      if (!userGrid || !userGrid.length) return 0;
-      for (let r = 0; r < userGrid.length; r++) {
-        for (let c = 0; c < userGrid.length; c++) {
-          if (userGrid[r][c] === 0) open++;
-        }
-      }
-      return open;
-    }
-
-    function startVersusThinkingClock() {
-      if (versusTurnTimer) clearInterval(versusTurnTimer);
-      versusMatch.turnStartTime = performance.now();
-      versusMatch.turnActive = true;
-
-      versusTurnTimer = setInterval(() => {
-        if (!versusMatch.turnActive) return;
-        const elapsed = performance.now() - versusMatch.turnStartTime;
-        if (versusMatch.activeTurn === 1) {
-          const currentTotal = (versusMatch.p1TimeMs + elapsed) / 1000;
-          document.getElementById("timerP1").innerText = "⏱️ " + formatTime(currentTotal);
-        } else {
-          const currentTotal = (versusMatch.p2TimeMs + elapsed) / 1000;
-          document.getElementById("timerP2").innerText = "⏱️ " + formatTime(currentTotal);
-        }
-      }, 200);
-    }
-
-    function stopVersusThinkingClock() {
-      if (!versusMatch.turnActive) return 0;
-      const elapsed = performance.now() - versusMatch.turnStartTime;
-      if (versusMatch.activeTurn === 1) {
-        versusMatch.p1TimeMs += elapsed;
-      } else {
-        versusMatch.p2TimeMs += elapsed;
-      }
-      versusMatch.turnActive = false;
-      if (versusTurnTimer) clearInterval(versusTurnTimer);
-      return elapsed / 1000;
-    }
-
-    function updateVersusHUD() {
-      const banner = document.getElementById("versusHudBanner");
-      if (!isVersusMode) {
-        if (banner) banner.style.display = "none";
-        return;
-      }
-      if (banner) banner.style.display = "flex";
-
-      document.getElementById("labelP1Nick").innerText = versusMatch.p1Nick;
-      document.getElementById("labelP2Nick").innerText = versusMatch.p2Nick;
-      document.getElementById("scoreP1").innerText = `${versusMatch.p1Score.toLocaleString()} pts`;
-      document.getElementById("scoreP2").innerText = `${versusMatch.p2Score.toLocaleString()} pts`;
-      document.getElementById("timerP1").innerText = "⏱️ " + formatTime(versusMatch.p1TimeMs / 1000);
-      document.getElementById("timerP2").innerText = "⏱️ " + formatTime(versusMatch.p2TimeMs / 1000);
-
-      const spacesLeft = countOpenCells();
-      const leftLabel = document.getElementById("labelVsCellsLeft");
-      if (leftLabel) leftLabel.innerText = `${spacesLeft} Spaces Remaining`;
-
-      const isMyTurn = (versusMatch.activeTurn === versusMatch.localPlayer);
-      const turnBadge = document.getElementById("badgeVersusTurn");
-      if (turnBadge) {
-        const activeName = (versusMatch.activeTurn === 1 ? versusMatch.p1Nick : versusMatch.p2Nick);
-        turnBadge.innerText = isMyTurn ? `⚔️ YOUR TURN (${activeName})` : `⏳ WAITING FOR ${activeName}`;
-        turnBadge.className = isMyTurn ? "diff-select-badge easy" : "diff-select-badge medium";
-      }
-
-      document.getElementById("cardPlayer1").style.opacity = (versusMatch.activeTurn === 1) ? "1" : "0.55";
-      document.getElementById("cardPlayer2").style.opacity = (versusMatch.activeTurn === 2) ? "1" : "0.55";
-    }
-
-
-
-    function openVersusRoomDialog(game, isHost = true) {
-      if (!game) game = activeSession || gameState;
-      if (!game) return;
-
-      const myNick = getSavedNickname();
-      const roomCode = game.roomId || ("VS-" + ShareManager.generateRoomCode(game.seed).replace("UDK-", ""));
-      initEmptyVersusRoundState(roomCode, game.seed, game.topologyKey, game.difficulty, isHost ? myNick : "Host", isHost ? "Waiting..." : myNick, isHost);
-
-      document.getElementById("displayVsRoomCode").textContent = roomCode;
-      document.getElementById("vsHostNickLabel").textContent = isHost ? myNick : "Host";
-      document.getElementById("vsGuestNickLabel").textContent = isHost ? "Waiting..." : myNick;
-      document.getElementById("vsGuestStatusLabel").textContent = isHost ? "Share room code to connect" : "🟢 Connected! Waiting for Host to start match...";
-
-      const btnStart = document.getElementById("btnVsRoomStartRound");
-      const roomBadge = document.getElementById("vsRoomStatusBadge");
-
-      if (btnStart) {
-        if (isHost) {
-          btnStart.style.display = "block";
-          btnStart.innerText = "🚀 Start Battle Round";
-          btnStart.disabled = false;
-          if (roomBadge) {
-            roomBadge.innerText = "🟡 WAITING FOR OPPONENT";
-            roomBadge.className = "hud-mode-pill assisted";
-          }
-        } else {
-          btnStart.style.display = "none";
-          if (roomBadge) {
-            roomBadge.innerText = "⏳ WAITING FOR HOST TO START";
-            roomBadge.className = "hud-mode-pill paper";
-          }
-        }
-      }
-
-      const roomModal = document.getElementById("versusRoomModal");
-      if (roomModal) roomModal.classList.add("active");
-
-      // Setup persistent P2P channel
-      setupVersusP2PChannel(roomCode);
-      if (!isHost) {
-        sendVersusMessage({ type: "PEER_JOIN", nick: myNick });
-      }
-
-      const btnCopy = document.getElementById("btnCopyVsRoomCode");
-      if (btnCopy) {
-        btnCopy.onclick = () => {
-          const payload = ShareManager.generatePayload(game);
-          const vsData = {
-            payload,
-            match: {
-              roomId: roomCode,
-              p1Nick: myNick,
-              p2Nick: "Challenger",
-              p1Score: 0,
-              p2Score: 0,
-              p1TimeMs: 0,
-              p2TimeMs: 0,
-              activeTurn: 1
-            }
-          };
-          const vsPayloadStr = "VS2_" + btoa(JSON.stringify(vsData)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-          const vsUrl = ShareManager.getShareableUrl(vsPayloadStr);
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(vsUrl).then(() => alert("⚔️ Versus Room Link Copied!\n\n" + vsUrl)).catch(() => prompt("Copy Match Link:", vsUrl));
-          } else {
-            prompt("Copy Match Link:", vsUrl);
-          }
-        };
-      }
-
-      if (btnStart) {
-        btnStart.onclick = () => {
-          if (!versusMatch.isHost) return;
-          if (versusLobbyPollInterval) clearInterval(versusLobbyPollInterval);
-          if (roomModal) roomModal.classList.remove("active");
-
-          isVersusMode = true;
-          versusMatch.hasStarted = true;
-          const payload = ShareManager.generatePayload(game);
-
-          const startMsg = {
-            type: "MATCH_START",
-            p1Nick: versusMatch.p1Nick,
-            p2Nick: versusMatch.p2Nick,
-            payload: payload,
-            seed: versusMatch.seed,
-            topologyKey: versusMatch.topologyKey,
-            difficulty: versusMatch.difficulty
-          };
-
-          // Save to localStorage for instant polling pickup
-          try {
-            localStorage.setItem("undoku_match_active_" + roomCode, JSON.stringify({ ...startMsg, roomId: roomCode, senderId: LOCAL_PEER_ID }));
-          } catch (e) {}
-
-          // Broadcast MATCH_START to challenger
-          sendVersusMessage(startMsg);
-
-          loadGameFromRecord(game);
-          updateVersusHUD();
-          startVersusThinkingClock();
-          startVersusPing();
-          const b1 = document.getElementById("appModeBadge"); if (b1) b1.innerText = "⚔️ Versus Mode";
-          showVersusToast("⚔️", "Match Started! You have first turn.", 2500);
-        };
-      }
-
-      const btnCancel = document.getElementById("btnVsRoomCancel");
-      if (btnCancel) {
-        btnCancel.onclick = () => {
-          if (versusLobbyPollInterval) clearInterval(versusLobbyPollInterval);
-          if (roomModal) roomModal.classList.remove("active");
-        };
-      }
-    }
-
-    function openVersusModal(game) {
-      openVersusRoomDialog(game, true);
-    }
-
-    function loadVersusTurnPayload(rawInput) {
-      try {
-        let str = rawInput.trim();
-        if (str.includes("#game=")) str = str.split("#game=")[1];
-        if (str.startsWith("VS2_")) {
-          let b64 = str.substring(4).replace(/-/g, "+").replace(/_/g, "/");
-          while (b64.length % 4) b64 += "=";
-          const vsObj = JSON.parse(atob(b64));
-          if (vsObj && vsObj.payload) {
-            const imported = SudokuEngine.deserializeGamePayload(vsObj.payload);
-            imported.roomId = vsObj.match ? vsObj.match.roomId : null;
-            openVersusRoomDialog(imported, false);
-            return true;
-          }
-        } else if (str.startsWith("VS-") || str.length <= 8) {
-          // Room code direct join
-          const cleanCode = str.toUpperCase();
-          const seed = Math.abs(cleanCode.split("").reduce((acc, ch) => ((acc << 5) - acc) + ch.charCodeAt(0), 0));
-          const mockGame = {
-            roomId: cleanCode,
-            seed: seed,
-            topologyKey: "classic_9x9",
-            difficulty: "medium"
-          };
-          openVersusRoomDialog(mockGame, false);
-          return true;
-        }
-      } catch (e) {
-        console.warn("Versus payload load note:", e);
-      }
-      return false;
-    }
 
     // --- Application Bootloader ---
     window.addEventListener("DOMContentLoaded", () => {
