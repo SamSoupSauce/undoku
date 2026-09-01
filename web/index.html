@@ -3242,7 +3242,7 @@
           <span>📚</span> Vault
         </button>
         <button class="nav-tab-btn" id="navBtnShare">
-          <span>📡</span> P2P Share
+          <span>🔗</span> Share
         </button>
       </div>
     </div>
@@ -3668,12 +3668,12 @@
     </div>
   </div>
 
-  <!-- Screen 4: Serverless P2P Sharing Hub (Pre-wired for Ticket 004) -->
+  <!-- Screen 4: Serverless Puzzle Sharing Hub (Ticket 004) -->
   <div class="app-screen-view" id="screenShare">
     <div class="dashboard-container">
       <div style="text-align: center; max-width: 600px; margin: 0 auto 1.5rem;">
-        <div style="font-size: 3rem; margin-bottom: 0.5rem;">📡</div>
-        <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.35rem;">Serverless P2P Game Exchange</h1>
+        <div style="font-size: 3rem; margin-bottom: 0.5rem;">🔗</div>
+        <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.35rem;">Serverless Game Share</h1>
         <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
           Share exact puzzle seeds, turns, and trajectories using ephemeral 6-character room codes or offline bitfield payloads without a centralized server.
         </p>
@@ -6220,7 +6220,7 @@
 
 
     // ==========================================================================
-    // THE SACRED GAME SHARE ENGINE (Zero-Backend / Bulletproof P2P & Hash Sharing)
+    // THE SACRED GAME SHARE ENGINE (Zero-Backend / Code & Hash Sharing)
     // ==========================================================================
     const ShareManager = {
       generatePayload(session) {
@@ -6609,7 +6609,7 @@
         }
       };
 
-      // 4. P2P Share Screen
+      // 4. Share Screen
       const bGenShare = document.getElementById("btnGenerateShareCode");
       if (bGenShare) bGenShare.onclick = () => {
         const game = {
