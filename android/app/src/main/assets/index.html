@@ -3300,8 +3300,8 @@
   <!-- Screen 1: Home Dashboard Hub (Ticket 003_5) -->
   <div class="app-screen-view active" id="screenHome">
     <div class="dashboard-container">
-      <!-- Resume Hero Card (Dynamically displayed if in-progress session exists) -->
-      <div class="resume-hero-card" id="homeResumeCard" style="display: none;">
+      <!-- Resume Hero Card (Always displayed with resume or new game state) -->
+      <div class="resume-hero-card" id="homeResumeCard" style="display: flex;">
         <div class="resume-hero-left">
           <div class="resume-icon-badge" id="resumeIconBadge">🧩</div>
           <div>
@@ -5954,6 +5954,9 @@
       if (targetScreen === "HOME_MENU") {
         updateHomeResumeCard();
       } else if (targetScreen === "GAME_PLAY") {
+        if (!gameState || !gameState.initialGrid || !userGrid.length) {
+          loadPuzzle(currentDifficulty || "hard", currentGameMode || "catch_mistakes", currentAllowHints, currentAllowHighlighter, currentHintCap, currentAllowDigitCounters, currentAllowRadialRing, currentTopologyKey || "classic_9x9");
+        }
         if (gameState && !isGameActive) {
           isGameActive = true;
           startTimer();
@@ -5970,8 +5973,15 @@
 
     function updateHomeResumeCard() {
       const resumeCard = document.getElementById("homeResumeCard");
-      if (!gameState || !gameState.initialGrid) {
-        resumeCard.style.display = "none";
+      if (!resumeCard) return;
+
+      if (!gameState || !gameState.initialGrid || !userGrid.length) {
+        document.getElementById("resumeTitle").textContent = "Resume Game";
+        document.getElementById("resumeDiffBadge").textContent = (currentDifficulty || "HARD").toUpperCase();
+        document.getElementById("resumeTopologyBadge").textContent = (currentTopologyKey || "9×9 Classic").replace("_", " ").toUpperCase();
+        document.getElementById("resumeTimeBadge").textContent = "⏱️ 00:00";
+        document.getElementById("resumeProgressBadge").textContent = "Ready to Play";
+        resumeCard.style.display = "flex";
         return;
       }
 
@@ -5980,7 +5990,7 @@
       const total = N * N;
       for (let r = 0; r < N; r++) {
         for (let c = 0; c < N; c++) {
-          if (gameState.userGrid[r][c] !== 0) filled++;
+          if (gameState.userGrid && gameState.userGrid[r] && gameState.userGrid[r][c] !== 0) filled++;
         }
       }
 
@@ -6558,14 +6568,24 @@
       if (nHome) nHome.onclick = () => navigateToScreen("HOME_MENU");
 
       const nGame = document.getElementById("navBtnGame");
-      if (nGame) nGame.onclick = () => navigateToScreen("GAME_PLAY");
+      if (nGame) nGame.onclick = () => {
+        if (!gameState || !gameState.initialGrid || !userGrid.length) {
+          loadPuzzle(currentDifficulty || "hard", currentGameMode || "catch_mistakes", currentAllowHints, currentAllowHighlighter, currentHintCap, currentAllowDigitCounters, currentAllowRadialRing, currentTopologyKey || "classic_9x9");
+        }
+        navigateToScreen("GAME_PLAY");
+      };
 
       const nVault = document.getElementById("navBtnVault");
       if (nVault) nVault.onclick = () => navigateToScreen("LIBRARY_VAULT");
 
       // 2. Home Screen Launchers
       const bResume = document.getElementById("btnResumeGame");
-      if (bResume) bResume.onclick = () => navigateToScreen("GAME_PLAY");
+      if (bResume) bResume.onclick = () => {
+        if (!gameState || !gameState.initialGrid || !userGrid.length) {
+          loadPuzzle(currentDifficulty || "hard", currentGameMode || "catch_mistakes", currentAllowHints, currentAllowHighlighter, currentHintCap, currentAllowDigitCounters, currentAllowRadialRing, currentTopologyKey || "classic_9x9");
+        }
+        navigateToScreen("GAME_PLAY");
+      };
 
       const bQuick = document.getElementById("btnQuickPlay");
       if (bQuick) bQuick.onclick = () => {
