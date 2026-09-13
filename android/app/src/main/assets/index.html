@@ -2,7 +2,7 @@
 <html lang="en" data-theme="cozy">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Undoku 🧩 — Pure Sudoku Game & Web Canvas Engine</title>
   <meta name="description" content="Zero-dependency deterministic Sudoku engine with granular cognitive analytics and 100% offline gameplay.">
   <script>
@@ -2036,6 +2036,7 @@
       padding: 0;
       user-select: none;
       -webkit-user-select: none;
+      -webkit-touch-callout: none;
     }
 
     body {
@@ -2043,11 +2044,27 @@
       color: var(--text-main);
       font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 1.25rem 1rem 3rem;
+      padding-top: max(1.25rem, env(safe-area-inset-top));
+      padding-bottom: max(3rem, calc(68px + env(safe-area-inset-bottom)));
+      padding-left: max(1rem, env(safe-area-inset-left));
+      padding-right: max(1rem, env(safe-area-inset-right));
       transition: background 0.3s ease, color 0.3s ease;
+      overscroll-behavior-y: contain;
+      -webkit-text-size-adjust: 100%;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button, select, input, .nav-tab-btn, .digit-btn, .tool-btn, .size-select-card, .diff-select-item {
+      touch-action: manipulation;
+    }
+
+    #sudokuCanvas {
+      touch-action: none;
     }
 
     .app-header {
@@ -2192,11 +2209,430 @@
 
     @media (max-width: 960px) {
       .app-header,
-      .game-arena {
-        width: 90vw;
-        min-width: 90vw;
-        max-width: 90vw;
+      .game-arena,
+      .dashboard-container {
+        width: 92vw;
+        min-width: 0;
+        max-width: 92vw;
       }
+    }
+
+    /* ==========================================================================
+       MOBILE OPTIMIZATION SYSTEM (<= 640px)
+       ========================================================================== */
+    @media (max-width: 640px) {
+      body {
+        padding: 0.75rem 0.5rem calc(68px + env(safe-area-inset-bottom));
+        padding-top: max(0.75rem, env(safe-area-inset-top));
+        padding-left: max(0.5rem, env(safe-area-inset-left));
+        padding-right: max(0.5rem, env(safe-area-inset-right));
+      }
+
+      /* Compact Top Header */
+      .app-header {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        margin-bottom: 0.65rem;
+        padding-bottom: 0.5rem;
+      }
+
+      .brand-group {
+        gap: 0.45rem;
+      }
+
+      .brand-logo {
+        font-size: 1.35rem;
+      }
+
+      .brand-badge {
+        display: none;
+      }
+
+      .header-actions {
+        gap: 0.35rem;
+      }
+
+      .btn-header {
+        padding: 0.38rem 0.55rem;
+        font-size: 0.76rem;
+        border-radius: 8px;
+        gap: 0.25rem;
+      }
+
+      .theme-dropdown-wrapper {
+        padding: 0 0.25rem 0 0.4rem;
+        border-radius: 8px;
+      }
+
+      .theme-select {
+        font-size: 0.76rem;
+        padding: 0.35rem 1.15rem 0.35rem 0.1rem;
+      }
+
+      /* Fixed Mobile Bottom Navigation Bar (Thumb-Friendly) */
+      .app-nav-tabs {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: calc(56px + env(safe-area-inset-bottom));
+        padding: 0.35rem 0.75rem calc(0.35rem + env(safe-area-inset-bottom));
+        background: var(--surface-card);
+        border-top: 1px solid var(--border-subtle);
+        border-radius: 0;
+        box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        z-index: 990;
+      }
+
+      .nav-tab-btn {
+        flex: 1;
+        max-width: 105px;
+        justify-content: center;
+        padding: 0.45rem 0.2rem;
+        font-size: 0.82rem;
+        border-radius: 10px;
+        gap: 0.3rem;
+      }
+
+      /* Full Width Arena & Tight Padding for Maximum Board Size */
+      .game-arena {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        gap: 0.9rem;
+      }
+
+      .game-card {
+        padding: 0.75rem 0.65rem;
+        border-radius: 16px;
+      }
+
+      .dashboard-container {
+        width: 100%;
+        max-width: 100%;
+        padding-bottom: 1.5rem;
+        gap: 1rem;
+      }
+
+      /* Board & Canvas */
+      .board-wrapper {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto 0.65rem;
+        border-radius: 14px;
+      }
+
+      #sudokuCanvas {
+        border-radius: 14px;
+        touch-action: none;
+      }
+
+      /* Mobile Game HUD */
+      .game-hud {
+        gap: 0.35rem;
+        margin-bottom: 0.55rem;
+        width: 100%;
+      }
+
+      .hud-diff-chip {
+        padding: 0.28rem 0.55rem;
+        font-size: 0.74rem;
+        border-radius: 8px;
+        gap: 0.25rem;
+      }
+
+      .hud-chip {
+        padding: 0.28rem 0.55rem;
+        font-size: 0.75rem;
+        border-radius: 8px;
+      }
+
+      .hud-menu-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+        border-radius: 8px;
+      }
+
+      /* Compact Toolbars & Buttons */
+      .game-toolbar {
+        gap: 0.35rem;
+        margin-bottom: 0.45rem;
+      }
+
+      .tool-btn {
+        padding: 0.45rem 0.25rem;
+        font-size: 0.78rem;
+        border-radius: 8px;
+      }
+
+      .btn-hint-row {
+        padding: 0.55rem 0.8rem;
+        font-size: 0.85rem;
+        margin-bottom: 0.45rem;
+        border-radius: 10px;
+      }
+
+      .btn-new-game-row {
+        padding: 0.55rem 0.8rem;
+        font-size: 0.88rem;
+        margin-bottom: 0.55rem;
+        border-radius: 10px;
+      }
+
+      /* Mobile Tactile Keypad */
+      .digit-keypad {
+        gap: 0.25rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .digit-btn {
+        min-height: 44px;
+        font-size: 1.15rem;
+        border-radius: 9px;
+      }
+
+      .digit-count-badge {
+        font-size: 0.55rem;
+      }
+
+      /* Compact Radial Dial */
+      .radial-bubble-btn {
+        width: 36px;
+        height: 36px;
+        margin-left: -18px;
+        margin-top: -18px;
+        font-size: 1.05rem;
+      }
+
+      .radial-close-btn {
+        width: 34px;
+        height: 34px;
+        margin-left: -17px;
+        margin-top: -17px;
+        font-size: 1rem;
+      }
+
+      /* Mobile Modals */
+      .victory-modal {
+        width: 94% !important;
+        max-width: 94% !important;
+        max-height: 88vh;
+        max-height: 88dvh;
+        overflow-y: auto;
+        padding: 1.25rem 0.85rem !important;
+        border-radius: 18px;
+      }
+
+      .size-selection-grid {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        max-height: 48vh;
+        max-height: 48dvh;
+      }
+
+      .size-select-card {
+        padding: 0.6rem 0.75rem;
+      }
+
+      .diff-selection-list {
+        gap: 0.5rem;
+      }
+
+      .diff-select-item {
+        padding: 0.65rem 0.75rem;
+      }
+
+      .hints-toggle-row {
+        padding: 0.6rem 0.75rem !important;
+      }
+
+      .victory-stats-row {
+        padding: 0.65rem 0.4rem;
+      }
+
+      .win-stat-val {
+        font-size: 1.05rem;
+      }
+
+      /* Analytics & Provenance */
+      .analytics-card {
+        padding: 1rem 0.85rem;
+        border-radius: 16px;
+      }
+
+      .chart-box {
+        height: 220px;
+      }
+
+      .proportion-legend {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.35rem;
+      }
+
+      .stats-pills-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.45rem;
+      }
+
+      .solver-controls {
+        gap: 0.35rem;
+      }
+
+      .btn-action {
+        padding: 0.45rem 0.65rem;
+        font-size: 0.78rem;
+      }
+
+      /* Dashboard & Vault */
+      .resume-hero-card {
+        padding: 1rem 0.85rem;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        border-radius: 16px;
+      }
+
+      .resume-hero-left {
+        gap: 0.75rem;
+      }
+
+      .resume-icon-badge {
+        width: 48px;
+        height: 48px;
+        font-size: 1.5rem;
+        border-radius: 12px;
+      }
+
+      .resume-info-title {
+        font-size: 1.1rem;
+      }
+
+      .resume-info-meta {
+        font-size: 0.74rem;
+        flex-wrap: wrap;
+      }
+
+      #btnResumeGame {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .dashboard-launchers-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .dash-card {
+        padding: 1rem;
+        border-radius: 14px;
+      }
+
+      .vault-records-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .vault-record-card {
+        padding: 0.85rem;
+        border-radius: 14px;
+      }
+    }
+
+    /* Small Screen Tuning (<= 380px) */
+    @media (max-width: 380px) {
+      .digit-btn {
+        min-height: 40px;
+        font-size: 1.05rem;
+      }
+
+      .game-card {
+        padding: 0.6rem 0.45rem;
+      }
+
+      .brand-logo {
+        font-size: 1.2rem;
+      }
+
+      .btn-header {
+        padding: 0.32rem 0.45rem;
+        font-size: 0.72rem;
+      }
+    }
+
+    /* Hover Protection for Touch Devices & Active Tactility */
+    @media (hover: hover) and (pointer: fine) {
+      .digit-btn:hover {
+        background: var(--surface-elevated);
+        border-color: var(--primary);
+        color: var(--primary);
+        transform: scale(1.08);
+        box-shadow: var(--shadow-md);
+      }
+      .tool-btn:hover {
+        background: var(--surface-elevated);
+        border-color: var(--primary);
+        color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+      }
+      .btn-action:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--surface-elevated);
+        transform: translateY(-1px);
+      }
+      .btn-header:hover {
+        color: var(--primary);
+        border-color: var(--primary);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+      }
+      .dash-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+      }
+      .vault-record-card:hover {
+        border-color: var(--primary);
+        box-shadow: var(--shadow-sm);
+      }
+      .size-select-card:hover {
+        border-color: var(--primary);
+        background: var(--surface-card);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+      }
+      .radial-bubble-btn:hover {
+        background: var(--primary);
+        color: #ffffff !important;
+        transform: scale(1.22);
+        box-shadow: 0 6px 20px var(--primary-glow);
+        z-index: 55;
+      }
+    }
+
+    .digit-btn:active {
+      transform: scale(0.92);
+      background: var(--primary);
+      color: #ffffff !important;
+    }
+
+    .tool-btn:active {
+      transform: scale(0.95);
+    }
+
+    .btn-action:active {
+      transform: scale(0.96);
+    }
+
+    .nav-tab-btn:active {
+      transform: scale(0.95);
     }
 
     .game-card {
@@ -3056,6 +3492,10 @@
       padding: 2.25rem;
       max-width: 440px;
       width: 90%;
+      max-height: 90vh;
+      max-height: 90dvh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       text-align: center;
       box-shadow: var(--shadow-lg);
       transform: translateY(20px) scale(0.95);
@@ -4177,9 +4617,15 @@
       const wrapper = document.getElementById("boardWrapper");
       if (!overlay || !container || !wrapper) return;
 
-      container.innerHTML = "";
-      const N = currentTopology.N;
-      const R = Math.min(130, Math.max(65, 70 + (N - 9) * 4.5));
+      const rect = boardCanvas.getBoundingClientRect();
+      const cellSize = rect.width / N;
+      const cellCenterX = c * cellSize + cellSize / 2;
+      const cellCenterY = r * cellSize + cellSize / 2;
+
+      // Responsive dial radius tailored for mobile viewports
+      const maxAllowedR = Math.min(130, rect.width * 0.36);
+      const minAllowedR = Math.min(52, rect.width * 0.18);
+      const R = Math.min(maxAllowedR, Math.max(minAllowedR, 55 + (N - 9) * 3.5));
 
       // Count occurrences of each number on the board
       const counts = new Array(N + 1).fill(0);
@@ -4222,13 +4668,13 @@
         });
       }
 
-      const rect = boardCanvas.getBoundingClientRect();
-      const cellSize = rect.width / N;
-      const cellCenterX = c * cellSize + cellSize / 2;
-      const cellCenterY = r * cellSize + cellSize / 2;
+      // Boundary clamping to ensure bubbles never clip off screen edges
+      const edgeMargin = R + 22;
+      const clampedX = Math.max(edgeMargin, Math.min(rect.width - edgeMargin, cellCenterX));
+      const clampedY = Math.max(edgeMargin, Math.min(rect.height - edgeMargin, cellCenterY));
 
-      overlay.style.left = `${cellCenterX}px`;
-      overlay.style.top = `${cellCenterY}px`;
+      overlay.style.left = `${clampedX}px`;
+      overlay.style.top = `${clampedY}px`;
       overlay.style.display = "block";
       isRadialOpen = true;
     }
@@ -4239,12 +4685,18 @@
     const trajectoryCanvas = document.getElementById("trajectoryCanvas");
     const chartCtx = trajectoryCanvas.getContext("2d");
 
-    function setupCanvasDPI(canvas, ctx, width, height) {
+    function setupCanvasDPI(canvas, ctx, defaultWidth, defaultHeight) {
+      if (!canvas || !ctx) return;
       const dpr = window.devicePixelRatio || 1;
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
-      canvas.style.width = width + "px";
-      canvas.style.height = height + "px";
+      const parent = canvas.parentElement;
+      const parentW = parent ? parent.clientWidth : 0;
+      const parentH = parent ? parent.clientHeight : 0;
+      const displayW = parentW > 0 ? parentW : (defaultWidth || 540);
+      const displayH = (parentH > 0 && parentH < displayW * 1.5) ? parentH : ((defaultHeight && defaultWidth) ? Math.round(displayW * (defaultHeight / defaultWidth)) : displayW);
+      canvas.width = Math.round(displayW * dpr);
+      canvas.height = Math.round(displayH * dpr);
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
@@ -5182,10 +5634,12 @@
             banner.style.display = "flex";
             conflictText.innerText = conflict.reason;
             spawnParticles(c * cellSize + cellSize / 2, r * cellSize + cellSize / 2, "#dc2626");
+            if (navigator.vibrate) try { navigator.vibrate([30, 40, 30]); } catch (e) {}
           } else {
             currentConflict = null;
             banner.style.display = "none";
             spawnParticles(c * cellSize + cellSize / 2, r * cellSize + cellSize / 2, "#e06c3a");
+            if (navigator.vibrate) try { navigator.vibrate(10); } catch (e) {}
 
             if (checkWin()) triggerVictory();
           }
@@ -5267,6 +5721,7 @@
       }
 
       document.getElementById("victoryModal").classList.add("active");
+      if (navigator.vibrate) try { navigator.vibrate([40, 60, 40, 60, 80]); } catch (e) {}
 
       confettiParticles = [];
       const colors = ["#e06c3a", "#3b82f6", "#16a34a", "#f59e0b", "#ec4899", "#8b5cf6"];
@@ -5572,12 +6027,13 @@
       requestAnimationFrame(mainLoop);
     }
 
-    // --- Event Listeners ---
-    boardCanvas.addEventListener("click", (e) => {
+    // --- Event Listeners & Instant Touch Support ---
+    let lastBoardPointerTime = 0;
+    function handleBoardSelect(clientX, clientY) {
       if (isUnsolving) return;
       const rect = boardCanvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
       const N = currentTopology.N;
       const cellSize = rect.width / N;
       const c = Math.floor(x / cellSize);
@@ -5592,6 +6048,30 @@
         } else {
           closeRadialRing();
           selectedCell = { r, c };
+        }
+      }
+    }
+
+    boardCanvas.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0 && e.pointerType !== "touch") return;
+      lastBoardPointerTime = Date.now();
+      handleBoardSelect(e.clientX, e.clientY);
+    });
+
+    boardCanvas.addEventListener("click", (e) => {
+      if (Date.now() - lastBoardPointerTime < 450) {
+        e.preventDefault();
+        return;
+      }
+      handleBoardSelect(e.clientX, e.clientY);
+    });
+
+    // Close radial ring when tapping outside
+    document.addEventListener("pointerdown", (e) => {
+      if (isRadialOpen) {
+        const overlay = document.getElementById("radialRingOverlay");
+        if (overlay && !overlay.contains(e.target) && e.target !== boardCanvas) {
+          closeRadialRing();
         }
       }
     });
@@ -5912,11 +6392,17 @@
       }
     });
 
-    // --- Window Resize Listener ---
-    window.addEventListener("resize", () => {
+    // --- Window Resize & Orientation Change Listeners ---
+    function handleWindowResize() {
       initCanvases();
       renderBoard();
       drawTrajectoryChart();
+    }
+
+    window.addEventListener("resize", handleWindowResize);
+    window.addEventListener("orientationchange", () => {
+      setTimeout(handleWindowResize, 100);
+      setTimeout(handleWindowResize, 350);
     });
 
 
