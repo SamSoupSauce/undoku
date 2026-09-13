@@ -2039,12 +2039,24 @@
       -webkit-touch-callout: none;
     }
 
+    html {
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       background: var(--bg-gradient);
       color: var(--text-main);
       font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       min-height: 100vh;
       min-height: 100dvh;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -2057,6 +2069,12 @@
       overscroll-behavior-y: contain;
       -webkit-text-size-adjust: 100%;
       -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+
+    canvas {
+      max-width: 100%;
+      box-sizing: border-box;
     }
 
     button, select, input, .nav-tab-btn, .digit-btn, .tool-btn, .size-select-card, .diff-select-item {
@@ -2068,15 +2086,16 @@
     }
 
     .app-header {
-      width: 75vw;
-      min-width: 75vw;
+      width: 100%;
       max-width: 1200px;
+      margin: 0 auto 1.25rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1.25rem;
       padding-bottom: 0.75rem;
       border-bottom: 1px solid var(--border-subtle);
+      box-sizing: border-box;
+      min-width: 0;
     }
 
     .brand-group {
@@ -2197,33 +2216,58 @@
     }
 
     .game-arena {
-      width: 75vw;
-      min-width: 75vw;
+      width: 100%;
       max-width: 1200px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
       gap: 1.75rem;
       align-items: stretch;
+      box-sizing: border-box;
+      min-width: 0;
     }
 
-    @media (max-width: 960px) {
+    .engine-highlights-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      text-align: center;
+      width: 100%;
+      box-sizing: border-box;
+      min-width: 0;
+    }
+
+    .game-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    @media (max-width: 1024px) {
       .app-header,
       .game-arena,
       .dashboard-container {
-        width: 92vw;
+        width: 100%;
         min-width: 0;
-        max-width: 92vw;
+        max-width: 100%;
       }
     }
 
     /* ==========================================================================
-       MOBILE OPTIMIZATION SYSTEM (<= 640px)
+       TABLET & MOBILE RESPONSIVE SYSTEM (<= 768px)
        ========================================================================== */
-    @media (max-width: 640px) {
+    @media (max-width: 768px) {
       body {
-        padding: 0.75rem 0.5rem calc(68px + env(safe-area-inset-bottom));
-        padding-top: max(0.75rem, env(safe-area-inset-top));
+        padding: 0.65rem 0.5rem calc(68px + env(safe-area-inset-bottom));
+        padding-top: max(0.65rem, env(safe-area-inset-top));
         padding-left: max(0.5rem, env(safe-area-inset-left));
         padding-right: max(0.5rem, env(safe-area-inset-right));
       }
@@ -2235,14 +2279,24 @@
         max-width: 100%;
         margin-bottom: 0.65rem;
         padding-bottom: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: nowrap;
+        overflow: hidden;
       }
 
       .brand-group {
-        gap: 0.45rem;
+        gap: 0.35rem;
+        min-width: 0;
+        flex-shrink: 1;
       }
 
       .brand-logo {
-        font-size: 1.35rem;
+        font-size: 1.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .brand-badge {
@@ -2250,24 +2304,38 @@
       }
 
       .header-actions {
-        gap: 0.35rem;
+        gap: 0.3rem;
+        flex-shrink: 0;
+        min-width: 0;
       }
 
       .btn-header {
-        padding: 0.38rem 0.55rem;
+        padding: 0.35rem 0.5rem;
         font-size: 0.76rem;
         border-radius: 8px;
         gap: 0.25rem;
+        flex-shrink: 0;
+      }
+
+      .btn-header-text {
+        display: none;
       }
 
       .theme-dropdown-wrapper {
-        padding: 0 0.25rem 0 0.4rem;
+        padding: 0 0.2rem 0 0.35rem;
         border-radius: 8px;
+        max-width: 110px;
+        overflow: hidden;
+        flex-shrink: 0;
       }
 
       .theme-select {
-        font-size: 0.76rem;
-        padding: 0.35rem 1.15rem 0.35rem 0.1rem;
+        font-size: 0.72rem;
+        padding: 0.35rem 1rem 0.35rem 0;
+        max-width: 80px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
       }
 
       /* Fixed Mobile Bottom Navigation Bar (Thumb-Friendly) */
@@ -2277,8 +2345,9 @@
         left: 0;
         right: 0;
         width: 100%;
+        max-width: 100vw;
         height: calc(56px + env(safe-area-inset-bottom));
-        padding: 0.35rem 0.75rem calc(0.35rem + env(safe-area-inset-bottom));
+        padding: 0.35rem 0.5rem calc(0.35rem + env(safe-area-inset-bottom));
         background: var(--surface-card);
         border-top: 1px solid var(--border-subtle);
         border-radius: 0;
@@ -2289,16 +2358,19 @@
         justify-content: space-around;
         align-items: center;
         z-index: 990;
+        box-sizing: border-box;
       }
 
       .nav-tab-btn {
         flex: 1;
+        min-width: 0;
         max-width: 105px;
         justify-content: center;
         padding: 0.45rem 0.2rem;
-        font-size: 0.82rem;
+        font-size: 0.8rem;
         border-radius: 10px;
-        gap: 0.3rem;
+        gap: 0.25rem;
+        box-sizing: border-box;
       }
 
       /* Full Width Arena & Tight Padding for Maximum Board Size */
@@ -2306,19 +2378,20 @@
         width: 100%;
         min-width: 0;
         max-width: 100%;
-        gap: 0.9rem;
+        gap: 0.85rem;
       }
 
       .game-card {
-        padding: 0.75rem 0.65rem;
+        padding: 0.7rem 0.55rem;
         border-radius: 16px;
+        overflow: hidden;
       }
 
       .dashboard-container {
         width: 100%;
         max-width: 100%;
         padding-bottom: 1.5rem;
-        gap: 1rem;
+        gap: 0.9rem;
       }
 
       /* Board & Canvas */
@@ -2327,80 +2400,104 @@
         max-width: 100%;
         margin: 0 auto 0.65rem;
         border-radius: 14px;
+        min-width: 0;
       }
 
       #sudokuCanvas {
         border-radius: 14px;
         touch-action: none;
+        max-width: 100%;
+        max-height: 100%;
       }
 
       /* Mobile Game HUD */
       .game-hud {
-        gap: 0.35rem;
-        margin-bottom: 0.55rem;
+        gap: 0.3rem;
+        margin-bottom: 0.5rem;
         width: 100%;
+        min-width: 0;
       }
 
       .hud-diff-chip {
-        padding: 0.28rem 0.55rem;
-        font-size: 0.74rem;
+        padding: 0.25rem 0.45rem;
+        font-size: 0.72rem;
         border-radius: 8px;
         gap: 0.25rem;
+        min-width: 0;
       }
 
       .hud-chip {
-        padding: 0.28rem 0.55rem;
-        font-size: 0.75rem;
+        padding: 0.25rem 0.45rem;
+        font-size: 0.72rem;
         border-radius: 8px;
+        min-width: 0;
       }
 
       .hud-menu-btn {
         width: 32px;
         height: 32px;
-        font-size: 1rem;
+        font-size: 0.95rem;
         border-radius: 8px;
       }
 
       /* Compact Toolbars & Buttons */
       .game-toolbar {
-        gap: 0.35rem;
+        gap: 0.3rem;
         margin-bottom: 0.45rem;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
       }
 
       .tool-btn {
-        padding: 0.45rem 0.25rem;
-        font-size: 0.78rem;
+        padding: 0.45rem 0.2rem;
+        font-size: 0.76rem;
         border-radius: 8px;
+        min-width: 0;
       }
 
       .btn-hint-row {
-        padding: 0.55rem 0.8rem;
-        font-size: 0.85rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.82rem;
         margin-bottom: 0.45rem;
         border-radius: 10px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
       }
 
       .btn-new-game-row {
-        padding: 0.55rem 0.8rem;
-        font-size: 0.88rem;
-        margin-bottom: 0.55rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
         border-radius: 10px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
       }
 
       /* Mobile Tactile Keypad */
       .digit-keypad {
-        gap: 0.25rem;
-        margin-bottom: 0.5rem;
+        gap: 0.2rem;
+        margin-bottom: 0.45rem;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
       }
 
       .digit-btn {
-        min-height: 44px;
+        min-width: 0;
+        min-height: 42px;
         font-size: 1.15rem;
-        border-radius: 9px;
+        border-radius: 8px;
+        overflow: hidden;
       }
 
       .digit-count-badge {
-        font-size: 0.55rem;
+        font-size: 0.52rem;
+        max-width: 95%;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       /* Compact Radial Dial */
@@ -2422,102 +2519,139 @@
 
       /* Mobile Modals */
       .victory-modal {
-        width: 94% !important;
-        max-width: 94% !important;
+        width: 95% !important;
+        max-width: 95% !important;
         max-height: 88vh;
         max-height: 88dvh;
         overflow-y: auto;
-        padding: 1.25rem 0.85rem !important;
-        border-radius: 18px;
+        padding: 1.15rem 0.75rem !important;
+        border-radius: 16px;
+        min-width: 0;
       }
 
       .size-selection-grid {
         grid-template-columns: 1fr;
-        gap: 0.5rem;
+        gap: 0.45rem;
         max-height: 48vh;
         max-height: 48dvh;
+        min-width: 0;
       }
 
       .size-select-card {
-        padding: 0.6rem 0.75rem;
+        padding: 0.55rem 0.65rem;
+        min-width: 0;
       }
 
       .diff-selection-list {
-        gap: 0.5rem;
+        grid-template-columns: 1fr;
+        gap: 0.45rem;
+        min-width: 0;
       }
 
       .diff-select-item {
-        padding: 0.65rem 0.75rem;
+        padding: 0.55rem 0.65rem;
+        min-width: 0;
+      }
+
+      .diff-select-item:last-child {
+        grid-column: span 1;
+      }
+
+      .diff-select-badge {
+        min-width: 0;
+        font-size: 0.76rem;
       }
 
       .hints-toggle-row {
-        padding: 0.6rem 0.75rem !important;
+        padding: 0.55rem 0.65rem !important;
+        min-width: 0;
       }
 
       .victory-stats-row {
-        padding: 0.65rem 0.4rem;
+        padding: 0.55rem 0.35rem;
+        min-width: 0;
       }
 
       .win-stat-val {
-        font-size: 1.05rem;
+        font-size: 1rem;
       }
 
       /* Analytics & Provenance */
       .analytics-card {
-        padding: 1rem 0.85rem;
+        padding: 0.85rem 0.65rem;
         border-radius: 16px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
       }
 
       .chart-box {
-        height: 220px;
+        height: 210px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
       }
 
       .proportion-legend {
         grid-template-columns: repeat(2, 1fr);
-        gap: 0.35rem;
+        gap: 0.3rem;
+        min-width: 0;
       }
 
       .stats-pills-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 0.45rem;
+        gap: 0.4rem;
+        min-width: 0;
+      }
+
+      .metric-card {
+        min-width: 0;
       }
 
       .solver-controls {
-        gap: 0.35rem;
+        gap: 0.3rem;
+        flex-wrap: wrap;
+        min-width: 0;
       }
 
       .btn-action {
-        padding: 0.45rem 0.65rem;
-        font-size: 0.78rem;
+        padding: 0.4rem 0.55rem;
+        font-size: 0.76rem;
+        min-width: 0;
       }
 
       /* Dashboard & Vault */
       .resume-hero-card {
-        padding: 1rem 0.85rem;
+        padding: 0.85rem;
         flex-direction: column;
         align-items: stretch;
-        gap: 0.75rem;
-        border-radius: 16px;
+        gap: 0.65rem;
+        border-radius: 14px;
+        min-width: 0;
       }
 
       .resume-hero-left {
-        gap: 0.75rem;
+        gap: 0.65rem;
+        min-width: 0;
       }
 
       .resume-icon-badge {
-        width: 48px;
-        height: 48px;
-        font-size: 1.5rem;
-        border-radius: 12px;
+        width: 44px;
+        height: 44px;
+        font-size: 1.4rem;
+        border-radius: 10px;
+        flex-shrink: 0;
       }
 
       .resume-info-title {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
+        word-break: break-word;
       }
 
       .resume-info-meta {
-        font-size: 0.74rem;
+        font-size: 0.72rem;
         flex-wrap: wrap;
+        gap: 0.25rem;
       }
 
       #btnResumeGame {
@@ -2527,41 +2661,179 @@
 
       .dashboard-launchers-grid {
         grid-template-columns: 1fr;
+        gap: 0.75rem;
+        min-width: 0;
       }
 
       .dash-card {
-        padding: 1rem;
-        border-radius: 14px;
+        padding: 0.85rem;
+        border-radius: 12px;
+        min-width: 0;
+      }
+
+      .engine-highlights-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.6rem;
+        min-width: 0;
       }
 
       .vault-records-grid {
         grid-template-columns: 1fr;
+        gap: 0.65rem;
+        min-width: 0;
       }
 
       .vault-record-card {
-        padding: 0.85rem;
-        border-radius: 14px;
+        padding: 0.75rem;
+        border-radius: 12px;
+        min-width: 0;
+      }
+
+      .vault-tabs-bar {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+        gap: 0.35rem;
+        padding-bottom: 0.5rem;
+        scrollbar-width: none;
+      }
+
+      .vault-tabs-bar::-webkit-scrollbar {
+        display: none;
+      }
+
+      .vault-tab {
+        padding: 0.35rem 0.6rem;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+      }
+
+      .hud-dropdown-menu {
+        max-width: calc(100vw - 24px);
       }
     }
 
-    /* Small Screen Tuning (<= 380px) */
+    /* ==========================================================================
+       TINY DEVICE OPTIMIZATION (<= 380px, e.g. iPhone SE, Fold, Tiny Androids)
+       ========================================================================== */
     @media (max-width: 380px) {
-      .digit-btn {
-        min-height: 40px;
-        font-size: 1.05rem;
-      }
-
-      .game-card {
-        padding: 0.6rem 0.45rem;
+      body {
+        padding: 0.5rem 0.35rem calc(65px + env(safe-area-inset-bottom));
       }
 
       .brand-logo {
-        font-size: 1.2rem;
+        font-size: 1.15rem;
+      }
+
+      .theme-dropdown-wrapper {
+        max-width: 90px;
+      }
+
+      .theme-select {
+        max-width: 65px;
+        font-size: 0.68rem;
       }
 
       .btn-header {
-        padding: 0.32rem 0.45rem;
+        padding: 0.28rem 0.4rem;
         font-size: 0.72rem;
+      }
+
+      .game-card {
+        padding: 0.5rem 0.35rem;
+        border-radius: 12px;
+      }
+
+      .board-wrapper {
+        margin-bottom: 0.45rem;
+      }
+
+      .hud-diff-chip {
+        padding: 0.2rem 0.35rem;
+        font-size: 0.68rem;
+      }
+
+      .hud-chip {
+        padding: 0.2rem 0.35rem;
+        font-size: 0.68rem;
+      }
+
+      .digit-keypad {
+        gap: 0.15rem;
+      }
+
+      .digit-btn {
+        min-height: 38px;
+        font-size: 1.05rem;
+        border-radius: 7px;
+      }
+
+      .digit-count-badge {
+        font-size: 0.5rem;
+      }
+
+      .tool-btn {
+        padding: 0.35rem 0.2rem;
+        font-size: 0.72rem;
+      }
+
+      .btn-hint-row, .btn-new-game-row {
+        padding: 0.45rem 0.6rem;
+        font-size: 0.8rem;
+      }
+
+      .stats-pills-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .proportion-legend {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ==========================================================================
+       ULTRA-TINY SCREEN TUNING (<= 320px)
+       ========================================================================== */
+    @media (max-width: 320px) {
+      body {
+        padding: 0.4rem 0.25rem calc(65px + env(safe-area-inset-bottom));
+      }
+
+      .brand-logo {
+        font-size: 1rem;
+      }
+
+      .theme-dropdown-wrapper {
+        max-width: 80px;
+      }
+
+      .theme-select {
+        max-width: 55px;
+        font-size: 0.65rem;
+      }
+
+      .btn-header {
+        padding: 0.25rem 0.3rem;
+        font-size: 0.68rem;
+      }
+
+      .game-card {
+        padding: 0.4rem 0.25rem;
+        border-radius: 10px;
+      }
+
+      .digit-btn {
+        min-height: 34px;
+        font-size: 0.95rem;
+        border-radius: 6px;
+      }
+
+      .digit-keypad {
+        gap: 0.1rem;
+      }
+
+      .engine-highlights-grid {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -2633,15 +2905,6 @@
 
     .nav-tab-btn:active {
       transform: scale(0.95);
-    }
-
-    .game-card {
-      background: var(--surface-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 20px;
-      padding: 1.5rem;
-      box-shadow: var(--shadow-lg);
-      position: relative;
     }
 
     .game-hud {
@@ -3725,11 +3988,11 @@
         </select>
       </div>
 
-      <a href="./wiki/" class="btn-header">
-        <span>📖</span> Docs
+      <a href="./wiki/" class="btn-header" title="Documentation">
+        <span>📖</span><span class="btn-header-text"> Docs</span>
       </a>
-      <a href="https://github.com/SamSoupSauce/undoku" target="_blank" class="btn-header">
-        <span>⭐</span> GitHub
+      <a href="https://github.com/SamSoupSauce/undoku" target="_blank" class="btn-header" title="GitHub Repository">
+        <span>⭐</span><span class="btn-header-text"> GitHub</span>
       </a>
     </div>
   </header>
@@ -3817,7 +4080,7 @@
 
       <!-- Core Engine Highlights -->
       <div class="dash-card" style="margin-top: 0.5rem; background: var(--surface-subtle);">
-        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: space-around; text-align: center;">
+        <div class="engine-highlights-grid">
           <div>
             <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary); font-family: 'JetBrains Mono', monospace;">100%</div>
             <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Offline &amp; Private</div>
@@ -4691,7 +4954,9 @@
       const parent = canvas.parentElement;
       const parentW = parent ? parent.clientWidth : 0;
       const parentH = parent ? parent.clientHeight : 0;
-      const displayW = parentW > 0 ? parentW : (defaultWidth || 540);
+      const screenCap = Math.max(200, (window.innerWidth || 360) - 24);
+      const fallbackW = Math.min(defaultWidth || 540, screenCap);
+      const displayW = parentW > 0 ? parentW : fallbackW;
       const displayH = (parentH > 0 && parentH < displayW * 1.5) ? parentH : ((defaultHeight && defaultWidth) ? Math.round(displayW * (defaultHeight / defaultWidth)) : displayW);
       canvas.width = Math.round(displayW * dpr);
       canvas.height = Math.round(displayH * dpr);
@@ -4776,7 +5041,7 @@
         const btn = document.querySelector(`.digit-btn[data-val="${num}"]`);
         if (badge) {
           badge.style.display = currentAllowDigitCounters ? "inline-block" : "none";
-          badge.innerText = left > 0 ? `${left} left` : "✓";
+          badge.innerText = left > 0 ? ((window.innerWidth < 480 || N > 9) ? `${left}` : `${left} left`) : "✓";
         }
         if (btn) {
           if (currentAllowDigitCounters && left === 0) btn.classList.add("completed");
