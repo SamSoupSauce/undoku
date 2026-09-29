@@ -12,6 +12,8 @@
     root.Undoku = exports;
     root.FastRand = exports.FastRand;
     root.SudokuEngine = exports.SudokuEngine;
+    root.TwoTapStateController = exports.TwoTapStateController;
+    root.getAvailableRadialDigits = exports.getAvailableRadialDigits;
   }
 }(typeof self !== "undefined" ? self : this, function () {
   "use strict";
@@ -68,14 +70,14 @@
   }
 
   const SUPPORTED_CONFIGURATIONS = {
-    "mini_4x4":     { Br: 2, Bc: 2, N: 4,  label: "4×4 Mini (2×2 Box)", defaultClues: 6 },
-    "wide_6x6":     { Br: 2, Bc: 3, N: 6,  label: "6×6 Wide (2×3 Box)", defaultClues: 14 },
-    "wide_8x8":     { Br: 2, Bc: 4, N: 8,  label: "8×8 Wide (2×4 Box)", defaultClues: 26 },
-    "classic_9x9":  { Br: 3, Bc: 3, N: 9,  label: "9×9 Classic (3×3 Box)", defaultClues: 30 },
-    "wide_10x10":   { Br: 2, Bc: 5, N: 10, label: "10×10 Decimal (2×5 Box)", defaultClues: 40 },
-    "duo_12x12":    { Br: 3, Bc: 4, N: 12, label: "12×12 Duodecimal (3×4 Box)", defaultClues: 56 },
-    "ultra_12x12":  { Br: 2, Bc: 6, N: 12, label: "12×12 Wide-Band (2×6 Box)", defaultClues: 56 },
-    "hexa_16x16":   { Br: 4, Bc: 4, N: 16, label: "16×16 Hexadoku (4×4 Box)", defaultClues: 98 }
+    "mini_4x4":     { Br: 2, Bc: 2, N: 4,  label: "4×4 Mini (2×2 Box)", defaultClues: 8 },
+    "wide_6x6":     { Br: 2, Bc: 3, N: 6,  label: "6×6 Wide (2×3 Box)", defaultClues: 18 },
+    "wide_8x8":     { Br: 2, Bc: 4, N: 8,  label: "8×8 Wide (2×4 Box)", defaultClues: 32 },
+    "classic_9x9":  { Br: 3, Bc: 3, N: 9,  label: "9×9 Classic (3×3 Box)", defaultClues: 34 },
+    "wide_10x10":   { Br: 2, Bc: 5, N: 10, label: "10×10 Decimal (2×5 Box)", defaultClues: 46 },
+    "duo_12x12":    { Br: 3, Bc: 4, N: 12, label: "12×12 Duodecimal (3×4 Box)", defaultClues: 64 },
+    "ultra_12x12":  { Br: 2, Bc: 6, N: 12, label: "12×12 Wide-Band (2×6 Box)", defaultClues: 64 },
+    "hexa_16x16":   { Br: 4, Bc: 4, N: 16, label: "16×16 Hexadoku (4×4 Box)", defaultClues: 112 }
   };
 
   class SudokuEngine {
@@ -625,6 +627,106 @@
       return null;
     }
 
+    /**
+     * Identifies all cells that can be immediately deduced on the current board
+     * via Naked Singles or Hidden Singles (Box, Row, or Col) without chained reductions or guessing.
+     */
+    static getImmediateSolvableCells(b, Br = null, Bc = null) {
+      const topo = SudokuEngine.resolveTopology(b, Br, Bc);
+      const N = topo.N;
+      const boxR = topo.Br;
+      const boxC = topo.Bc;
+
+      const cands = [];
+      for (let r = 0; r < N; r++) {
+        cands[r] = [];
+        for (let c = 0; c < N; c++) {
+          cands[r][c] = b[r][c] === 0 ? SudokuEngine.getCandidates(b, r, c, boxR, boxC) : [];
+        }
+      }
+
+      const solvableCells = new Set();
+
+      // 1. Naked Singles: cells with exactly 1 candidate remaining
+      for (let r = 0; r < N; r++) {
+        for (let c = 0; c < N; c++) {
+          if (b[r][c] === 0 && cands[r][c].length === 1) {
+            solvableCells.add(`${r},${c}`);
+          }
+        }
+      }
+
+      // 2. Hidden Singles in Boxes: digit candidate fits in only 1 cell in the box
+      const numBands = boxC;
+      const numStacks = boxR;
+      for (let band = 0; band < numBands; band++) {
+        for (let stack = 0; stack < numStacks; stack++) {
+          const startR = band * boxR;
+          const startC = stack * boxC;
+          for (let num = 1; num <= N; num++) {
+            let count = 0, tr = -1, tc = -1;
+            for (let dr = 0; dr < boxR; dr++) {
+              for (let dc = 0; dc < boxC; dc++) {
+                const r = startR + dr, c = startC + dc;
+                if (b[r][c] === 0 && cands[r][c].includes(num)) {
+                  count++;
+                  tr = r;
+                  tc = c;
+                }
+              }
+            }
+            if (count === 1) {
+              solvableCells.add(`${tr},${tc}`);
+            }
+          }
+        }
+      }
+
+      // 3. Hidden Singles in Rows: digit candidate fits in only 1 cell in the row
+      for (let r = 0; r < N; r++) {
+        for (let num = 1; num <= N; num++) {
+          let count = 0, tc = -1;
+          for (let c = 0; c < N; c++) {
+            if (b[r][c] === 0 && cands[r][c].includes(num)) {
+              count++;
+              tc = c;
+            }
+          }
+          if (count === 1) {
+            solvableCells.add(`${r},${tc}`);
+          }
+        }
+      }
+
+      // 4. Hidden Singles in Columns: digit candidate fits in only 1 cell in the column
+      for (let c = 0; c < N; c++) {
+        for (let num = 1; num <= N; num++) {
+          let count = 0, tr = -1;
+          for (let r = 0; r < N; r++) {
+            if (b[r][c] === 0 && cands[r][c].includes(num)) {
+              count++;
+              tr = r;
+            }
+          }
+          if (count === 1) {
+            solvableCells.add(`${tr},${c}`);
+          }
+        }
+      }
+
+      return Array.from(solvableCells).map(key => {
+        const [r, c] = key.split(",").map(Number);
+        return { r, c };
+      });
+    }
+
+    /**
+     * Counts the total number of immediately solvable cells on the board.
+     */
+    static countImmediateSolvable(b, Br = null, Bc = null) {
+      return SudokuEngine.getImmediateSolvableCells(b, Br, Bc).length;
+    }
+
     static findLockedCandidates(b, cands = null, Br = null, Bc = null) {
       const topo = SudokuEngine.resolveTopology(b, Br, Bc);
       const N = topo.N;
@@ -883,6 +985,117 @@
       return null;
     }
 
+    static findXWing(b, cands = null, Br = null, Bc = null) {
+      const topo = SudokuEngine.resolveTopology(b, Br, Bc);
+      const N = topo.N;
+      const boxR = topo.Br;
+      const boxC = topo.Bc;
+
+      if (!cands) {
+        cands = [];
+        for (let r = 0; r < N; r++) {
+          cands[r] = [];
+          for (let c = 0; c < N; c++) {
+            cands[r][c] = b[r][c] === 0 ? SudokuEngine.getCandidates(b, r, c, boxR, boxC) : [];
+          }
+        }
+      }
+
+      // 1. Row-based X-Wing
+      for (let num = 1; num <= N; num++) {
+        const rowPairs = [];
+        for (let r = 0; r < N; r++) {
+          const cols = [];
+          for (let c = 0; c < N; c++) {
+            if (b[r][c] === 0 && cands[r][c].includes(num)) cols.push(c);
+          }
+          if (cols.length === 2) {
+            rowPairs.push({ r, c1: cols[0], c2: cols[1] });
+          }
+        }
+
+        for (let i = 0; i < rowPairs.length; i++) {
+          for (let j = i + 1; j < rowPairs.length; j++) {
+            const p1 = rowPairs[i];
+            const p2 = rowPairs[j];
+            if (p1.c1 === p2.c1 && p1.c2 === p2.c2) {
+              const eliminations = [];
+              for (let r = 0; r < N; r++) {
+                if (r !== p1.r && r !== p2.r) {
+                  if (b[r][p1.c1] === 0 && cands[r][p1.c1].includes(num)) {
+                    eliminations.push({ r, c: p1.c1, val: num });
+                  }
+                  if (b[r][p1.c2] === 0 && cands[r][p1.c2].includes(num)) {
+                    eliminations.push({ r, c: p1.c2, val: num });
+                  }
+                }
+              }
+              if (eliminations.length > 0) {
+                const sym = SudokuEngine.symbolForVal(num, N);
+                const assertions = Math.round(32 + 2.5 * eliminations.length);
+                const score = 3.90 + (assertions / 52.0) * 0.70;
+                return {
+                  type: "reduction",
+                  technique: "X-Wing",
+                  eliminations,
+                  assertions,
+                  step_score: score,
+                  description: `X-Wing on ${sym} in Rows ${p1.r + 1},${p2.r + 1} and Cols ${p1.c1 + 1},${p1.c2 + 1} eliminates ${eliminations.length} candidates`
+                };
+              }
+            }
+          }
+        }
+
+        // 2. Column-based X-Wing
+        const colPairs = [];
+        for (let c = 0; c < N; c++) {
+          const rows = [];
+          for (let r = 0; r < N; r++) {
+            if (b[r][c] === 0 && cands[r][c].includes(num)) rows.push(r);
+          }
+          if (rows.length === 2) {
+            colPairs.push({ c, r1: rows[0], r2: rows[1] });
+          }
+        }
+
+        for (let i = 0; i < colPairs.length; i++) {
+          for (let j = i + 1; j < colPairs.length; j++) {
+            const p1 = colPairs[i];
+            const p2 = colPairs[j];
+            if (p1.r1 === p2.r1 && p1.r2 === p2.r2) {
+              const eliminations = [];
+              for (let c = 0; c < N; c++) {
+                if (c !== p1.c && c !== p2.c) {
+                  if (b[p1.r1][c] === 0 && cands[p1.r1][c].includes(num)) {
+                    eliminations.push({ r: p1.r1, c, val: num });
+                  }
+                  if (b[p1.r2][c] === 0 && cands[p1.r2][c].includes(num)) {
+                    eliminations.push({ r: p1.r2, c, val: num });
+                  }
+                }
+              }
+              if (eliminations.length > 0) {
+                const sym = SudokuEngine.symbolForVal(num, N);
+                const assertions = Math.round(32 + 2.5 * eliminations.length);
+                const score = 3.90 + (assertions / 52.0) * 0.70;
+                return {
+                  type: "reduction",
+                  technique: "X-Wing",
+                  eliminations,
+                  assertions,
+                  step_score: score,
+                  description: `X-Wing on ${sym} in Cols ${p1.c + 1},${p2.c + 1} and Rows ${p1.r1 + 1},${p1.r2 + 1} eliminates ${eliminations.length} candidates`
+                };
+              }
+            }
+          }
+        }
+      }
+
+      return null;
+    }
+
     static findNextDeduction(b, cands = null, Br = null, Bc = null) {
       const topo = SudokuEngine.resolveTopology(b, Br, Bc);
       const N = topo.N;
@@ -923,6 +1136,9 @@
 
         const hiddenTriple = SudokuEngine.findHiddenSubsets(b, cands, 3, boxR, boxC);
         if (hiddenTriple) return hiddenTriple;
+
+        const xWing = SudokuEngine.findXWing(b, cands, boxR, boxC);
+        if (xWing) return xWing;
       }
 
       return null;
@@ -1355,6 +1571,7 @@
       const avgCandidates = 2.5 + (blanksCount / totalCells) * 2.0;
       let peakAmbiguity = Math.min(N, Math.max(2, Math.floor(N * 0.75)));
       const constrainedness = 1.0 - (clueCount / totalCells);
+      const immediateSolvable = puzzle ? SudokuEngine.countImmediateSolvable(puzzle, boxR, boxC) : 0;
 
       const compositeScore = (report.total_score * 0.6) + (totalAssertions * 0.08) + (avgAssertions * 1.5) + (variance * 2.0);
 
@@ -1387,6 +1604,7 @@
         naked_single_count: nakedCount,
         hidden_single_box_count: hiddenBoxCount,
         hidden_single_row_col_count: hiddenRowColCount,
+        immediate_solvable_count: immediateSolvable,
         technique_diversity: techniqueDiversity,
         max_streak: maxStreak,
         max_streak_technique: maxStreakTech,
@@ -1415,6 +1633,15 @@
           formatted: `${m.total_assertions} assertions`,
           unit: "assertions",
           description: "Total candidate elimination checks and logical proofs executed to solve the puzzle."
+        },
+        {
+          key: "complexity_immediate_solvable",
+          name: "Immediate Solvable Squares",
+          category: "Complexity & Assertions",
+          value: m.immediate_solvable_count !== undefined ? m.immediate_solvable_count : 0,
+          formatted: `${m.immediate_solvable_count !== undefined ? m.immediate_solvable_count : 0} squares`,
+          unit: "squares",
+          description: "Count of directly deducible cells on move 1 via naked or hidden singles."
         },
         {
           key: "complexity_max_step_assertions",
@@ -1837,23 +2064,310 @@
       return { puzzle: p, solution: s };
     }
 
+    /**
+     * Evaluates a puzzle's technique variety score tailored to the target difficulty tier.
+     * Rewards puzzles that require an authentic and diverse spectrum of logical deduction techniques
+     * suited to their tier, rather than collapsing into trivial single cascades.
+     */
+    static evaluateTechniqueVarietyScore(report, targetDifficulty = "hard") {
+      if (!report || !report.solved) return -999;
+
+      const m = report.advanced_metrics || {};
+      const counts = report.technique_counts || {};
+      const techs = Object.keys(counts);
+      const diversity = m.technique_diversity || 0;
+      const numTechs = techs.length;
+
+      const countOf = (tech) => counts[tech] || 0;
+
+      const numNakedSingles = countOf("Naked Single");
+      const numHiddenBox = countOf("Hidden Single Box");
+      const numHiddenRow = countOf("Hidden Single Row");
+      const numHiddenCol = countOf("Hidden Single Col");
+      const numPointing = countOf("Locked Candidates Pointing");
+      const numClaiming = countOf("Locked Candidates Claiming");
+      const numNakedPairs = countOf("Naked Pair");
+      const numHiddenPairs = countOf("Hidden Pair");
+      const numNakedTriples = countOf("Naked Triple");
+      const numHiddenTriples = countOf("Hidden Triple");
+      const numXWing = countOf("X-Wing");
+      const numLookahead = countOf("Trial & Error / Branch Lookahead");
+
+      targetDifficulty = (targetDifficulty || "hard").toLowerCase();
+      let score = 0;
+
+      switch (targetDifficulty) {
+        case "easy":
+          score += 10 - Math.abs(numHiddenBox - 3);
+          if (numHiddenRow + numHiddenCol > 2) score -= 5;
+          if (numPointing + numClaiming + numNakedPairs + numHiddenPairs > 0) score -= 15;
+          if (numLookahead > 0) score -= 20;
+          break;
+
+        case "medium":
+          score += Math.min(10, numHiddenBox * 2);
+          score += Math.min(8, (numHiddenRow + numHiddenCol) * 3);
+          score += diversity * 15 + numTechs * 3;
+          if (numPointing > 0) score += 4;
+          if (numNakedPairs + numHiddenPairs > 1) score -= 5;
+          if (numLookahead > 0) score -= 15;
+          break;
+
+        case "hard":
+          score += diversity * 20 + numTechs * 4;
+          score += Math.min(12, (numPointing + numClaiming) * 4);
+          score += Math.min(15, (numNakedPairs + numHiddenPairs) * 6);
+          score += Math.min(6, (numHiddenRow + numHiddenCol) * 2);
+          if (numPointing + numClaiming === 0 && numNakedPairs + numHiddenPairs === 0) {
+            score -= 20;
+          }
+          if (numTechs < 3) {
+            score -= 80 * (3 - numTechs);
+          }
+          break;
+
+        case "extreme":
+          score += diversity * 25 + numTechs * 5;
+          score += Math.min(14, (numPointing + numClaiming) * 3);
+          score += Math.min(18, (numNakedPairs + numHiddenPairs) * 4);
+          score += Math.min(20, (numNakedTriples + numHiddenTriples + numXWing) * 7);
+          if (numNakedPairs + numHiddenPairs + numNakedTriples + numHiddenTriples + numXWing === 0) {
+            score -= 25;
+          }
+          if (numTechs < 4) {
+            score -= 100 * (4 - numTechs);
+          }
+          break;
+
+        case "impossible":
+          const immediateSolvable = m.immediate_solvable_count !== undefined ? m.immediate_solvable_count : 0;
+          if (immediateSolvable === 1 || immediateSolvable === 2) {
+            score += 50;
+          } else {
+            score -= 200 * (immediateSolvable === 0 ? 2 : Math.abs(immediateSolvable - 2));
+          }
+          score += diversity * 30 + numTechs * 6;
+          score += Math.min(16, (numPointing + numClaiming) * 3);
+          score += Math.min(20, (numNakedPairs + numHiddenPairs) * 4);
+          score += Math.min(24, (numNakedTriples + numHiddenTriples + numXWing) * 6);
+          if (numTechs < 4) {
+            score -= 100 * (4 - numTechs);
+          }
+          break;
+      }
+
+      return score;
+    }
+
     static carveWithTargetDifficulty(fullBoard, targetDifficulty = "hard", targetBlanks = 0, rng = new FastRand(), Br = null, Bc = null) {
       const topo = SudokuEngine.resolveTopology(fullBoard, Br, Bc);
       const N = topo.N;
       const totalCells = N * N;
       targetDifficulty = (targetDifficulty || "hard").toLowerCase();
 
-      let minRatio = 0.55, maxRatio = 0.62;
+      // On hardest 9x9 (impossible / diablo sauce): strictly target 1 to 2 solvable squares with rich technique variety
+      if (targetDifficulty === "impossible" && targetBlanks === 0 && N === 9) {
+        let bestPuzzle = null;
+        let bestScore = -99999;
+        const maxAttempts = 16;
+        for (let att = 0; att < maxAttempts; att++) {
+          const puzzle = SudokuEngine.cloneBoard(fullBoard);
+          const positions = [];
+          for (let r = 0; r < N; r++) {
+            for (let c = 0; c < N; c++) positions.push({ r, c });
+          }
+          rng.shuffle(positions);
+
+          for (const pos of positions) {
+            const orig = puzzle[pos.r][pos.c];
+            puzzle[pos.r][pos.c] = 0;
+            if (SudokuEngine.countSolutions(puzzle, 2, topo.Br, topo.Bc) !== 1) {
+              puzzle[pos.r][pos.c] = orig;
+            }
+          }
+
+          const solCount = SudokuEngine.countImmediateSolvable(puzzle, topo.Br, topo.Bc);
+          const rep = SudokuEngine.solveAndAssess(puzzle, topo.Br, topo.Bc);
+          const numTechs = Object.keys(rep.technique_counts).length;
+          const vScore = SudokuEngine.evaluateTechniqueVarietyScore(rep, "impossible");
+
+          let diff = (solCount === 1 || solCount === 2) ? 0 : (solCount === 0 ? 1.5 : solCount - 2);
+          let totalScore = (diff === 0 ? 2000 : -1000 * diff) + vScore;
+          if (numTechs < 4) totalScore -= 500;
+
+          if (totalScore > bestScore) {
+            bestScore = totalScore;
+            bestPuzzle = puzzle;
+          }
+
+          if (diff === 0 && numTechs >= 4 && rep.advanced_metrics.technique_diversity >= 0.50 && att >= 2) {
+            break;
+          }
+        }
+
+        const report = SudokuEngine.solveAndAssess(bestPuzzle, topo.Br, topo.Bc);
+        return { puzzle: bestPuzzle, report };
+      }
+
+      // Extreme 9x9: tight challenge targeting 2 to 5 solvable squares with increased numbers for technique variety
+      if (targetDifficulty === "extreme" && targetBlanks === 0 && N === 9) {
+        let bestPuzzle = null;
+        let bestScore = -99999;
+        const maxAttempts = 10;
+        for (let att = 0; att < maxAttempts; att++) {
+          const puzzle = SudokuEngine.cloneBoard(fullBoard);
+          const positions = [];
+          for (let r = 0; r < N; r++) {
+            for (let c = 0; c < N; c++) positions.push({ r, c });
+          }
+          rng.shuffle(positions);
+
+          let carved = 0;
+          const desiredBlanks = 52 + rng.intn(4); // 52-55 blanks = 26-29 clues
+          for (const pos of positions) {
+            if (carved >= desiredBlanks) break;
+            const orig = puzzle[pos.r][pos.c];
+            puzzle[pos.r][pos.c] = 0;
+            if (SudokuEngine.countSolutions(puzzle, 2, topo.Br, topo.Bc) === 1) {
+              carved++;
+            } else {
+              puzzle[pos.r][pos.c] = orig;
+            }
+          }
+
+          let solCount = SudokuEngine.countImmediateSolvable(puzzle, topo.Br, topo.Bc);
+          if (solCount > 5) {
+            for (const pos of positions) {
+              if (puzzle[pos.r][pos.c] === 0) continue;
+              const orig = puzzle[pos.r][pos.c];
+              puzzle[pos.r][pos.c] = 0;
+              if (SudokuEngine.countSolutions(puzzle, 2, topo.Br, topo.Bc) === 1) {
+                carved++;
+                solCount = SudokuEngine.countImmediateSolvable(puzzle, topo.Br, topo.Bc);
+                if (solCount <= 5) break;
+              } else {
+                puzzle[pos.r][pos.c] = orig;
+              }
+            }
+          }
+
+          const rep = SudokuEngine.solveAndAssess(puzzle, topo.Br, topo.Bc);
+          const numTechs = Object.keys(rep.technique_counts).length;
+          let diff = (solCount >= 2 && solCount <= 5) ? 0 : (solCount < 2 ? 3 - solCount : solCount - 5);
+
+          const vScore = SudokuEngine.evaluateTechniqueVarietyScore(rep, "extreme");
+          let totalScore = (diff === 0 ? 1000 : -200 * diff) + vScore;
+          if (numTechs < 4) totalScore -= 500;
+
+          if (totalScore > bestScore) {
+            bestScore = totalScore;
+            bestPuzzle = puzzle;
+          }
+          if (diff === 0 && numTechs >= 4 && rep.advanced_metrics.technique_diversity >= 0.45 && att >= 2) {
+            break;
+          }
+        }
+        const report = SudokuEngine.solveAndAssess(bestPuzzle, topo.Br, topo.Bc);
+        return { puzzle: bestPuzzle, report };
+      }
+
+      // Hard 9x9: optimize for technique variety with increased numbers (30-34 clues)
+      if (targetDifficulty === "hard" && targetBlanks === 0 && N === 9) {
+        let bestPuzzle = null;
+        let bestScore = -9999;
+        const maxAttempts = 6;
+        for (let att = 0; att < maxAttempts; att++) {
+          const puzzle = SudokuEngine.cloneBoard(fullBoard);
+          const positions = [];
+          for (let r = 0; r < N; r++) {
+            for (let c = 0; c < N; c++) positions.push({ r, c });
+          }
+          rng.shuffle(positions);
+
+          let carved = 0;
+          let consecutiveFails = 0;
+          const maxConsecutive = 30;
+          const desiredBlanks = 47 + rng.intn(5); // 47-51 blanks = 30-34 clues
+          for (const pos of positions) {
+            if (carved >= desiredBlanks || consecutiveFails >= maxConsecutive) break;
+            const orig = puzzle[pos.r][pos.c];
+            puzzle[pos.r][pos.c] = 0;
+            if (SudokuEngine.countSolutions(puzzle, 2, topo.Br, topo.Bc) === 1) {
+              carved++;
+              consecutiveFails = 0;
+            } else {
+              puzzle[pos.r][pos.c] = orig;
+              consecutiveFails++;
+            }
+          }
+
+          const rep = SudokuEngine.solveAndAssess(puzzle, topo.Br, topo.Bc);
+          const vScore = SudokuEngine.evaluateTechniqueVarietyScore(rep, "hard");
+
+          if (vScore > bestScore) {
+            bestScore = vScore;
+            bestPuzzle = puzzle;
+          }
+          if (rep.advanced_metrics.technique_diversity >= 0.35 && att >= 2) break;
+        }
+        const report = SudokuEngine.solveAndAssess(bestPuzzle, topo.Br, topo.Bc);
+        return { puzzle: bestPuzzle, report };
+      }
+
+      // Medium 9x9: optimize for variety of singles with increased numbers (36-40 clues)
+      if (targetDifficulty === "medium" && targetBlanks === 0 && N === 9) {
+        let bestPuzzle = null;
+        let bestScore = -9999;
+        const maxAttempts = 4;
+        for (let att = 0; att < maxAttempts; att++) {
+          const puzzle = SudokuEngine.cloneBoard(fullBoard);
+          const positions = [];
+          for (let r = 0; r < N; r++) {
+            for (let c = 0; c < N; c++) positions.push({ r, c });
+          }
+          rng.shuffle(positions);
+
+          let carved = 0;
+          let consecutiveFails = 0;
+          const maxConsecutive = 30;
+          const desiredBlanks = 41 + rng.intn(5); // 41-45 blanks = 36-40 clues
+          for (const pos of positions) {
+            if (carved >= desiredBlanks || consecutiveFails >= maxConsecutive) break;
+            const orig = puzzle[pos.r][pos.c];
+            puzzle[pos.r][pos.c] = 0;
+            if (SudokuEngine.countSolutions(puzzle, 2, topo.Br, topo.Bc) === 1) {
+              carved++;
+              consecutiveFails = 0;
+            } else {
+              puzzle[pos.r][pos.c] = orig;
+              consecutiveFails++;
+            }
+          }
+
+          const rep = SudokuEngine.solveAndAssess(puzzle, topo.Br, topo.Bc);
+          const vScore = SudokuEngine.evaluateTechniqueVarietyScore(rep, "medium");
+
+          if (vScore > bestScore) {
+            bestScore = vScore;
+            bestPuzzle = puzzle;
+          }
+          if (rep.advanced_metrics.technique_diversity >= 0.15 && att >= 2) break;
+        }
+        const report = SudokuEngine.solveAndAssess(bestPuzzle, topo.Br, topo.Bc);
+        return { puzzle: bestPuzzle, report };
+      }
+
+      let minRatio = 0.50, maxRatio = 0.58;
       if (N <= 4) {
-        minRatio = 0.35; maxRatio = 0.50;
+        minRatio = 0.30; maxRatio = 0.45;
       } else if (N <= 8) {
-        minRatio = targetDifficulty === "easy" ? 0.40 : (targetDifficulty === "medium" ? 0.48 : (targetDifficulty === "hard" ? 0.54 : 0.60));
+        minRatio = targetDifficulty === "easy" ? 0.35 : (targetDifficulty === "medium" ? 0.42 : (targetDifficulty === "hard" ? 0.48 : 0.54));
         maxRatio = minRatio + 0.05;
       } else if (N === 9) {
-        minRatio = targetDifficulty === "easy" ? 0.48 : (targetDifficulty === "medium" ? 0.57 : (targetDifficulty === "hard" ? 0.65 : (targetDifficulty === "extreme" ? 0.71 : 0.74)));
+        minRatio = targetDifficulty === "easy" ? 0.42 : (targetDifficulty === "medium" ? 0.50 : (targetDifficulty === "hard" ? 0.58 : (targetDifficulty === "extreme" ? 0.63 : 0.66)));
         maxRatio = minRatio + 0.05;
       } else {
-        minRatio = targetDifficulty === "easy" ? 0.38 : (targetDifficulty === "medium" ? 0.44 : (targetDifficulty === "hard" ? 0.48 : (targetDifficulty === "extreme" ? 0.52 : 0.55)));
+        minRatio = targetDifficulty === "easy" ? 0.34 : (targetDifficulty === "medium" ? 0.40 : (targetDifficulty === "hard" ? 0.44 : (targetDifficulty === "extreme" ? 0.48 : 0.52)));
         maxRatio = minRatio + 0.03;
       }
 
@@ -1902,10 +2416,108 @@
         configKey = "classic_9x9";
       }
       const topo = SudokuEngine.resolveTopology(configKey);
-      const fullGrid = SudokuEngine.generateSeedBoard(rng, topo.Br, topo.Bc);
-      SudokuEngine.applyRuleBasedMutations(fullGrid, null, rng, topo.Br, topo.Bc);
+      targetDifficulty = (targetDifficulty || "hard").toLowerCase();
 
-      const { puzzle: puzzleGrid } = SudokuEngine.carveWithTargetDifficulty(fullGrid, targetDifficulty, targetBlanks, rng, topo.Br, topo.Bc);
+      let fullGrid = null;
+      let puzzleGrid = null;
+
+      // On hardest 9x9 (impossible / diablo sauce), guarantee strictly 1-2 solvable squares and high variety
+      if (targetDifficulty === "impossible" && targetBlanks === 0 && topo.N === 9) {
+        let bestFull = null;
+        let bestPuz = null;
+        let bestScore = -99999;
+
+        for (let g = 0; g < 6; g++) {
+          const candFull = SudokuEngine.generateSeedBoard(rng, topo.Br, topo.Bc);
+          SudokuEngine.applyRuleBasedMutations(candFull, null, rng, topo.Br, topo.Bc);
+
+          const { puzzle: candPuz, report: candRep } = SudokuEngine.carveWithTargetDifficulty(candFull, "impossible", 0, rng, topo.Br, topo.Bc);
+          const solCount = SudokuEngine.countImmediateSolvable(candPuz, topo.Br, topo.Bc);
+          const numTechs = Object.keys(candRep.technique_counts).length;
+          const vScore = SudokuEngine.evaluateTechniqueVarietyScore(candRep, "impossible");
+          const diff = (solCount === 1 || solCount === 2) ? 0 : (solCount === 0 ? 1.5 : solCount - 2);
+          let score = (diff === 0 ? 2000 : -1000 * diff) + vScore;
+          if (numTechs < 4) score -= 500;
+
+          if (score > bestScore) {
+            bestScore = score;
+            bestFull = candFull;
+            bestPuz = candPuz;
+          }
+
+          if (diff === 0 && numTechs >= 4 && candRep.advanced_metrics.technique_diversity >= 0.55 && g >= 1) {
+            break;
+          }
+        }
+
+        fullGrid = bestFull;
+        puzzleGrid = bestPuz;
+      } else if (targetDifficulty === "extreme" && targetBlanks === 0 && topo.N === 9) {
+        let bestFull = null;
+        let bestPuz = null;
+        let bestScore = -99999;
+
+        for (let g = 0; g < 4; g++) {
+          const candFull = SudokuEngine.generateSeedBoard(rng, topo.Br, topo.Bc);
+          SudokuEngine.applyRuleBasedMutations(candFull, null, rng, topo.Br, topo.Bc);
+
+          const { puzzle: candPuz, report: candRep } = SudokuEngine.carveWithTargetDifficulty(candFull, "extreme", 0, rng, topo.Br, topo.Bc);
+          const solCount = SudokuEngine.countImmediateSolvable(candPuz, topo.Br, topo.Bc);
+          const numTechs = Object.keys(candRep.technique_counts).length;
+          const vScore = SudokuEngine.evaluateTechniqueVarietyScore(candRep, "extreme");
+
+          let diff = 0;
+          if (solCount >= 2 && solCount <= 5) diff = 0;
+          else if (solCount < 2) diff = (2 - solCount) + 1;
+          else diff = solCount - 5;
+
+          let totalScore = (diff === 0 ? 1000 : -200 * diff) + vScore;
+          if (numTechs < 4) totalScore -= 500;
+
+          if (totalScore > bestScore) {
+            bestScore = totalScore;
+            bestFull = candFull;
+            bestPuz = candPuz;
+          }
+
+          if (diff === 0 && numTechs >= 4 && candRep.advanced_metrics.technique_diversity >= 0.45) break;
+        }
+
+        fullGrid = bestFull;
+        puzzleGrid = bestPuz;
+      } else if (targetDifficulty === "hard" && targetBlanks === 0 && topo.N === 9) {
+        let bestFull = null;
+        let bestPuz = null;
+        let bestScore = -99999;
+
+        for (let g = 0; g < 3; g++) {
+          const candFull = SudokuEngine.generateSeedBoard(rng, topo.Br, topo.Bc);
+          SudokuEngine.applyRuleBasedMutations(candFull, null, rng, topo.Br, topo.Bc);
+
+          const { puzzle: candPuz, report: candRep } = SudokuEngine.carveWithTargetDifficulty(candFull, "hard", 0, rng, topo.Br, topo.Bc);
+          const numTechs = Object.keys(candRep.technique_counts).length;
+          let score = SudokuEngine.evaluateTechniqueVarietyScore(candRep, "hard");
+          if (numTechs < 3) score -= 300;
+
+          if (score > bestScore) {
+            bestScore = score;
+            bestFull = candFull;
+            bestPuz = candPuz;
+          }
+
+          if (numTechs >= 3 && candRep.advanced_metrics.technique_diversity >= 0.40) break;
+        }
+
+        fullGrid = bestFull;
+        puzzleGrid = bestPuz;
+      } else {
+        fullGrid = SudokuEngine.generateSeedBoard(rng, topo.Br, topo.Bc);
+        SudokuEngine.applyRuleBasedMutations(fullGrid, null, rng, topo.Br, topo.Bc);
+
+        const { puzzle } = SudokuEngine.carveWithTargetDifficulty(fullGrid, targetDifficulty, targetBlanks, rng, topo.Br, topo.Bc);
+        puzzleGrid = puzzle;
+      }
+
       SudokuEngine.applyRuleBasedMutations(puzzleGrid, fullGrid, rng, topo.Br, topo.Bc);
 
       const report = SudokuEngine.solveAndAssess(puzzleGrid, topo.Br, topo.Bc);
@@ -2095,9 +2707,160 @@
     }
   }
 
+  /**
+   * Filter available radial digits, excluding exhausted numbers
+   * (digits where all N instances are placed on the board).
+   */
+  function getAvailableRadialDigits(grid, N = 9) {
+    if (!grid || !Array.isArray(grid)) return [];
+    const counts = new Array(N + 1).fill(0);
+    for (let r = 0; r < Math.min(grid.length, N); r++) {
+      const row = grid[r];
+      if (!row || !Array.isArray(row)) continue;
+      for (let c = 0; c < Math.min(row.length, N); c++) {
+        const val = row[c];
+        if (typeof val === "number" && val >= 1 && val <= N) {
+          counts[val]++;
+        }
+      }
+    }
+
+    const available = [];
+    for (let d = 1; d <= N; d++) {
+      if (counts[d] < N) {
+        available.push(d);
+      }
+    }
+    return available;
+  }
+
+  /**
+   * Deterministic Two-Tap State Machine Controller (Ticket 005)
+   * Manages cell focus and radial ring display without delay-based timers or double-tap thresholds.
+   *
+   * States:
+   *  - IDLE: No active focus, radial ring closed.
+   *  - FOCUSED: A cell (r, c) is focused, radial ring closed.
+   *  - RADIAL_OPEN: A cell (r, c) is focused, radial ring open.
+   */
+  class TwoTapStateController {
+    constructor(callbacks = {}) {
+      this.state = "IDLE";
+      this.focusedCell = null;
+      this.callbacks = callbacks;
+    }
+
+    getState() {
+      return this.state;
+    }
+
+    getFocusedCell() {
+      return this.focusedCell ? { ...this.focusedCell } : null;
+    }
+
+    handleCellTap(r, c, isEditable = true) {
+      if (this.state === "IDLE") {
+        this.state = "FOCUSED";
+        this.focusedCell = { r, c };
+        if (this.callbacks.onFocusChange) this.callbacks.onFocusChange(this.focusedCell);
+        if (this.callbacks.onStateChange) this.callbacks.onStateChange(this.state);
+        return { action: "FOCUS", state: this.state, cell: this.focusedCell };
+      }
+
+      if (this.state === "FOCUSED") {
+        if (this.focusedCell && this.focusedCell.r === r && this.focusedCell.c === c) {
+          // Tap 2 on the currently active/focused cell
+          if (isEditable) {
+            this.state = "RADIAL_OPEN";
+            if (this.callbacks.onOpenRadial) this.callbacks.onOpenRadial(this.focusedCell);
+            if (this.callbacks.onStateChange) this.callbacks.onStateChange(this.state);
+            return { action: "OPEN_RADIAL", state: this.state, cell: this.focusedCell };
+          }
+          return { action: "NOOP", state: this.state, cell: this.focusedCell };
+        } else {
+          // Tap 1 on a different cell: switch focus, keep ring closed
+          this.focusedCell = { r, c };
+          if (this.callbacks.onFocusChange) this.callbacks.onFocusChange(this.focusedCell);
+          if (this.callbacks.onStateChange) this.callbacks.onStateChange(this.state);
+          return { action: "FOCUS", state: this.state, cell: this.focusedCell };
+        }
+      }
+
+      if (this.state === "RADIAL_OPEN") {
+        if (this.focusedCell && this.focusedCell.r === r && this.focusedCell.c === c) {
+          // Tap on currently active cell toggles radial ring closed
+          this.state = "FOCUSED";
+          if (this.callbacks.onCloseRadial) this.callbacks.onCloseRadial();
+          if (this.callbacks.onStateChange) this.callbacks.onStateChange(this.state);
+          return { action: "CLOSE_RADIAL", state: this.state, cell: this.focusedCell };
+        } else {
+          // Tap on a different cell: dismiss radial ring and set focus to new cell
+          this.state = "FOCUSED";
+          this.focusedCell = { r, c };
+          if (this.callbacks.onCloseRadial) this.callbacks.onCloseRadial();
+          if (this.callbacks.onFocusChange) this.callbacks.onFocusChange(this.focusedCell);
+          if (this.callbacks.onStateChange) this.callbacks.onStateChange(this.state);
+          return { action: "FOCUS", state: this.state, cell: this.focusedCell };
+        }
+      }
+
+      return { action: "NOOP", state: this.state, cell: this.focusedCell };
+    }
+
+    handleBackdropTap() {
+      const wasOpen = this.state === "RADIAL_OPEN";
+      const hadFocus = this.focusedCell !== null;
+      this.state = "IDLE";
+      this.focusedCell = null;
+      if (wasOpen && this.callbacks.onCloseRadial) {
+        this.callbacks.onCloseRadial();
+      }
+      if (hadFocus && this.callbacks.onFocusChange) {
+        this.callbacks.onFocusChange(null);
+      }
+      if (this.callbacks.onStateChange) {
+        this.callbacks.onStateChange(this.state);
+      }
+      return { action: "DISMISS_ALL", state: this.state, cell: null };
+    }
+
+    handleDigitCommitted() {
+      const wasOpen = this.state === "RADIAL_OPEN";
+      this.state = "FOCUSED";
+      if (wasOpen && this.callbacks.onCloseRadial) {
+        this.callbacks.onCloseRadial();
+      }
+      if (this.callbacks.onStateChange) {
+        this.callbacks.onStateChange(this.state);
+      }
+      return { action: "COMMIT", state: this.state, cell: this.focusedCell };
+    }
+
+    reset() {
+      const wasOpen = this.state === "RADIAL_OPEN";
+      const hadFocus = this.focusedCell !== null;
+      this.state = "IDLE";
+      this.focusedCell = null;
+      if (wasOpen && this.callbacks.onCloseRadial) {
+        this.callbacks.onCloseRadial();
+      }
+      if (hadFocus && this.callbacks.onFocusChange) {
+        this.callbacks.onFocusChange(null);
+      }
+      if (this.callbacks.onStateChange) {
+        this.callbacks.onStateChange(this.state);
+      }
+    }
+  }
+
+  SudokuEngine.TwoTapStateController = TwoTapStateController;
+  SudokuEngine.getAvailableRadialDigits = getAvailableRadialDigits;
+
   return {
     FastRand,
     SudokuEngine,
-    SUPPORTED_CONFIGURATIONS
+    SUPPORTED_CONFIGURATIONS,
+    TwoTapStateController,
+    getAvailableRadialDigits
   };
 }));

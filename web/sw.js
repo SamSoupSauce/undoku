@@ -3,11 +3,12 @@
  * Enables 100% offline, zero-network gameplay and instant load times.
  */
 
-const CACHE_NAME = "undoku-core-v1.2.0";
+const CACHE_NAME = "undoku-core-v1.2.1";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
   "./engine.js",
+  "./app.js",
   "./manifest.webmanifest",
   "./icons/icon.svg",
   "./icons/icon-192.png",

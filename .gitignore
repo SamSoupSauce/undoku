@@ -34,3 +34,4 @@ render/test_exports/
 .DS_Store
 .idea/
 .vscode/
+.aider*

@@ -25,6 +25,13 @@ describe('Express.js REST API & Database Suite', () => {
     assert.ok(res.text.includes('SudokuEngine'));
   });
 
+  it('GET /app.js should serve client-side app script', async () => {
+    const res = await request(app).get('/app.js');
+    assert.strictEqual(res.status, 200);
+    assert.ok(res.header['content-type'].includes('javascript'));
+    assert.ok(res.text.includes('initCanvases') || res.text.includes('formatTime'));
+  });
+
   it('POST /api/puzzles/generate should generate, evaluate, and save puzzle', async () => {
     const res = await request(app)
       .post('/api/puzzles/generate?difficulty=hard&blanks=42')

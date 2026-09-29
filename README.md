@@ -35,6 +35,7 @@ undoku/
 │   └── test/
 ├── web/               # Web application & canvas interface
 │   ├── index.html
+│   ├── app.js
 │   └── engine.js
 ├── wiki/              # Astro Starlight documentation wiki
 ├── scripts/

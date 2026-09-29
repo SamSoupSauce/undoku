@@ -27,9 +27,13 @@ console.log('📦 Assembling static deployment bundle (site_dist/)...');
 fs.rmSync(siteDistDir, { recursive: true, force: true });
 fs.mkdirSync(siteDistDir, { recursive: true });
 
-// Copy Web App & Bundled Engine
+// Copy Web App & Bundled Engine & App Script
 fs.copyFileSync(path.join(rootDir, 'web', 'index.html'), path.join(siteDistDir, 'index.html'));
 fs.copyFileSync(webEnginePath, path.join(siteDistDir, 'engine.js'));
+const webAppJsPath = path.join(rootDir, 'web', 'app.js');
+if (fs.existsSync(webAppJsPath)) {
+  fs.copyFileSync(webAppJsPath, path.join(siteDistDir, 'app.js'));
+}
 
 // Copy PWA Manifest & Offline Service Worker
 const manifestPath = path.join(rootDir, 'web', 'manifest.webmanifest');
@@ -61,6 +65,9 @@ if (fs.existsSync(androidAssetsDir)) {
   console.log('📱 Syncing Web Bundle to Android assets (android/app/src/main/assets/)...');
   fs.copyFileSync(path.join(rootDir, 'web', 'index.html'), path.join(androidAssetsDir, 'index.html'));
   fs.copyFileSync(webEnginePath, path.join(androidAssetsDir, 'engine.js'));
+  if (fs.existsSync(webAppJsPath)) {
+    fs.copyFileSync(webAppJsPath, path.join(androidAssetsDir, 'app.js'));
+  }
   if (fs.existsSync(manifestPath)) {
     fs.copyFileSync(manifestPath, path.join(androidAssetsDir, 'manifest.webmanifest'));
   }
