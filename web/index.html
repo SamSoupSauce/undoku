@@ -2215,6 +2215,17 @@
       box-shadow: var(--shadow-md);
     }
 
+    .btn-auth-profile {
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-auth-profile.authenticated {
+      color: var(--primary);
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+
     .game-arena {
       width: 100%;
       max-width: 1200px;
@@ -3730,17 +3741,27 @@
       position: fixed;
       top: 0;
       left: 0;
+      right: 0;
+      bottom: 0;
       width: 100vw;
+      width: 100%;
       height: 100vh;
+      height: 100dvh;
+      min-height: -webkit-fill-available;
       background: rgba(15, 23, 42, 0.6);
       backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 1000;
+      z-index: 10000;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
+      padding: calc(1rem + env(safe-area-inset-top, 0px)) 1rem calc(1rem + env(safe-area-inset-bottom, 0px)) 1rem;
+      box-sizing: border-box;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .modal-backdrop.active {
@@ -3756,7 +3777,7 @@
       max-width: 440px;
       width: 90%;
       max-height: 90vh;
-      max-height: 90dvh;
+      max-height: calc(100dvh - 2rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       text-align: center;
@@ -3764,6 +3785,35 @@
       transform: translateY(20px) scale(0.95);
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       position: relative;
+      box-sizing: border-box;
+    }
+
+    @media (max-width: 600px) {
+      .victory-modal {
+        padding: 1.5rem 1.15rem;
+        border-radius: 20px;
+        width: 94%;
+        max-width: 360px;
+      }
+      .victory-badge-icon {
+        font-size: 2.75rem !important;
+        margin-bottom: 0.25rem !important;
+      }
+      .victory-title {
+        font-size: 1.35rem !important;
+        margin-bottom: 0.25rem !important;
+      }
+      .victory-subtitle {
+        font-size: 0.82rem !important;
+        margin-bottom: 1.1rem !important;
+      }
+      .victory-stats-row {
+        padding: 0.65rem 0.4rem !important;
+        margin-bottom: 1.1rem !important;
+      }
+      .win-stat-val {
+        font-size: 1.12rem !important;
+      }
     }
 
     .modal-backdrop.active .victory-modal {
@@ -3987,6 +4037,10 @@
           <option value="quartz_prism">🔮 Prismatic Quartz</option>
         </select>
       </div>
+
+      <button class="btn-header btn-auth-profile" id="btnAuthProfile" title="User Profile / Sign In" aria-label="User Profile">
+        <span id="authHeaderIcon">👤</span><span class="btn-header-text" id="authHeaderText">Sign In</span>
+      </button>
 
       <a href="./wiki/" class="btn-header" title="Documentation">
         <span>📖</span><span class="btn-header-text"> Docs</span>
@@ -4350,6 +4404,7 @@
         <div>
           <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.2rem;">📚 Puzzle Library &amp; Vault</h1>
           <p style="font-size: 0.85rem; color: var(--text-secondary);">Browse saved solves, step-by-step logic proofs, and replay trajectories.</p>
+          <div id="vaultGuestIndicator" style="margin-top: 0.4rem;"></div>
         </div>
         <button class="btn-action" id="btnClearVaultHistory" style="font-size: 0.8rem; padding: 0.45rem 0.75rem;">
           🗑️ Clear Vault
@@ -4428,7 +4483,51 @@
     </div>
   </div>
 
+  <!-- User Profile & Authentication Modal (Task 3 & 4) -->
+  <div class="modal-backdrop" id="authModal">
+    <div class="victory-modal" style="max-width: 420px; text-align: left; padding: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <span style="font-size: 1.8rem;" id="authModalAvatar">👤</span>
+          <div>
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0;" id="authModalTitle">Guest Solver</h3>
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;" id="authModalSubtitle">Anonymous Session</span>
+          </div>
+        </div>
+        <button class="hud-menu-btn" id="btnAuthModalClose" title="Close" style="width: 32px; height: 32px;">✕</button>
+      </div>
 
+      <div id="authGuestView">
+        <div style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 0.85rem; margin-bottom: 1.25rem; font-size: 0.84rem; color: var(--text-secondary); line-height: 1.45;">
+          You are currently playing with an <strong>Anonymous Guest Session</strong>. Your solves, replays, and custom drafts are safely persisted in your local vault.
+          <div style="margin-top: 0.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-muted);" id="authSessionIdDisplay">Session ID: guest_...</div>
+        </div>
+
+        <form id="authLoginForm" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <label style="font-size: 0.82rem; font-weight: 700; color: var(--text-main);">
+            Promote to Named Account / Sign In:
+            <input type="text" id="authUsernameInput" placeholder="Enter your player name..." required maxlength="24"
+              style="width: 100%; box-sizing: border-box; margin-top: 0.35rem; padding: 0.6rem 0.8rem; border-radius: 10px; border: 1.5px solid var(--border-subtle); background: var(--surface-card); color: var(--text-main); font-size: 0.9rem; font-weight: 600;">
+          </label>
+          <button type="submit" class="btn-action primary" style="justify-content: center; padding: 0.7rem; font-weight: 700; margin-top: 0.25rem;">
+            Link / Upgrade Account 🚀
+          </button>
+        </form>
+      </div>
+
+      <div id="authUserView" style="display: none;">
+        <div style="background: var(--surface-subtle); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 0.85rem; margin-bottom: 1.25rem;">
+          <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Authenticated Player</div>
+          <div style="font-size: 1.15rem; font-weight: 800; color: var(--primary); margin: 0.2rem 0;" id="authUserNameDisplay">User</div>
+          <div style="font-size: 0.75rem; color: var(--text-secondary);" id="authUserLinkedDate">Active since ...</div>
+        </div>
+
+        <button class="btn-action danger" id="btnAuthSignOut" style="width: 100%; justify-content: center; padding: 0.65rem; font-weight: 700;">
+          Sign Out (Switch to Guest)
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Step 1: Size & Grid Topology Selection Modal -->
   <div class="modal-backdrop" id="sizeSelectModal">
@@ -5965,6 +6064,7 @@
 
     function triggerVictory(isSolverWin = false) {
       if (timerInterval) clearInterval(timerInterval);
+      closeRadialRing();
       const m = Math.floor(gameTimeSeconds / 60);
       const s = gameTimeSeconds % 60;
       document.getElementById("winStatTime").innerText = `${m < 10 ? "0" + m : m}:${s < 10 ? "0" + s : s}`;
@@ -6292,9 +6392,14 @@
       requestAnimationFrame(mainLoop);
     }
 
-    // --- Event Listeners & Instant Touch Support ---
-    let lastBoardPointerTime = 0;
-    function handleBoardSelect(clientX, clientY) {
+    // --- Event Listeners, Normalized Double-Tap & Mobile Touch Support (Task 1) ---
+    const DOUBLE_TAP_THRESHOLD_MS = 280;
+    let lastBoardTapTime = 0;
+    let lastBoardTapCell = null;
+    let pointerDownStartPos = null;
+    let isTouchPointerActive = false;
+
+    function handleBoardCellInteraction(clientX, clientY, isExplicitDblClick = false) {
       if (isUnsolving) return;
       const rect = boardCanvas.getBoundingClientRect();
       const x = clientX - rect.left;
@@ -6303,32 +6408,73 @@
       const cellSize = rect.width / N;
       const c = Math.floor(x / cellSize);
       const r = Math.floor(y / cellSize);
-      if (r >= 0 && r < N && c >= 0 && c < N) {
-        if (selectedCell && selectedCell.r === r && selectedCell.c === c) {
-          if (isRadialOpen) {
-            closeRadialRing();
-          } else {
-            openRadialRing(r, c);
-          }
-        } else {
+      if (r < 0 || r >= N || c < 0 || c >= N) return;
+
+      const now = Date.now();
+      const isQuickDoubleTap = (
+        lastBoardTapCell &&
+        lastBoardTapCell.r === r &&
+        lastBoardTapCell.c === c &&
+        (now - lastBoardTapTime) < DOUBLE_TAP_THRESHOLD_MS
+      );
+
+      // If radial ring is open on this cell, tapping it immediately toggles it closed
+      if (isRadialOpen && selectedCell && selectedCell.r === r && selectedCell.c === c) {
+        closeRadialRing();
+        lastBoardTapTime = 0;
+        lastBoardTapCell = null;
+        return;
+      }
+
+      if (isExplicitDblClick || isQuickDoubleTap) {
+        selectedCell = { r, c };
+        if (isRadialOpen) {
           closeRadialRing();
-          selectedCell = { r, c };
+        } else {
+          openRadialRing(r, c);
         }
+        lastBoardTapTime = 0;
+        lastBoardTapCell = null;
+      } else {
+        if (selectedCell && (selectedCell.r !== r || selectedCell.c !== c)) {
+          closeRadialRing();
+        }
+        selectedCell = { r, c };
+        lastBoardTapTime = now;
+        lastBoardTapCell = { r, c };
       }
     }
 
     boardCanvas.addEventListener("pointerdown", (e) => {
       if (e.button !== 0 && e.pointerType !== "touch") return;
-      lastBoardPointerTime = Date.now();
-      handleBoardSelect(e.clientX, e.clientY);
+      isTouchPointerActive = (e.pointerType === "touch");
+      pointerDownStartPos = { x: e.clientX, y: e.clientY, time: Date.now() };
     });
 
+    boardCanvas.addEventListener("pointerup", (e) => {
+      if (!pointerDownStartPos) return;
+      const dx = Math.abs(e.clientX - pointerDownStartPos.x);
+      const dy = Math.abs(e.clientY - pointerDownStartPos.y);
+      const dt = Date.now() - pointerDownStartPos.time;
+      pointerDownStartPos = null;
+
+      // Ignore drags/swipes (> 12px) or prolonged presses (> 650ms)
+      if (dx > 12 || dy > 12 || dt > 650) return;
+
+      handleBoardCellInteraction(e.clientX, e.clientY, false);
+    });
+
+    // Native desktop double-click support
+    boardCanvas.addEventListener("dblclick", (e) => {
+      e.preventDefault();
+      handleBoardCellInteraction(e.clientX, e.clientY, true);
+    });
+
+    // Prevent duplicate ghost clicks on mobile touch
     boardCanvas.addEventListener("click", (e) => {
-      if (Date.now() - lastBoardPointerTime < 450) {
+      if (isTouchPointerActive) {
         e.preventDefault();
-        return;
       }
-      handleBoardSelect(e.clientX, e.clientY);
     });
 
     // Close radial ring when tapping outside
@@ -6754,6 +6900,116 @@
       resumeCard.style.display = "flex";
     }
 
+    // ==========================================================================
+    // ANONYMOUS USER SESSION & IDENTITY ARCHITECTURE (Tasks 3 & 4)
+    // ==========================================================================
+    const AUTH_SESSION_STORAGE_KEY = "undoku_auth_session_v1";
+
+    function getOrCreateUserSession() {
+      try {
+        const raw = localStorage.getItem(AUTH_SESSION_STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && parsed.userId) {
+            return parsed;
+          }
+        }
+      } catch (e) {}
+
+      // Fallback: Provision fresh anonymous guest session
+      const guestId = "guest_" + Date.now().toString(36) + "_" + Math.random().toString(36).substring(2, 7);
+      const newSession = {
+        userId: guestId,
+        username: "Guest Solver",
+        avatar: "👤",
+        isAnonymous: true,
+        createdAt: Date.now()
+      };
+      try {
+        localStorage.setItem(AUTH_SESSION_STORAGE_KEY, JSON.stringify(newSession));
+      } catch (e) {}
+      return newSession;
+    }
+
+    function updateUserSession(updates) {
+      const current = getOrCreateUserSession();
+      const updated = { ...current, ...updates };
+      try {
+        localStorage.setItem(AUTH_SESSION_STORAGE_KEY, JSON.stringify(updated));
+      } catch (e) {}
+      renderAuthUI();
+      renderVaultRecords();
+      return updated;
+    }
+
+    function resetToGuestSession() {
+      const guestId = "guest_" + Date.now().toString(36) + "_" + Math.random().toString(36).substring(2, 7);
+      const guestSession = {
+        userId: guestId,
+        username: "Guest Solver",
+        avatar: "👤",
+        isAnonymous: true,
+        createdAt: Date.now()
+      };
+      try {
+        localStorage.setItem(AUTH_SESSION_STORAGE_KEY, JSON.stringify(guestSession));
+      } catch (e) {}
+      renderAuthUI();
+      renderVaultRecords();
+      return guestSession;
+    }
+
+    function renderAuthUI() {
+      const session = getOrCreateUserSession();
+      const btnHeaderIcon = document.getElementById("authHeaderIcon");
+      const btnHeaderText = document.getElementById("authHeaderText");
+      const btnProfile = document.getElementById("btnAuthProfile");
+      const sessionDisplay = document.getElementById("authSessionIdDisplay");
+      const guestView = document.getElementById("authGuestView");
+      const userView = document.getElementById("authUserView");
+      const modalAvatar = document.getElementById("authModalAvatar");
+      const modalTitle = document.getElementById("authModalTitle");
+      const modalSub = document.getElementById("authModalSubtitle");
+      const userNameDisplay = document.getElementById("authUserNameDisplay");
+      const userLinkedDate = document.getElementById("authUserLinkedDate");
+      const vaultGuestBadge = document.getElementById("vaultGuestIndicator");
+
+      if (session.isAnonymous) {
+        if (btnHeaderIcon) btnHeaderIcon.innerText = "👤";
+        if (btnHeaderText) btnHeaderText.innerText = "Sign In";
+        if (btnProfile) {
+          btnProfile.classList.remove("authenticated");
+          btnProfile.title = "Guest Solver (Click to Sign In / Link Account)";
+        }
+        if (sessionDisplay) sessionDisplay.innerText = `Session ID: ${session.userId}`;
+        if (guestView) guestView.style.display = "block";
+        if (userView) userView.style.display = "none";
+        if (modalAvatar) modalAvatar.innerText = "👤";
+        if (modalTitle) modalTitle.innerText = "Guest Solver";
+        if (modalSub) modalSub.innerText = `Anonymous Session (${session.userId})`;
+        if (vaultGuestBadge) {
+          vaultGuestBadge.innerHTML = `<span style="display: inline-flex; align-items: center; gap: 0.35rem; background: var(--surface-subtle); padding: 0.2rem 0.55rem; border-radius: 8px; font-size: 0.75rem; border: 1px solid var(--border-subtle); font-family: 'JetBrains Mono', monospace; color: var(--text-secondary);">👤 ${session.userId} <button type="button" style="background:none; border:none; color: var(--primary); cursor: pointer; font-weight:700; font-size:0.75rem; padding:0;" onclick="document.getElementById('btnAuthProfile').click()">[Sign In]</button></span>`;
+        }
+      } else {
+        if (btnHeaderIcon) btnHeaderIcon.innerText = "⭐";
+        if (btnHeaderText) btnHeaderText.innerText = session.username;
+        if (btnProfile) {
+          btnProfile.classList.add("authenticated");
+          btnProfile.title = `Signed in as ${session.username}`;
+        }
+        if (guestView) guestView.style.display = "none";
+        if (userView) userView.style.display = "block";
+        if (modalAvatar) modalAvatar.innerText = "⭐";
+        if (modalTitle) modalTitle.innerText = session.username;
+        if (modalSub) modalSub.innerText = "Authenticated Player";
+        if (userNameDisplay) userNameDisplay.innerText = session.username;
+        if (userLinkedDate) userLinkedDate.innerText = `Active since ${new Date(session.createdAt).toLocaleDateString()}`;
+        if (vaultGuestBadge) {
+          vaultGuestBadge.innerHTML = `<span style="display: inline-flex; align-items: center; gap: 0.35rem; background: var(--primary-light); color: var(--primary); padding: 0.2rem 0.55rem; border-radius: 8px; font-size: 0.75rem; font-weight: 700;">⭐ ${session.username}</span>`;
+        }
+      }
+    }
+
     // Vault Storage Helper (IndexedDB & localStorage sync)
     function getVaultRecords() {
       try {
@@ -6766,6 +7022,10 @@
 
     function saveVaultRecord(record) {
       try {
+        const session = getOrCreateUserSession();
+        record.userId = record.userId || session.userId;
+        record.userIsAnonymous = session.isAnonymous;
+        record.authorName = record.authorName || session.username;
         const records = getVaultRecords();
         records.unshift(record);
         if (records.length > 50) records.pop(); // Keep 50 recent
@@ -7554,20 +7814,64 @@
         if (bPlayPause) bPlayPause.innerText = "⏸ Pause";
         const b4 = document.getElementById("appModeBadge"); if (b4) b4.innerText = "Replay Mode";
       };
+
+      // 8. Auth & Profile Modal Controls (Task 3 & 4)
+      const bAuthProfile = document.getElementById("btnAuthProfile");
+      const authModal = document.getElementById("authModal");
+      const bAuthClose = document.getElementById("btnAuthModalClose");
+      const authForm = document.getElementById("authLoginForm");
+      const bAuthSignOut = document.getElementById("btnAuthSignOut");
+
+      if (bAuthProfile && authModal) {
+        bAuthProfile.onclick = (e) => {
+          e.stopPropagation();
+          renderAuthUI();
+          authModal.classList.add("active");
+          const input = document.getElementById("authUsernameInput");
+          if (input) setTimeout(() => input.focus(), 80);
+        };
+      }
+
+      if (bAuthClose && authModal) {
+        bAuthClose.onclick = () => {
+          authModal.classList.remove("active");
+        };
+      }
+
+      if (authModal) {
+        authModal.onclick = (e) => {
+          if (e.target === authModal) {
+            authModal.classList.remove("active");
+          }
+        };
+      }
+
+      if (authForm) {
+        authForm.onsubmit = (e) => {
+          e.preventDefault();
+          const input = document.getElementById("authUsernameInput");
+          const name = input ? input.value.trim() : "";
+          if (name) {
+            updateUserSession({ username: name, isAnonymous: false, linkedAt: Date.now() });
+            if (authModal) authModal.classList.remove("active");
+            if (input) input.value = "";
+          }
+        };
+      }
+
+      if (bAuthSignOut) {
+        bAuthSignOut.onclick = () => {
+          resetToGuestSession();
+          if (authModal) authModal.classList.remove("active");
+        };
+      }
     }
-
-
-
-
-
-
-
-
 
     // --- Application Bootloader ---
     window.addEventListener("DOMContentLoaded", () => {
       initCanvases();
       initAllButtonListeners();
+      renderAuthUI();
       
       // Check if arriving via a shared #game= URL
       if (window.location.hash && window.location.hash.startsWith("#game=")) {
