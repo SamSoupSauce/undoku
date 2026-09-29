@@ -3756,8 +3756,9 @@
       justify-content: center;
       z-index: 10000;
       opacity: 0;
+      visibility: hidden;
       pointer-events: none;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
       padding: calc(1rem + env(safe-area-inset-top, 0px)) 1rem calc(1rem + env(safe-area-inset-bottom, 0px)) 1rem;
       box-sizing: border-box;
       overflow-y: auto;
@@ -3766,6 +3767,7 @@
 
     .modal-backdrop.active {
       opacity: 1;
+      visibility: visible;
       pointer-events: auto;
     }
 
@@ -6392,14 +6394,9 @@
       requestAnimationFrame(mainLoop);
     }
 
-    // --- Event Listeners, Normalized Double-Tap & Mobile Touch Support (Task 1) ---
-    const DOUBLE_TAP_THRESHOLD_MS = 280;
-    let lastBoardTapTime = 0;
-    let lastBoardTapCell = null;
-    let pointerDownStartPos = null;
-    let isTouchPointerActive = false;
-
-    function handleBoardCellInteraction(clientX, clientY, isExplicitDblClick = false) {
+    // --- Event Listeners & Instant Touch/Click Support ---
+    let lastBoardPointerTime = 0;
+    function handleBoardSelect(clientX, clientY) {
       if (isUnsolving) return;
       const rect = boardCanvas.getBoundingClientRect();
       const x = clientX - rect.left;
@@ -6408,72 +6405,49 @@
       const cellSize = rect.width / N;
       const c = Math.floor(x / cellSize);
       const r = Math.floor(y / cellSize);
-      if (r < 0 || r >= N || c < 0 || c >= N) return;
-
-      const now = Date.now();
-      const isQuickDoubleTap = (
-        lastBoardTapCell &&
-        lastBoardTapCell.r === r &&
-        lastBoardTapCell.c === c &&
-        (now - lastBoardTapTime) < DOUBLE_TAP_THRESHOLD_MS
-      );
-
-      // If radial ring is open on this cell, tapping it immediately toggles it closed
-      if (isRadialOpen && selectedCell && selectedCell.r === r && selectedCell.c === c) {
-        closeRadialRing();
-        lastBoardTapTime = 0;
-        lastBoardTapCell = null;
-        return;
-      }
-
-      if (isExplicitDblClick || isQuickDoubleTap) {
-        selectedCell = { r, c };
-        if (isRadialOpen) {
-          closeRadialRing();
+      if (r >= 0 && r < N && c >= 0 && c < N) {
+        if (selectedCell && selectedCell.r === r && selectedCell.c === c) {
+          if (isRadialOpen) {
+            closeRadialRing();
+          } else {
+            openRadialRing(r, c);
+          }
         } else {
-          openRadialRing(r, c);
-        }
-        lastBoardTapTime = 0;
-        lastBoardTapCell = null;
-      } else {
-        if (selectedCell && (selectedCell.r !== r || selectedCell.c !== c)) {
           closeRadialRing();
+          selectedCell = { r, c };
         }
-        selectedCell = { r, c };
-        lastBoardTapTime = now;
-        lastBoardTapCell = { r, c };
       }
     }
 
     boardCanvas.addEventListener("pointerdown", (e) => {
       if (e.button !== 0 && e.pointerType !== "touch") return;
-      isTouchPointerActive = (e.pointerType === "touch");
-      pointerDownStartPos = { x: e.clientX, y: e.clientY, time: Date.now() };
+      lastBoardPointerTime = Date.now();
+      handleBoardSelect(e.clientX, e.clientY);
     });
 
-    boardCanvas.addEventListener("pointerup", (e) => {
-      if (!pointerDownStartPos) return;
-      const dx = Math.abs(e.clientX - pointerDownStartPos.x);
-      const dy = Math.abs(e.clientY - pointerDownStartPos.y);
-      const dt = Date.now() - pointerDownStartPos.time;
-      pointerDownStartPos = null;
-
-      // Ignore drags/swipes (> 12px) or prolonged presses (> 650ms)
-      if (dx > 12 || dy > 12 || dt > 650) return;
-
-      handleBoardCellInteraction(e.clientX, e.clientY, false);
+    boardCanvas.addEventListener("click", (e) => {
+      if (Date.now() - lastBoardPointerTime < 450) {
+        e.preventDefault();
+        return;
+      }
+      handleBoardSelect(e.clientX, e.clientY);
     });
 
-    // Native desktop double-click support
+    // Native desktop double-click support: ensure radial ring opens and stays open
     boardCanvas.addEventListener("dblclick", (e) => {
       e.preventDefault();
-      handleBoardCellInteraction(e.clientX, e.clientY, true);
-    });
-
-    // Prevent duplicate ghost clicks on mobile touch
-    boardCanvas.addEventListener("click", (e) => {
-      if (isTouchPointerActive) {
-        e.preventDefault();
+      const rect = boardCanvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const N = currentTopology.N;
+      const cellSize = rect.width / N;
+      const c = Math.floor(x / cellSize);
+      const r = Math.floor(y / cellSize);
+      if (r >= 0 && r < N && c >= 0 && c < N) {
+        selectedCell = { r, c };
+        if (!isRadialOpen) {
+          openRadialRing(r, c);
+        }
       }
     });
 
