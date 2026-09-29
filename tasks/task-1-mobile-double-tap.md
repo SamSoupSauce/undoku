@@ -31,17 +31,13 @@
 ---
 
 ## 2. Minimal-Diff Fix Applied
-1. **Normalized Cell Double-Tap Detector**:
-   - Implemented `handleBoardCellInteraction(clientX, clientY, isExplicitDblClick = false)` with `DOUBLE_TAP_THRESHOLD_MS = 280`.
-   - Rapid double taps (< 280ms) on a cell immediately open the radial dial.
-   - If the radial ring is already open on that cell, tapping it immediately toggles it closed.
-   - Single taps outside the threshold select the cell and cleanly close any open radial dial on other cells.
-2. **Gesture Filtering**:
-   - Bound `pointerdown` and `pointerup` to compute distance deltas (`dx > 12`, `dy > 12`) and duration (`dt > 650ms`) to cleanly ignore scrolling or long presses.
-3. **Desktop Parity**:
-   - Bound `boardCanvas.addEventListener("dblclick", ...)` to directly trigger radial ring opening for desktop mouse users.
-4. **Mobile Zoom Prevention**:
-   - Verified `touch-action: manipulation;` and `touch-action: none;` on `#sudokuCanvas` and interactive components to eliminate mobile browser tap delay and accidental viewport zoom.
+1. **Immediate Pointerdown Selection & Toggle**:
+   - Restored instant `pointerdown` cell selection and radial ring toggling so laptop/desktop mouse clicks and trackpad taps register with zero latency and no dropped clicks.
+   - Preserved `touch-action: manipulation;` on interactive components to disable 300ms tap delay and eliminate double-tap-to-zoom on mobile devices.
+2. **Desktop Double-Click Support**:
+   - Bound native desktop `boardCanvas.addEventListener("dblclick", ...)` to ensure double-clicking an unselected or selected cell opens the radial ring without closing it or dropping events.
+3. **Modal Hit-Testing Protection**:
+   - Added `visibility: hidden;` to `.modal-backdrop` when inactive and `visibility: visible;` when active, ensuring inactive backdrop layers never intercept clicks or mouse events on desktop.
 
 ---
 
