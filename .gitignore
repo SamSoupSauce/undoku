@@ -35,3 +35,5 @@ render/test_exports/
 .idea/
 .vscode/
 .aider*
+*.swp
+
