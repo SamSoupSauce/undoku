@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1f1430"/>
+      <stop offset="100%" stop-color="#0a0510"/>
+    </linearGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#e06c3a"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- App Icon Rounded Backdrop -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="none" stroke="rgba(249, 115, 22, 0.4)" stroke-width="6"/>
+
+  <!-- 3x3 Macro Grid Visual Motif -->
+  <g transform="translate(64, 64)">
+    <!-- Grid Cells Background -->
+    <rect width="384" height="384" rx="36" fill="#140d1f" stroke="#382457" stroke-width="4"/>
+    
+    <!-- Thin Inner Lines -->
+    <line x1="128" y1="0" x2="128" y2="384" stroke="#2a1840" stroke-width="3"/>
+    <line x1="256" y1="0" x2="256" y2="384" stroke="#2a1840" stroke-width="3"/>
+    <line x1="0" y1="128" x2="384" y2="128" stroke="#2a1840" stroke-width="3"/>
+    <line x1="0" y1="256" x2="384" y2="256" stroke="#2a1840" stroke-width="3"/>
+
+    <!-- Highlighted Active Cells -->
+    <rect x="12" y="12" width="104" height="104" rx="20" fill="url(#primaryGrad)" opacity="0.9" filter="url(#glow)"/>
+    <rect x="268" y="12" width="104" height="104" rx="20" fill="#241638"/>
+    <rect x="140" y="140" width="104" height="104" rx="20" fill="url(#accentGrad)" opacity="0.95" filter="url(#glow)"/>
+    <rect x="12" y="268" width="104" height="104" rx="20" fill="#241638"/>
+    <rect x="268" y="268" width="104" height="104" rx="20" fill="url(#primaryGrad)" opacity="0.9" filter="url(#glow)"/>
+
+    <!-- Glyphs / Numbers -->
+    <text x="64" y="74" font-family="-apple-system, BlinkMacSystemFont, Outfit, sans-serif" font-weight="900" font-size="64" fill="#ffffff" text-anchor="middle" dominant-baseline="central">9</text>
+    <text x="192" y="202" font-family="-apple-system, BlinkMacSystemFont, Outfit, sans-serif" font-weight="900" font-size="64" fill="#ffffff" text-anchor="middle" dominant-baseline="central">🧩</text>
+    <text x="320" y="330" font-family="-apple-system, BlinkMacSystemFont, Outfit, sans-serif" font-weight="900" font-size="64" fill="#ffffff" text-anchor="middle" dominant-baseline="central">3</text>
+    <text x="320" y="74" font-family="-apple-system, BlinkMacSystemFont, Outfit, sans-serif" font-weight="800" font-size="52" fill="#786c5c" text-anchor="middle" dominant-baseline="central">7</text>
+    <text x="64" y="330" font-family="-apple-system, BlinkMacSystemFont, Outfit, sans-serif" font-weight="800" font-size="52" fill="#786c5c" text-anchor="middle" dominant-baseline="central">1</text>
+  </g>
+</svg>

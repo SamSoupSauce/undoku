@@ -1,0 +1,33 @@
+{
+  "name": "Undoku 🧩 — Pure Cognitive Sudoku",
+  "short_name": "Undoku",
+  "description": "Zero-dependency deterministic Sudoku engine with granular cognitive analytics.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf7f2",
+  "theme_color": "#e06c3a",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": [
+    "games",
+    "puzzle"
+  ]
+}
